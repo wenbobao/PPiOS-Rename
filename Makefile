@@ -8,11 +8,13 @@ Pods Podfile.lock: Podfile
 	pod install
 
 ios-class-guard: Pods
-	xcodebuild \
+	xctool \
 		-workspace ios-class-guard.xcworkspace \
 		-scheme ios-class-guard \
 		-configuration Release \
 		-derivedDataPath build \
+		-reporter plain \
+		-reporter junit:build/unit-test-report.xml \
 		clean build test
 
 .PHONY: clean
