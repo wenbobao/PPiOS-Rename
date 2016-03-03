@@ -123,15 +123,6 @@ SPEC_BEGIN(CDXibStoryboardParserSpec)
                 [[theValue(range.location) shouldNot] equal:theValue(NSNotFound)];
             });
 
-            it(@"should generate symbol for outlet", ^{
-                NSData *obfuscatedData = [parser obfuscatedXmlData:[NSData dataWithContentsOfURL:fileUrl] symbols:symbols];
-                NSString *resultString = [[NSString alloc] initWithData:obfuscatedData encoding:NSUTF8StringEncoding];
-
-                NSRange range = [resultString rangeOfString:obfuscatedOutlet];
-
-                [[theValue(range.location) shouldNot] equal:theValue(NSNotFound)];
-            });
-
             it(@"should generate symbol for action", ^{
                 NSData *obfuscatedData = [parser obfuscatedXmlData:[NSData dataWithContentsOfURL:fileUrl] symbols:symbols];
                 NSString *resultString = [[NSString alloc] initWithData:obfuscatedData encoding:NSUTF8StringEncoding];
