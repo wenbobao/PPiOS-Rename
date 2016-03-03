@@ -104,7 +104,6 @@
 		386530C9F8B315493A52117F /* Main_iPhone_storyboard.txt in Resources */ = {isa = PBXBuildFile; fileRef = 38653E984667C6F15F7B56E0 /* Main_iPhone_storyboard.txt */; };
 		38653154389A509D361F7270 /* CDXibStoryboardParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 3865337A461890DF05AC46A6 /* CDXibStoryboardParser.m */; };
 		38653247D923811967368147 /* CustomCellTableViewCell_xib.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3865383609890719919F2183 /* CustomCellTableViewCell_xib.txt */; };
-		386532E5153ADB7B96C68163 /* CDCoreDataModelParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 38653D77701E59BBF885FBDE /* CDCoreDataModelParser.h */; };
 		386534A6D09F073EE4DE26D9 /* CDSymbolsMapperSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 3865380C2F57EBDECDBA0C4D /* CDSymbolsMapperSpec.m */; };
 		386535BC366D39D3E3AA06DD /* CDPodsFileProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 38653B78A063EFBEBF01976B /* CDPodsFileProcessor.m */; };
 		386535D51FC5E6A26DA0CF73 /* CDPbxProjectProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 38653D4E701206F58BCF2067 /* CDPbxProjectProcessor.m */; };
@@ -393,7 +392,6 @@
 		38653B78A063EFBEBF01976B /* CDPodsFileProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDPodsFileProcessor.m; sourceTree = "<group>"; };
 		38653C7555270BE430941E2B /* CDPbxProjectProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDPbxProjectProcessor.h; sourceTree = "<group>"; };
 		38653D4E701206F58BCF2067 /* CDPbxProjectProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDPbxProjectProcessor.m; sourceTree = "<group>"; };
-		38653D77701E59BBF885FBDE /* CDCoreDataModelParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDCoreDataModelParser.h; sourceTree = "<group>"; };
 		38653E065CFA1710C3829B18 /* CDSymbolsGeneratorVisitor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDSymbolsGeneratorVisitor.m; path = Source/CDSymbolsGeneratorVisitor.m; sourceTree = "<group>"; };
 		38653E984667C6F15F7B56E0 /* Main_iPhone_storyboard.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Main_iPhone_storyboard.txt; sourceTree = "<group>"; };
 		38653FE32A2E2A4644B0556E /* podsProject.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; path = podsProject.json; sourceTree = "<group>"; };
@@ -894,7 +892,6 @@
 			children = (
 				3865375BADCC7B605A7911C4 /* CDXibStoryboardParser.h */,
 				3865337A461890DF05AC46A6 /* CDXibStoryboardParser.m */,
-				38653D77701E59BBF885FBDE /* CDCoreDataModelParser.h */,
 				95E3D89B1C88D21700CF28E2 /* CDCoreDataModelParser.h */,
 				95E3D89C1C88D21700CF28E2 /* CDCoreDataModelParser.m */,
 				95E3D89D1C88D21800CF28E2 /* CDCoreDataModelProcessor.h */,
@@ -962,7 +959,6 @@
 				C270B5C816C54B0C006CA75D /* ULEB128.h in Headers */,
 				3865377A5684612B7E682F4E /* CDXibStoryboardParser.h in Headers */,
 				6772E06D197FF624004CF475 /* GDataXMLNode.h in Headers */,
-				386532E5153ADB7B96C68163 /* CDCoreDataModelParser.h in Headers */,
 				38653CCEE0A8426D8A432A2B /* CDSymbolsGeneratorVisitor.h in Headers */,
 				38653C9C210BA3DEECC2C6F9 /* CDPbxProjectProcessor.h in Headers */,
 				386536D2F4B20F1E339044E0 /* CDPbxProjectParser.h in Headers */,
