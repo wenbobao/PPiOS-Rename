@@ -1,5 +1,8 @@
 xcuserdata
 *.xcarchive/
 .idea
-Pods/BuildHeaders
 build
+
+#ignore cocoapod files
+Pods
+ios-class-guard.xcworkspace
