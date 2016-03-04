@@ -28,7 +28,7 @@ The utility works on the compiled version of an application. It reads the Object
 
 iOS Class Guard also provides support for obfuscating CocoaPods libraries. When you provide paths to Pods the project utility automatically goes through all listed targets and finds .xcconfig files and precompiled header paths to be modified. Then it adds the previously generated header to library .pch header and updates the header search path in .xcconfig file for a target.
 
-iOS Class Guard also generates symbol mapping in a JSON format. It’s needed for reversing the process when e.g. you get a crash report. It is important to note that iOS Class Guard does not obfuscate system symbols, so if some of the methods/properties have the same name in a custom class they won’t be obfuscated.
+iOS Class Guard also generates symbol mapping in a JSON format. It's needed for reversing the process when e.g. you get a crash report. It is important to note that iOS Class Guard does not obfuscate system symbols, so if some of the methods/properties have the same name in a custom class they won't be obfuscated.
 
 Example generated symbols header:
 ``` C
@@ -156,7 +156,7 @@ iOS Code Style assumes that every class is prefixed with a two-or-three-symbol i
 This will filter out any class in namespace *APH* and *MC*.
 
 ### Ignored symbols
-It may happen that some symbols get obfuscated even though they shouldn’t, e.g. if you use C method and name Objective-C method using the same name. It will lead to a linker error (*unresolved external*). You have to find what symbol is it and add it to the list of ignored symbols.
+It may happen that some symbols get obfuscated even though they shouldn't, e.g. if you use C method and name Objective-C method using the same name. It will lead to a linker error (*unresolved external*). You have to find what symbol is it and add it to the list of ignored symbols.
 
 #### Example
 ```
@@ -165,7 +165,7 @@ It may happen that some symbols get obfuscated even though they shouldn’t, e.g
 This will not obfuscate symbols named *deflate* and symbols that start with *curl_\**.
 
 ### CocoaPods
-If you’re using CocoaPods in your project you can also obfuscate symbols inside external libraries. The only thing you need is to specify path to Pods PBX project file. It’s located inside the .xcodeproj directory. Utility will modify configurations and precompiled headers so that they’re also obfuscated.
+If you're using CocoaPods in your project you can also obfuscate symbols inside external libraries. The only thing you need is to specify path to Pods PBX project file. It's located inside the .xcodeproj directory. Utility will modify configurations and precompiled headers so that they're also obfuscated.
 
 #### Example
 ```
@@ -183,7 +183,7 @@ This is optional argument. By default utility searches for all XIB/Storyboard fi
 ```
 
 #### Symbol mapping file
-You can provide the path where utility will save symbol mapping. By default it’s symbols.json.
+You can provide the path where utility will save symbol mapping. By default it is named symbols.json.
 
 #####
 ```
@@ -191,7 +191,7 @@ You can provide the path where utility will save symbol mapping. By default it�
 ```
 
 #### Reversing obfuscation in crash dump
-iOS Class Guard lets you reverse the process of obfuscation. It might come in handy when you get a crash report from a user and you’re trying to find the reason. You can provide a path to a file with crash dump or a file with the output of ```atos``` command. Symbols in the file which was provided will be replaced using the symbol mapping file. The result will be saved in the same file.
+iOS Class Guard lets you reverse the process of obfuscation. It might come in handy when you get a crash report from a user and you're trying to find the reason. You can provide a path to a file with crash dump or a file with the output of ```atos``` command. Symbols in the file which was provided will be replaced using the symbol mapping file. The result will be saved in the same file.
 
 ##### Example
 ```
@@ -221,7 +221,7 @@ Limitations
 Due to the way iOS Class Guard works you should be aware of two main limitations of that approach.
 
 ### XIB and Storyboards
-*ios-class-guard* works pretty well with XIB and Storyboard files, but if you’re using external libraries which provide their bundle with Interface Builder files be sure to ignore those symbols, as they won’t work when you launch the app and try to use them. You can do that using *Class filter*.
+*ios-class-guard* works pretty well with XIB and Storyboard files, but if you're using external libraries which provide their bundle with Interface Builder files be sure to ignore those symbols, as they won't work when you launch the app and try to use them. You can do that using *Class filter*.
 
 ### Key-Value Observing (KVO)
 It is possible that during obfuscation KVO will stop working. Most developers use hardcoded strings to specify *KeyPath*.
@@ -283,7 +283,7 @@ Remove any *keyPath* and change it to ```NSStringFromSelector(@selector(keyPath)
 ```
 
 ### Serialization
-If you use classes that are saved to the disk or user defaults using `NSCoding` protocol you’ll have to exclude them from obfuscation. If you don’t, after generating symbols again your app will start crashing as it won’t be able to read that class from serialized data.
+If you use classes that are saved to the disk or user defaults using `NSCoding` protocol you'll have to exclude them from obfuscation. If you don't, after generating symbols again your app will start crashing as it won't be able to read that class from serialized data.
 
 ### Undefined symbols
 When using `iOS-Class-Guard` it is more than probable that you will encounter issues similar to this:
@@ -315,11 +315,9 @@ Contact us at [ios-class-guard@polidea.com](mailto:ios-class-guard@polidea.com) 
 
 License
 ----
-This file is part of ios-class-guard, a utility for obfuscating the Objective-C applications. Copyright (C) 2014 Polidea.
-The application is made as an extension for class-dump, a utility for examining the Objective-C segment of Mach-O files. Copyright (C) 1997-1998, 2000-2001, 2004-2013 Steve Nygard.
 
-This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+This product is licensed under the GNU GPL v2. Please see LICENSE.txt for details.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+Commercial support for this product is available from PreEmptive Solutions, LLC,
+with a commercial support agreement. Please
+[contact us](https://www.preemptive.com/contact/contactus) for details.
