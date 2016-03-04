@@ -406,8 +406,6 @@
 		95E3D89C1C88D21700CF28E2 /* CDCoreDataModelParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDCoreDataModelParser.m; path = Source/CDCoreDataModelParser.m; sourceTree = "<group>"; };
 		95E3D89D1C88D21800CF28E2 /* CDCoreDataModelProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDCoreDataModelProcessor.h; path = Source/CDCoreDataModelProcessor.h; sourceTree = "<group>"; };
 		95E3D89E1C88D21800CF28E2 /* CDCoreDataModelProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDCoreDataModelProcessor.m; path = Source/CDCoreDataModelProcessor.m; sourceTree = "<group>"; };
-		95E3D8A31C88D28C00CF28E2 /* formatType-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "formatType-Prefix.pch"; path = "../ios-class-guard-example/ios-class-guard/formatType/formatType-Prefix.pch"; sourceTree = "<group>"; };
-		95E3D8A41C88D28C00CF28E2 /* formatType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = formatType.m; path = "../ios-class-guard-example/ios-class-guard/formatType/formatType.m"; sourceTree = "<group>"; };
 		95E3D8A91C89F31A00CF28E2 /* MachObjC-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "MachObjC-Prefix.pch"; path = "Source/MachObjC-Prefix.pch"; sourceTree = "<group>"; };
 		95E3D8AB1C89F34800CF28E2 /* deprotect-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "deprotect-Prefix.pch"; path = "Source/deprotect-Prefix.pch"; sourceTree = "<group>"; };
 		95E3D8AC1C89F34800CF28E2 /* deprotect.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = deprotect.m; path = Source/deprotect.m; sourceTree = "<group>"; };
@@ -553,18 +551,6 @@
 			name = Cursor;
 			sourceTree = "<group>";
 		};
-		01B02D0213A5B0DC0047BC53 /* formatType */ = {
-			isa = PBXGroup;
-			children = (
-				95E3D8A31C88D28C00CF28E2 /* formatType-Prefix.pch */,
-				95E3D8A41C88D28C00CF28E2 /* formatType.m */,
-			);
-			indentWidth = 4;
-			name = formatType;
-			sourceTree = "<group>";
-			tabWidth = 4;
-			usesTabs = 0;
-		};
 		01EB825413A590D9003EDE60 = {
 			isa = PBXGroup;
 			children = (
@@ -572,7 +558,6 @@
 				01EB828013A5916D003EDE60 /* MachObjC */,
 				01EB826513A590D9003EDE60 /* class-dump */,
 				013D1EFE13A5A0F100BF0A67 /* deprotect */,
-				01B02D0213A5B0DC0047BC53 /* formatType */,
 				0165B8B41827137D00CC647F /* UnitTests */,
 				01EB826213A590D9003EDE60 /* Frameworks */,
 				01EB826013A590D9003EDE60 /* Products */,
