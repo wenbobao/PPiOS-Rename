@@ -26,7 +26,8 @@ NSString *defaultSymbolMappingPath = @"symbols.json";
 void print_usage(void)
 {
     fprintf(stderr,
-            "ios-class-guard %s\n"
+            "PreEmptive Protection for iOS - Class Guard, version %s\n"
+            "\n"
             "Usage: ios-class-guard [options] <mach-o-file>\n"
             "\n"
             "  where options are:\n"
@@ -315,7 +316,7 @@ int main(int argc, char *argv[])
         }
 
         if (shouldPrintVersion) {
-            printf("ios-class-guard %s compiled %s\n", CLASS_DUMP_VERSION, __DATE__ " " __TIME__);
+            printf("PreEmptive Protection for iOS - Class Guard, version %s\n", CLASS_DUMP_VERSION);
             exit(0);
         }
 

@@ -5,13 +5,7 @@
 
 #import "CDFile.h" // For CDArch
 
-#define CLASS_DUMP_BASE_VERSION "1.0 (64 bit) [based on class-dump 3.5]"
-
-#ifdef DEBUG
-#define CLASS_DUMP_VERSION CLASS_DUMP_BASE_VERSION " (Debug version compiled " __DATE__ " " __TIME__ ")"
-#else
-#define CLASS_DUMP_VERSION CLASS_DUMP_BASE_VERSION
-#endif
+#define CLASS_DUMP_VERSION "1.0.0"
 
 @class CDFile;
 @class CDTypeController;
