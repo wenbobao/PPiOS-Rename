@@ -11,9 +11,9 @@ GIT_HASH=$(shell $(GIT_HASH_CHECK) && $(GIT_CMD) | sed 's,^,-,')
 BUILD_NUMBER_CHECK=! test -z "$${BUILD_NUMBER}"
 BUILD_NUMBER=$(shell $(BUILD_NUMBER_CHECK) && echo $${BUILD_NUMBER} | sed 's,^,-,')
 DIST_DIR=$(PROJECT_NAME)-$(VERSION)
-DIST_NAME=$(DIST_DIR)$(GIT_HASH)$(BUILD_NUMBER)
-ARCHIVE_DIR=$(DIST_NAME).archive
-DIST_PACKAGE=$(ARCHIVE_DIR)/$(DIST_NAME).tgz
+FULL_VERSION=$(VERSION)$(GIT_HASH)$(BUILD_NUMBER)
+ARCHIVE_DIR=$(FULL_VERSION)
+DIST_PACKAGE=$(ARCHIVE_DIR)/$(PROJECT_NAME)-$(FULL_VERSION).tgz
 
 .PHONY: default
 default: all
@@ -63,4 +63,4 @@ clean:
 
 .PHONY: distclean
 distclean: clean
-	$(RM) -r $(DIST_DIR)*
+	$(RM) -r $(DIST_DIR)* $(VERSION)*
