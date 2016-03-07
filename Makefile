@@ -1,29 +1,45 @@
 # Copyright 2016 PreEmptive Solutions, LLC
 DISTDIR=PPiOS-CG-v1.0.0
+BUILDDIR=build
+PROGRAM=$(BUILDDIR)/Build/Products/Release/ios-class-guard
+DISTPACKAGE=$(DISTDIR).tgz
 
 .PHONY: default
 default: all
 
 .PHONY: all
-all: Pods ios-class-guard
+all: Pods $(PROGRAM)
+
+.PHONY: dist
+dist: $(DISTPACKAGE)
 
 Pods Podfile.lock: Podfile
 	pod install
 
-ios-class-guard: Pods
+$(PROGRAM): Pods
 	xctool \
 		-workspace ios-class-guard.xcworkspace \
 		-scheme ios-class-guard \
 		-configuration Release \
-		-derivedDataPath build \
+		-derivedDataPath $(BUILDDIR) \
 		-reporter plain \
-		-reporter junit:build/unit-test-report.xml \
+		-reporter junit:$(BUILDDIR)/unit-test-report.xml \
 		clean build test
 
-.PHONY: dist
-dist: ios-class-guard
-	$(MKDIR) $(DISTDIR)
+$(DISTPACKAGE): distclean $(PROGRAM)
+	mkdir -p $(DISTDIR)
+	cp $(PROGRAM) \
+		README.md \
+		LICENSE.txt \
+		ThirdPartyLicenses.txt \
+		CHANGELOG.md \
+		$(DISTDIR)
+	tar -cvpzf $@ --options gzip:compression-level=9 $(DISTDIR)
 
 .PHONY: clean
 clean:
 	$(RM) -r build Pods
+
+.PHONY: distclean
+distclean: clean
+	$(RM) -r $(DISTDIR) $(DISTPACKAGE)
