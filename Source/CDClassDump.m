@@ -39,6 +39,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     BOOL _shouldShowIvarOffsets;
     BOOL _shouldShowMethodAddresses;
     BOOL _shouldShowHeader;
+    BOOL _shouldOnlyAnalyze;
     
     NSRegularExpression *_regularExpression;
     
@@ -71,6 +72,8 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
         _shouldShowHeader = YES;
 
         _maxRecursiveDepth = INT_MAX;
+        _shouldOnlyAnalyze = NO;
+        
     }
 
     return self;

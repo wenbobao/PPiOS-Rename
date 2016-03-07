@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
                 { "sdk-mac",                 required_argument, NULL, CD_OPT_SDK_MAC },
                 { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
                 { "hide",                    required_argument, NULL, CD_OPT_HIDE },
+                { "analyze",                 no_argument,       NULL, 'z' },
                 { NULL,                      0,                 NULL, 0 },
         };
 
@@ -302,7 +303,10 @@ int main(int argc, char *argv[])
                 case 't':
                     classDump.shouldShowHeader = NO;
                     break;
-
+                case 'z':
+                    //do analysis
+                    classDump.shouldOnlyAnalyze = YES;
+                    break;
                 case '?':
                 default:
                     errorFlag = YES;
@@ -419,16 +423,16 @@ int main(int argc, char *argv[])
                         visitor.ignoreSymbols = ignoreSymbols;
                         visitor.symbolsFilePath = symbolsPath;
                         [classDump recursivelyVisit:visitor];
+                        if(!classDump.shouldOnlyAnalyze){
+                            CDXibStoryBoardProcessor *processor = [[CDXibStoryBoardProcessor alloc] init];
+                            processor.xibBaseDirectory = xibBaseDirectory;
+                            [processor obfuscateFilesUsingSymbols:visitor.symbols];
 
-                        CDXibStoryBoardProcessor *processor = [[CDXibStoryBoardProcessor alloc] init];
-                        processor.xibBaseDirectory = xibBaseDirectory;
-                        [processor obfuscateFilesUsingSymbols:visitor.symbols];
-
-                        if (podsPath) {
-                            CDPbxProjectProcessor *projectProcessor = [[CDPbxProjectProcessor alloc] init];
-                            [projectProcessor processPodsProjectAtPath:podsPath symbolsFilePath:symbolsPath];
+                            if (podsPath) {
+                                CDPbxProjectProcessor *projectProcessor = [[CDPbxProjectProcessor alloc] init];
+                                [projectProcessor processPodsProjectAtPath:podsPath symbolsFilePath:symbolsPath];
+                            }
                         }
-
                         CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
                         [mapper writeSymbolsFromSymbolsVisitor:visitor toFile:symbolMappingPath];
                     } else if (shouldGenerateSeparateHeaders) {

@@ -6,3 +6,4 @@ build
 #ignore cocoapod files
 Pods
 ios-class-guard.xcworkspace
+DerivedData
