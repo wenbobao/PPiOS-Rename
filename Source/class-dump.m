@@ -47,6 +47,7 @@ void print_usage(void)
             "        -c <path>         path to symbolicated crash dump\n"
             "        --dsym <path>     path to dSym file to translate\n"
             "        --dsym-out <path> path to dSym file to translate\n"
+            "        --analyze         Only analyze files and generate a symbol map\n"
             ,
             CLASS_DUMP_VERSION
     );
@@ -421,7 +422,11 @@ int main(int argc, char *argv[])
                         visitor.classDump = classDump;
                         visitor.classFilter = classFilter;
                         visitor.ignoreSymbols = ignoreSymbols;
-                        visitor.symbolsFilePath = symbolsPath;
+                        if(classDump.shouldOnlyAnalyze){
+                            visitor.symbolsFilePath = NULL;
+                        }else{
+                            visitor.symbolsFilePath = symbolsPath;
+                        }
                         [classDump recursivelyVisit:visitor];
                         if(!classDump.shouldOnlyAnalyze){
                             CDXibStoryBoardProcessor *processor = [[CDXibStoryBoardProcessor alloc] init];

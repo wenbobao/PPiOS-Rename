@@ -149,9 +149,11 @@ static NSString *const lettersSet[maxLettersSet] = {
     }
     [_resultString appendFormat:@"\r\n"];
 
-    NSData *data = [_resultString dataUsingEncoding:NSUTF8StringEncoding];
-    [data writeToFile:self.symbolsFilePath atomically:YES];
-
+    //todo don't generate resultString unnecessarily when adding in the --obfuscate phase support
+    if(self.symbolsFilePath != NULL){
+        NSData *data = [_resultString dataUsingEncoding:NSUTF8StringEncoding];
+        [data writeToFile:self.symbolsFilePath atomically:YES];
+    }
     NSLog(@"Done generating symbol table.");
     NSLog(@"Generated unique symbols = %zd", _uniqueSymbols.count);
 }
