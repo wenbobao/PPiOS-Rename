@@ -1,4 +1,5 @@
 # Copyright 2016 PreEmptive Solutions, LLC
+DISTDIR=PPiOS-CG-v1.0.0
 
 .PHONY: default
 default: all
@@ -18,6 +19,10 @@ ios-class-guard: Pods
 		-reporter plain \
 		-reporter junit:build/unit-test-report.xml \
 		clean build test
+
+.PHONY: dist
+dist: ios-class-guard
+	$(MKDIR) $(DISTDIR)
 
 .PHONY: clean
 clean:

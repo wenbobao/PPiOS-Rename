@@ -1,6 +1,10 @@
-﻿PreEmptive Protection for iOS - Class Guard is for obfuscation of
-iOS applications written in Objective-C.  This project is licensed under
-the GNU GPL v2, included below.
+﻿This project is licensed under the GNU GPL v2, included below.
+Additional license terms and copyright notices are described in the
+ThirdPartyLicenses file accompanying the Software; in addition to any
+terms and conditions of any such file, the disclaimer of warranty and
+limitation and exclusion of damages provisions shall apply to all
+software in this distribution.
+
 
 Copyright 2016 PreEmptive Solutions, LLC
 
@@ -21,6 +25,11 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+The source for this project can be obtained by contacting us, or by
+download at:
+
+    https://github.com/preemptive/ios-class-guard
+
 We can be contacted by electronically at:
 
     solutions@preemptive.com
@@ -35,16 +44,6 @@ We can be contacted by paper mail at:
 Commercial support for this product is available from PreEmptive
 Solutions, LLC, with a commercial support agreement. Please contact us
 at https://www.preemptive.com/contact/contactus for details.
-
-
-GData
------
-
-Copyright (c) 2011 Simon Grätzer simon@graetzer.org
-Copyright (c) 2008 Google Inc.
-
-GData is licensed under the Apache v2 license. This license can be found
-in this distribution at External/GData/LICENSE-2.0.
 
 
 GNU GPL v2 LICENSE
