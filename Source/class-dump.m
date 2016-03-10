@@ -412,8 +412,12 @@ int main(int argc, char *argv[])
                         visitor.searchString = searchString;
                         [classDump recursivelyVisit:visitor];
                     } else if (generateSymbolsTable) {
-                        if (symbolsPath == nil) {
+                        if (symbolsPath == nil && !classDump.shouldOnlyAnalyze) {
                             printf("Please specify symbols file path\n");
+                            print_usage();
+                            exit(3);
+                        }else if(symbolsPath != nil && classDump.shouldOnlyAnalyze) {
+                            printf("Do not specify the symbols file path when using --analyze\n");
                             print_usage();
                             exit(3);
                         }
@@ -422,11 +426,8 @@ int main(int argc, char *argv[])
                         visitor.classDump = classDump;
                         visitor.classFilter = classFilter;
                         visitor.ignoreSymbols = ignoreSymbols;
-                        if(classDump.shouldOnlyAnalyze){
-                            visitor.symbolsFilePath = NULL;
-                        }else{
-                            visitor.symbolsFilePath = symbolsPath;
-                        }
+                        visitor.symbolsFilePath = symbolsPath;
+                        
                         [classDump recursivelyVisit:visitor];
                         if(!classDump.shouldOnlyAnalyze){
                             CDXibStoryBoardProcessor *processor = [[CDXibStoryBoardProcessor alloc] init];
