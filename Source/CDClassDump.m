@@ -17,6 +17,9 @@
 #import "CDLCSegment.h"
 #import "CDTypeController.h"
 #import "CDSearchPathState.h"
+#import "CDXibStoryBoardProcessor.h"
+#import "CDPbxProjectProcessor.h"
+#import "CDSymbolsGeneratorVisitor.h"
 
 NSString *CDErrorDomain_ClassDump = @"CDErrorDomain_ClassDump";
 
@@ -40,6 +43,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     BOOL _shouldShowMethodAddresses;
     BOOL _shouldShowHeader;
     BOOL _shouldOnlyAnalyze;
+    BOOL _shouldOnlyObfuscate;
     
     NSRegularExpression *_regularExpression;
     
@@ -73,7 +77,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 
         _maxRecursiveDepth = INT_MAX;
         _shouldOnlyAnalyze = NO;
-        
+        _shouldOnlyObfuscate = NO;
     }
 
     return self;
@@ -301,6 +305,52 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     if ([self.machOFiles count] > 0) {
         [[[self.machOFiles lastObject] loadCommandString:YES] print];
     }
+}
+
+- (int)obfuscateSourcesUsingMap:(NSString *)symbolsPath
+              symbolsHeaderFile:(NSString *)symbolsHeaderFile
+               workingDirectory:(NSString *)workingDirectory
+                   xibDirectory:(NSString *)xibDirectory
+                  podsDirectory:(NSString *)podsDirectory
+{
+    NSData * symbolsData = [NSData dataWithContentsOfFile:symbolsPath];
+    if (symbolsData == nil) {
+        NSLog(@"Warning: Could not read from: %@", symbolsPath);
+        return 1;
+    }
+
+    NSError * error = nil;
+    NSDictionary * invertedSymbols = [NSJSONSerialization JSONObjectWithData:symbolsData
+                                                                     options:0
+                                                                       error:&error];
+    if (invertedSymbols == nil) {
+        NSLog(@"Warning: Could not load symbols data from: %@", symbolsPath);
+        return 1;
+    }
+
+    NSMutableDictionary * symbols = [NSMutableDictionary dictionary];
+    for (NSString * key in invertedSymbols.allKeys) {
+        symbols[invertedSymbols[key]] = key;
+    }
+    
+    // write out the header file
+    if (symbolsHeaderFile == nil) {
+        symbolsHeaderFile = [workingDirectory stringByAppendingString:@"/symbols.h"];
+    }
+    [CDSymbolsGeneratorVisitor writeSymbols:symbols symbolsHeaderFile:symbolsHeaderFile];
+    
+    // apply renaming to the xib and storyboard files
+    CDXibStoryBoardProcessor * processor = [CDXibStoryBoardProcessor new];
+    processor.xibBaseDirectory = xibDirectory;
+    [processor obfuscateFilesUsingSymbols:symbols];
+    
+    // apply renaming to the Pods
+    if (podsDirectory) {
+        CDPbxProjectProcessor * projectProcessor = [CDPbxProjectProcessor new];
+        [projectProcessor processPodsProjectAtPath:podsDirectory symbolsFilePath:symbolsPath];
+    }
+
+    return 0;
 }
 
 @end

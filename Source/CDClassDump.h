@@ -26,6 +26,7 @@
 @property (assign) int maxRecursiveDepth;
 @property (assign) BOOL shouldIterateInReverse;
 @property BOOL shouldOnlyAnalyze;
+@property BOOL shouldOnlyObfuscate;
 @property (copy, nonatomic) NSArray *forceRecursiveAnalyze;
 
 @property (strong) NSRegularExpression *regularExpression;
@@ -55,6 +56,12 @@
 
 - (void)showHeader;
 - (void)showLoadCommands;
+
+- (int)obfuscateSourcesUsingMap:(NSString *)symbolsPath
+              symbolsHeaderFile:(NSString *)symbolsHeaderFile
+               workingDirectory:(NSString *)workingDirectory
+                   xibDirectory:(NSString *)xibDirectory
+                  podsDirectory:(NSString *)podsDirectory;
 
 @end
 

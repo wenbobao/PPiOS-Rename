@@ -28,8 +28,15 @@ void print_usage(void)
     fprintf(stderr,
             "PreEmptive Protection for iOS - Class Guard, version %s\n"
             "\n"
-            "Usage: ios-class-guard [options] <mach-o-file>\n"
+            "Usage:\n"
+            "  ios-class-guard --analyze [options] <mach-o-file>\n"
+            "  ios-class-guard --obfuscate-sources [options] <symbol-file.json>\n"
             "\n"
+            "  modes of operation:\n"
+            "        --analyze         Only analyze files and generate a symbol map\n"
+            "        --obfuscate-sources\n"
+            "                          Only obfuscate sources based on the symbol map\n"
+            ""
             "  where options are:\n"
             "        -F <class>        specify class filter for symbols obfuscator (also protocol))\n"
             "        -i <symbol>       ignore obfuscation of specific symbol)\n"
@@ -47,7 +54,6 @@ void print_usage(void)
             "        -c <path>         path to symbolicated crash dump\n"
             "        --dsym <path>     path to dSym file to translate\n"
             "        --dsym-out <path> path to dSym file to translate\n"
-            "        --analyze         Only analyze files and generate a symbol map\n"
             ,
             CLASS_DUMP_VERSION
     );
@@ -62,6 +68,9 @@ void print_usage(void)
 #define CD_OPT_HIDE        7
 #define CD_OPT_DSYM        8
 #define CD_OPT_DSYM_OUT    9
+
+#define PPIOS_CG_OPT_ANALYZE ((int)'z')
+#define PPIOS_CG_OPT_OBFUSCATE ((int)'y')
 
 
 int main(int argc, char *argv[])
@@ -118,7 +127,8 @@ int main(int argc, char *argv[])
                 { "sdk-mac",                 required_argument, NULL, CD_OPT_SDK_MAC },
                 { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
                 { "hide",                    required_argument, NULL, CD_OPT_HIDE },
-                { "analyze",                 no_argument,       NULL, 'z' },
+                { "analyze",                 no_argument,       NULL, PPIOS_CG_OPT_ANALYZE },
+                { "obfuscate-sources",       no_argument,       NULL, PPIOS_CG_OPT_OBFUSCATE },
                 { NULL,                      0,                 NULL, 0 },
         };
 
@@ -304,10 +314,15 @@ int main(int argc, char *argv[])
                 case 't':
                     classDump.shouldShowHeader = NO;
                     break;
-                case 'z':
+                case PPIOS_CG_OPT_ANALYZE:
                     //do analysis
                     classDump.shouldOnlyAnalyze = YES;
                     break;
+
+                case PPIOS_CG_OPT_OBFUSCATE:
+                    classDump.shouldOnlyObfuscate = YES;
+                    break;
+
                 case '?':
                 default:
                     errorFlag = YES;
@@ -329,7 +344,17 @@ int main(int argc, char *argv[])
             symbolMappingPath = defaultSymbolMappingPath;
         }
 
-        if (optind < argc) {
+        if (classDump.shouldOnlyObfuscate) {
+            int result = [classDump obfuscateSourcesUsingMap:symbolMappingPath
+                                           symbolsHeaderFile:symbolsPath
+                                            workingDirectory:@"."
+                                                xibDirectory:xibBaseDirectory
+                                               podsDirectory:podsPath];
+            if (result != 0) {
+                // errors already reported
+                exit(result);
+            }
+        } else if (optind < argc) {
             NSString *arg = [NSString stringWithFileSystemRepresentation:argv[optind]];
             NSString *executablePath = [arg executablePathForFilename];
             if (shouldListArches) {

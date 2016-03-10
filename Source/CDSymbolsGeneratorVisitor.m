@@ -158,6 +158,30 @@ static NSString *const lettersSet[maxLettersSet] = {
     NSLog(@"Generated unique symbols = %zd", _uniqueSymbols.count);
 }
 
++ (void)appendDefineTo:(NSMutableString *)stringBuilder
+              renaming:(NSString *)oldName
+                    to:(NSString *)newName {
+    [stringBuilder appendFormat:@"#ifndef %@\r\n", oldName];
+    [stringBuilder appendFormat:@"#define %@ %@\r\n", oldName, newName];
+    [stringBuilder appendFormat:@"#endif // %@\r\n", oldName];
+}
+
++ (void)writeSymbols:(NSDictionary<NSString *, NSString *> *)symbols
+   symbolsHeaderFile:(NSString *)symbolsHeaderFile {
+
+    NSLog(@"Writing symbols file %zd ...", [symbols count]);
+    NSMutableString * stringBuilder = [NSMutableString new];
+
+    [symbols enumerateKeysAndObjectsUsingBlock:^(NSString * key, NSString * value, BOOL * stop) {
+        [self appendDefineTo:stringBuilder renaming:key to:value];
+    }];
+
+    NSData * data = [stringBuilder dataUsingEncoding:NSUTF8StringEncoding];
+    [data writeToFile:symbolsHeaderFile atomically:YES];
+
+    NSLog(@"Done writing symbols file.");
+}
+
 - (NSString *)generateRandomStringWithLength:(NSInteger)length andPrefix:(NSString *)prefix {
     while (true) {
         NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
@@ -339,9 +363,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     [_uniqueSymbols addObject:generatedSymbol];
     _symbols[symbol] = generatedSymbol;
 
-    [_resultString appendFormat:@"#ifndef %@\r\n", symbol];
-    [_resultString appendFormat:@"#define %@ %@\r\n", symbol, generatedSymbol];
-    [_resultString appendFormat:@"#endif // %@\r\n", symbol];
+    [[self class] appendDefineTo:_resultString renaming:symbol to:generatedSymbol];
 }
 
 - (void)generatePropertySymbols:(NSString *)propertyName {
