@@ -25,6 +25,24 @@ NSString *CDErrorDomain_ClassDump = @"CDErrorDomain_ClassDump";
 
 NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 
+@interface NSString (LocalNSStringExtensions)
+- (NSString *)absolutePath;
+@end
+
+@implementation NSString (LocalNSStringExtensions)
+- (NSString *)absolutePath
+{
+    if ([self hasPrefix:@"/"]) {
+        return self;
+    }
+
+    NSString * currentDirectory = [[NSFileManager new] currentDirectoryPath];
+    NSString * filename = [NSString stringWithFormat:@"%@/%@", currentDirectory, self];
+    filename = [filename stringByStandardizingPath];
+    return filename;
+}
+@end
+
 @interface CDClassDump ()
 @end
 
@@ -337,7 +355,12 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     if (symbolsHeaderFile == nil) {
         symbolsHeaderFile = [workingDirectory stringByAppendingString:@"/symbols.h"];
     }
+    symbolsHeaderFile = [symbolsHeaderFile absolutePath];
+
     [CDSymbolsGeneratorVisitor writeSymbols:symbols symbolsHeaderFile:symbolsHeaderFile];
+    
+    // Alter the Prefix.pch file or files to include the symbols header file
+    [self alterPrefixPCHFilesIn:workingDirectory injectingImportFor:symbolsHeaderFile];
     
     // apply renaming to the xib and storyboard files
     CDXibStoryBoardProcessor * processor = [CDXibStoryBoardProcessor new];
@@ -353,4 +376,61 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     return 0;
 }
 
+- (int)alterPrefixPCHFilesIn:(NSString *)prefixPCHDirectory
+          injectingImportFor:(NSString *)symbolsHeaderFileName
+{
+    NSString * textToInsert
+            = [NSString stringWithFormat:@"#import \"%@\"\n", symbolsHeaderFileName];
+
+    NSFileManager * fileManager = [NSFileManager new];
+    NSDirectoryEnumerator * enumerator = [fileManager enumeratorAtPath:prefixPCHDirectory];
+
+    BOOL foundPrefixPCH = FALSE;
+    NSString * filename;
+    while (true) {
+        filename = [enumerator nextObject];
+        if (filename == nil) {
+            break;
+        }
+
+        if ([filename hasSuffix:@"-Prefix.pch"]) {
+            foundPrefixPCH = TRUE;
+            NSLog(@"Injecting include for %@ into %@",
+                    [symbolsHeaderFileName lastPathComponent],
+                    filename);
+
+            NSError * error;
+            NSStringEncoding encoding;
+            NSMutableString * fileContents
+                    = [[NSMutableString alloc] initWithContentsOfFile:filename
+                                                         usedEncoding:&encoding
+                                                                error:&error];
+            if (fileContents == nil) {
+                NSLog(@"Error: could not read file %@", filename);
+                return 1;
+            }
+
+            // TODO: determine line-ending type?
+            [fileContents insertString:textToInsert atIndex:0];
+
+            BOOL result = [fileContents writeToFile:filename
+                                         atomically:YES
+                                           encoding:encoding
+                                              error:&error];
+            if (!result) {
+                NSLog(@"Error: could not update file %@", filename);
+                return 1;
+            }
+        }
+    }
+
+    if (!foundPrefixPCH) {
+        NSLog(@"Error: could not find any *-Prefix.pch files under %@", prefixPCHDirectory);
+        return 1;
+    }
+
+    return 0;
+}
+
 @end
+
