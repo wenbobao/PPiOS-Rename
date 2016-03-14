@@ -150,10 +150,10 @@ iOS Code Style assumes that every class is prefixed with a two-or-three-symbol i
 
 #### Example
 ```
--F '!APH*' -F '!MC*'
+-F '!APH*' -F '!MC*' -F '!FX?'
 ```
 
-This will filter out any class in namespace *APH* and *MC*.
+This will filter out any class in namespace `APH`, and `MC`. It will also filter out every class in the namespaces that start with `FX`. The `?` matches any single character, while the `*` character matches any number of characters any number of times.
 
 ### Ignored symbols
 It may happen that some symbols get obfuscated even though they shouldn't, e.g. if you use C method and name Objective-C method using the same name. It will lead to a linker error (*unresolved external*). You have to find what symbol is it and add it to the list of ignored symbols.
@@ -163,6 +163,24 @@ It may happen that some symbols get obfuscated even though they shouldn't, e.g. 
 -i 'deflate' -i 'curl_*'
 ```
 This will not obfuscate symbols named *deflate* and symbols that start with *curl_\**.
+
+### Exclusions
+
+When excluding items using either `-i` or `-F`, if the excluded item matches a class or protocol name, then this can lead to a cascade effect of exclusions. If a class is excluded, then it will also exclude all of the class's methods and properties. This can also include names of protocol methods/properties.
+
+For example, if a class name is excluded, then the following is also excluded: (assuming ClassName is the class name)
+
+1. ClassNameProtocol
+2. ClassNameDelegate
+3. All of the methods and properties defined within the class
+
+When excluding properties, the following names are also excluded: (assuming the propery name is `propertyName`)
+
+1. setPropertyName or *PropertyName, but not both (where * can be anything)
+2. setupPropertyName
+3. isPropertyName
+4. _isPropertyName
+5. _propertyName
 
 ### CocoaPods
 If you're using CocoaPods in your project you can also obfuscate symbols inside external libraries. The only thing you need is to specify path to Pods PBX project file. It's located inside the .xcodeproj directory. Utility will modify configurations and precompiled headers so that they're also obfuscated.
@@ -214,6 +232,7 @@ fi
 ```
 ios-class-guard -m symbols.json --dsym MyProject_obfuscated.app.dSYM --dsym-out MyProject_unobfuscated.app.dSYM
 ```
+
 
 Limitations
 -----------
