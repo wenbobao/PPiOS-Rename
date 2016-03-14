@@ -501,7 +501,7 @@ static NSString *const lettersSet[maxLettersSet] = {
         [_forbiddenNames addObject:protocol.name];
         _ignored = YES;
     } else {
-        NSLog(@"Obfuscating @protocol %@", protocol.name);
+        NSLog(@"Adding @protocol %@", protocol.name);
         [_protocolNames addObject:protocol.name];
         _ignored = NO;
     }
@@ -522,7 +522,7 @@ static NSString *const lettersSet[maxLettersSet] = {
         [_forbiddenNames addObject:aClass.name];
         _ignored = YES;
     } else {
-        NSLog(@"Obfuscating @class %@", aClass.name);
+        NSLog(@"Adding @class %@", aClass.name);
         [_classNames addObject:aClass.name];
         _ignored = NO;
     }
@@ -532,7 +532,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     if (_external) {
         _ignored = YES;
     } else {
-        NSLog(@"Obfuscating @category %@+%@", category.className, category.name);
+        NSLog(@"Adding @category %@+%@", category.className, category.name);
         [_categoryNames addObject:category.name];
         _ignored = NO;
     }
