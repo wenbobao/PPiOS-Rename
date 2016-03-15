@@ -349,7 +349,7 @@ int main(int argc, char *argv[])
                                            symbolsHeaderFile:symbolsPath
                                             workingDirectory:@"."
                                                 xibDirectory:xibBaseDirectory
-                                               podsDirectory:podsPath];
+                                             podsProjectFile:podsPath];
             if (result != 0) {
                 // errors already reported
                 exit(result);

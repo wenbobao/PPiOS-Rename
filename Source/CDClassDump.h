@@ -61,7 +61,7 @@
               symbolsHeaderFile:(NSString *)symbolsHeaderFile
                workingDirectory:(NSString *)workingDirectory
                    xibDirectory:(NSString *)xibDirectory
-                  podsDirectory:(NSString *)podsDirectory;
+                podsProjectFile:(NSString *)podsProjectFile;
 
 @end
 

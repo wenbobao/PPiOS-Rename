@@ -7,11 +7,15 @@
 }
 - (void)processTarget:(CDPbxProjectTarget *)target symbolsFilePath:(NSString *)symbolsFilePath {
     if (target.headerName.length == 0 || target.configFile.length == 0) {
-        NSLog(@"Error: Could not process target %@ config %@ header %@. Some values are missing.", target.targetName, target.configFile, target.headerName);
+        NSLog(@"Warning: Could not process target %@ config %@ header %@. Some values are missing.",
+                target.targetName,
+                target.configFile,
+                target.headerName);
         return;
     }
+
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSArray *keys = [NSArray arrayWithObject:NSURLIsDirectoryKey];
+    NSArray *keys = @[NSURLIsDirectoryKey];
     NSURL *directoryURL = [[NSURL alloc] initWithString:@"."];
 
     NSDirectoryEnumerator *enumerator = [fileManager

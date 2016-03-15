@@ -272,12 +272,15 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     if (machOFile == nil) {
         CDFile *file = [CDFile fileWithContentsOfFile:adjustedName searchPathState:self.searchPathState];
 
-        if (file == nil || [self loadFile:file error:NULL depth:depth] == NO)
-            NSLog(@"Warning: Failed to load: %@", adjustedName);
-
-        machOFile = _machOFilesByName[adjustedName];
-        if (machOFile == nil) {
-            NSLog(@"Warning: Couldn't load MachOFile with ID: %@, adjustedID: %@", name, adjustedName);
+        NSError * error = nil;
+        if (file == nil) {
+            BOOL result = [self loadFile:file error:&error depth:depth];
+            if (!result) {
+                NSLog(@"Warning: Failed to load: %@", adjustedName);
+                if (error) {
+                    NSLog(@"Warning:   %@", [error localizedDescription]);
+                }
+            }
         }
     }
 
@@ -329,7 +332,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
               symbolsHeaderFile:(NSString *)symbolsHeaderFile
                workingDirectory:(NSString *)workingDirectory
                    xibDirectory:(NSString *)xibDirectory
-                  podsDirectory:(NSString *)podsDirectory
+                podsProjectFile:(NSString *)podsProjectFile
 {
     NSData * symbolsData = [NSData dataWithContentsOfFile:symbolsPath];
     if (symbolsData == nil) {
@@ -360,7 +363,10 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     [CDSymbolsGeneratorVisitor writeSymbols:symbols symbolsHeaderFile:symbolsHeaderFile];
     
     // Alter the Prefix.pch file or files to include the symbols header file
-    [self alterPrefixPCHFilesIn:workingDirectory injectingImportFor:symbolsHeaderFile];
+    int result = [self alterPrefixPCHFilesIn:workingDirectory injectingImportFor:symbolsHeaderFile];
+    if (result != 0) {
+        return result;
+    }
     
     // apply renaming to the xib and storyboard files
     CDXibStoryBoardProcessor * processor = [CDXibStoryBoardProcessor new];
@@ -368,9 +374,9 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     [processor obfuscateFilesUsingSymbols:symbols];
     
     // apply renaming to the Pods
-    if (podsDirectory) {
+    if (podsProjectFile) {
         CDPbxProjectProcessor * projectProcessor = [CDPbxProjectProcessor new];
-        [projectProcessor processPodsProjectAtPath:podsDirectory symbolsFilePath:symbolsPath];
+        [projectProcessor processPodsProjectAtPath:podsProjectFile symbolsFilePath:symbolsHeaderFile];
     }
 
     return 0;
@@ -393,7 +399,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
             break;
         }
 
-        if ([filename hasSuffix:@"-Prefix.pch"]) {
+        if ([[filename lowercaseString] hasSuffix:@"-prefix.pch"]) {
             foundPrefixPCH = TRUE;
             NSLog(@"Injecting include for %@ into %@",
                     [symbolsHeaderFileName lastPathComponent],
@@ -410,7 +416,6 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
                 return 1;
             }
 
-            // TODO: determine line-ending type?
             [fileContents insertString:textToInsert atIndex:0];
 
             BOOL result = [fileContents writeToFile:filename

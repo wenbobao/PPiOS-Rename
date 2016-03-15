@@ -20,8 +20,12 @@
     task.standardOutput = self.outputPipe;
     [[self.outputPipe fileHandleForReading] readToEndOfFileInBackgroundAndNotify];
 
-    [[NSNotificationCenter defaultCenter] addObserverForName:NSFileHandleReadToEndOfFileCompletionNotification object:[self.outputPipe fileHandleForReading] queue:nil usingBlock:^(NSNotification *notification){
-        NSData *output = [[notification userInfo] objectForKey:NSFileHandleNotificationDataItem];
+    [[NSNotificationCenter defaultCenter] addObserverForName:NSFileHandleReadToEndOfFileCompletionNotification
+                                                      object:[self.outputPipe fileHandleForReading]
+                                                       queue:nil
+                                                  usingBlock:^(NSNotification *notification){
+
+        NSData *output = [notification userInfo][NSFileHandleNotificationDataItem];
         NSDictionary *projectJSON = [NSJSONSerialization JSONObjectWithData:output options:0 error:nil];
         CDPbxProjectParser *parser = [[CDPbxProjectParser alloc] initWithJsonDictionary:projectJSON];
         NSSet *targets = [parser findTargets];
