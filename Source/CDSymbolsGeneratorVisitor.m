@@ -37,7 +37,12 @@ static NSString *const lettersSet[maxLettersSet] = {
 }
 
 - (void)addForbiddenSymbols {
-    [_forbiddenNames addObjectsFromArray:@[@"auto",
+    [_forbiddenNames addObjectsFromArray:@[
+            @"_Bool",
+            @"_inline",
+            @"alloc",
+            @"auto",
+            @"bool",
             @"break",
             @"case",
             @"char",
@@ -53,7 +58,8 @@ static NSString *const lettersSet[maxLettersSet] = {
             @"for",
             @"goto",
             @"if",
-            @"bool",
+            @"in",
+            @"init",
             @"int",
             @"long",
             @"register",
@@ -69,12 +75,7 @@ static NSString *const lettersSet[maxLettersSet] = {
             @"unsigned",
             @"void",
             @"volatile",
-            @"while",
-            @"in",
-            @"init",
-            @"alloc",
-            @"_inline",
-            @"_Bool"
+            @"while"
     ]];
 }
 
