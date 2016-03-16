@@ -275,7 +275,9 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
         NSError * error = nil;
         if (file == nil) {
             BOOL result = [self loadFile:file error:&error depth:depth];
-            if (!result) {
+            if (result) {
+                NSLog(@"Info: Loaded: %@", adjustedName);
+            } else {
                 NSLog(@"Warning: Failed to load: %@", adjustedName);
                 if (error) {
                     NSLog(@"Warning:   %@", [error localizedDescription]);
