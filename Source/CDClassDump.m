@@ -272,16 +272,26 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     if (machOFile == nil) {
         CDFile *file = [CDFile fileWithContentsOfFile:adjustedName searchPathState:self.searchPathState];
 
-        NSError * error = nil;
         if (file == nil) {
-            BOOL result = [self loadFile:file error:&error depth:depth];
-            if (result) {
-                NSLog(@"Info: Loaded: %@", adjustedName);
-            } else {
-                NSLog(@"Warning: Failed to load: %@", adjustedName);
-                if (error) {
-                    NSLog(@"Warning:   %@", [error localizedDescription]);
-                }
+            NSLog(@"Warning: Unable to read file: %@", adjustedName);
+        } else {
+            // as a side-effect, this call can add items to _machOFilesByName
+            NSError * error = nil;
+            BOOL loadedSuccessfully = [self loadFile:file error:&error depth:depth];
+
+            // if recursive processing fails, it is possible to have loaded a library in the
+            // loadFile:error:depth: call, but not its dependencies, producing an error above
+            machOFile = _machOFilesByName[adjustedName];
+            if (machOFile == nil) {
+                NSLog(@"Warning: Couldn't load MachOFile with ID: %@, adjustedID: %@",
+                        name,
+                        adjustedName);
+            } else if (!loadedSuccessfully) {
+                NSLog(@"Warning: Loaded library, but not its dependencies: %@", adjustedName);
+            }
+
+            if (error) {
+                NSLog(@"Warning:   %@", [error localizedDescription]);
             }
         }
     }
