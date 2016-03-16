@@ -15,24 +15,33 @@ FULL_VERSION=$(VERSION)$(GIT_HASH)$(BUILD_NUMBER)
 ARCHIVE_DIR=$(FULL_VERSION)
 DIST_PACKAGE=$(ARCHIVE_DIR)/$(PROJECT_NAME)-$(FULL_VERSION).tgz
 
+XCODEBUILD_OPTIONS=\
+	-workspace ios-class-guard.xcworkspace \
+	-scheme ios-class-guard \
+	-configuration Release \
+	-derivedDataPath $(BUILD_DIR) \
+	-reporter plain \
+	-reporter junit:$(BUILD_DIR)/unit-test-report.xml
+
 .PHONY: default
 default: all
 
 .PHONY: all
 all: Pods $(PROGRAM)
 
+# convenience target
+.PHONY: it
+it: clean all check
+
 Pods Podfile.lock: Podfile
 	pod install
 
 $(PROGRAM): Pods
-	xctool \
-		-workspace ios-class-guard.xcworkspace \
-		-scheme ios-class-guard \
-		-configuration Release \
-		-derivedDataPath $(BUILD_DIR) \
-		-reporter plain \
-		-reporter junit:$(BUILD_DIR)/unit-test-report.xml \
-		clean build test
+	xctool $(XCODEBUILD_OPTIONS) build
+
+.PHONY: check
+check: $(PROGRAM)
+	xctool $(XCODEBUILD_OPTIONS) test
 
 .PHONY: archive
 archive: package-check distclean archive-dir $(DIST_PACKAGE)
@@ -59,8 +68,8 @@ $(DIST_PACKAGE): $(PROGRAM)
 
 .PHONY: clean
 clean:
-	$(RM) -r build Pods
+	$(RM) -r $(BUILD_DIR)
 
 .PHONY: distclean
 distclean: clean
-	$(RM) -r $(DIST_DIR)* $(VERSION)*
+	$(RM) -r Pods $(DIST_DIR)* $(VERSION)*
