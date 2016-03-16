@@ -176,11 +176,13 @@ For example, if a class name is excluded, then the following is also excluded: (
 
 When excluding properties, the following names are also excluded: (assuming the propery name is `propertyName`)
 
-1. setPropertyName or *PropertyName, but not both (where * can be anything)
-2. setupPropertyName
-3. isPropertyName
-4. _isPropertyName
-5. _propertyName
+1. set_propertyName
+2. _propertyName
+3. setIsPropertyName
+4. setPropertyName
+5. set_isPropertyName
+6. isPropertyName
+7. _isPropertyName
 
 ### CocoaPods
 If you're using CocoaPods in your project you can also obfuscate symbols inside external libraries. The only thing you need is to specify path to Pods PBX project file. It's located inside the .xcodeproj directory. Utility will modify configurations and precompiled headers so that they're also obfuscated.
