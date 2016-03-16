@@ -150,10 +150,10 @@ iOS Code Style assumes that every class is prefixed with a two-or-three-symbol i
 
 #### Example
 ```
--F '!APH*' -F '!MC*' -F '!FX?'
+-F '!APH*' -F '!MC*' -F '!F?Box'
 ```
 
-This will filter out any class in namespace `APH`, and `MC`. It will also filter out every class in the namespaces that start with `FX`. The `?` matches any single character, while the `*` character matches any number of characters any number of times.
+This will filter out any class in namespace `APH`, and `MC`. It will also filter out every class in the namespaces that start with `F` and has a class name of `Box`. The `?` matches any single character, while the `*` character matches any number of characters any number of times.
 
 ### Ignored symbols
 It may happen that some symbols get obfuscated even though they shouldn't, e.g. if you use C method and name Objective-C method using the same name. It will lead to a linker error (*unresolved external*). You have to find what symbol is it and add it to the list of ignored symbols.
