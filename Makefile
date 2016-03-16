@@ -44,7 +44,7 @@ check: $(PROGRAM)
 	xctool $(XCODEBUILD_OPTIONS) test
 
 .PHONY: archive
-archive: package-check distclean archive-dir $(DIST_PACKAGE)
+archive: package-check distclean archive-dir $(PROGRAM) check $(DIST_PACKAGE)
 	cp -r $(PROGRAM).dSYM $(ARCHIVE_DIR)/
 
 .PHONY: package-check
