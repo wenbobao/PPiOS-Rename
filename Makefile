@@ -27,7 +27,7 @@ XCODEBUILD_OPTIONS=\
 default: all
 
 .PHONY: all
-all: Pods $(PROGRAM)
+all: Pods program
 
 # convenience target
 .PHONY: it
@@ -36,15 +36,16 @@ it: clean all check
 Pods Podfile.lock: Podfile
 	pod install
 
-$(PROGRAM): Pods
+.PHONY: program
+program: Pods
 	xctool $(XCODEBUILD_OPTIONS) build
 
 .PHONY: check
-check: $(PROGRAM)
+check: program
 	xctool $(XCODEBUILD_OPTIONS) test
 
 .PHONY: archive
-archive: package-check distclean archive-dir $(PROGRAM) check $(DIST_PACKAGE)
+archive: package-check distclean archive-dir program check $(DIST_PACKAGE)
 	cp -r $(PROGRAM).dSYM $(ARCHIVE_DIR)/
 
 .PHONY: package-check
@@ -56,7 +57,7 @@ package-check:
 archive-dir:
 	mkdir -p $(ARCHIVE_DIR)
 
-$(DIST_PACKAGE): $(PROGRAM)
+$(DIST_PACKAGE): program
 	mkdir -p $(DIST_DIR)
 	cp $(PROGRAM) \
 		README.md \
