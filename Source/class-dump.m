@@ -434,17 +434,27 @@ int main(int argc, char *argv[])
                     fprintf(stderr, "Error: %s\n", [[error localizedFailureReason] UTF8String]);
                     exit(1);
                 } else {
+                    if (![classDump.sdkRoot length]) {
+                        printf("Please specify either --sdk-mac/--sdk-ios or --sdk-root\n");
+                        print_usage();
+                        exit(3);
+                    }
+                    if (symbolsPath == nil && !classDump.shouldOnlyAnalyze) {
+                        printf("Please specify symbols file path\n");
+                        print_usage();
+                        exit(3);
+                    }else if(symbolsPath != nil && classDump.shouldOnlyAnalyze) {
+                        printf("Do not specify the symbols file path when using --analyze\n");
+                        print_usage();
+                        exit(3);
+                    }
+                    
                     [classDump processObjectiveCData];
                     [classDump registerTypes];
 
                     CDCoreDataModelProcessor *coreDataModelProcessor = [[CDCoreDataModelProcessor alloc] init];
                     [classFilter addObjectsFromArray:[coreDataModelProcessor coreDataModelSymbolsToExclude]];
 
-                    if (![classDump.sdkRoot length]) {
-                        printf("Please specify either --sdk-mac/--sdk-ios or --sdk-root\n");
-                        print_usage();
-                        exit(3);
-                    }
 
                     CDSystemProtocolsProcessor *systemProtocolsProcessor = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.sdkRoot];
                     [ignoreSymbols addObjectsFromArray:[systemProtocolsProcessor systemProtocolsSymbolsToExclude]];
@@ -455,15 +465,7 @@ int main(int argc, char *argv[])
                         visitor.searchString = searchString;
                         [classDump recursivelyVisit:visitor];
                     } else if (generateSymbolsTable) {
-                        if (symbolsPath == nil && !classDump.shouldOnlyAnalyze) {
-                            printf("Please specify symbols file path\n");
-                            print_usage();
-                            exit(3);
-                        }else if(symbolsPath != nil && classDump.shouldOnlyAnalyze) {
-                            printf("Do not specify the symbols file path when using --analyze\n");
-                            print_usage();
-                            exit(3);
-                        }
+
 
                         CDSymbolsGeneratorVisitor *visitor = [CDSymbolsGeneratorVisitor new];
                         visitor.classDump = classDump;
