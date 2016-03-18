@@ -60,8 +60,7 @@
 - (int)obfuscateSourcesUsingMap:(NSString *)symbolsPath
               symbolsHeaderFile:(NSString *)symbolsHeaderFile
                workingDirectory:(NSString *)workingDirectory
-                   xibDirectory:(NSString *)xibDirectory
-                podsProjectFile:(NSString *)podsProjectFile;
+                   xibDirectory:(NSString *)xibDirectory;
 
 @end
 

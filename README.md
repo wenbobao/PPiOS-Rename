@@ -127,7 +127,6 @@ Usage: ios-class-guard [options] <mach-o-file>
                        or /Developer/SDKs/MacOSX<version>.sdk)
         --sdk-root     specify the full SDK root path (or use --sdk-ios/--sdk-mac for a shortcut)
         -X <directory> base directory for XIB, storyboards (will be searched recursively)
-        -P <path>      path to project.pbxproj of Pods project (located inside Pods.xcodeproj)
         -O <path>      path to file where obfuscated symbols are written
         -m <path>      path to symbol file map (default value symbols.json)
         -c <path>      path to symbolicated crash dump

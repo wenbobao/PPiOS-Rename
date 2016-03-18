@@ -104,24 +104,15 @@
 		38653154389A509D361F7270 /* CDXibStoryboardParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 3865337A461890DF05AC46A6 /* CDXibStoryboardParser.m */; };
 		38653247D923811967368147 /* CustomCellTableViewCell_xib.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3865383609890719919F2183 /* CustomCellTableViewCell_xib.txt */; };
 		386534A6D09F073EE4DE26D9 /* CDSymbolsMapperSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 3865380C2F57EBDECDBA0C4D /* CDSymbolsMapperSpec.m */; };
-		386535BC366D39D3E3AA06DD /* CDPodsFileProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 38653B78A063EFBEBF01976B /* CDPodsFileProcessor.m */; };
-		386535D51FC5E6A26DA0CF73 /* CDPbxProjectProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 38653D4E701206F58BCF2067 /* CDPbxProjectProcessor.m */; };
-		38653682BE642D98192D454B /* CDPbxProjectParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 386531D90E730B9631616535 /* CDPbxProjectParser.m */; };
-		386536D2F4B20F1E339044E0 /* CDPbxProjectParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 38653AE5159BC7ECCE6A6D53 /* CDPbxProjectParser.h */; };
 		3865377A5684612B7E682F4E /* CDXibStoryboardParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 3865375BADCC7B605A7911C4 /* CDXibStoryboardParser.h */; };
 		38653884ADB7BE52F188F251 /* CDSymbolMapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 3865319AABA771A64371AE68 /* CDSymbolMapper.h */; };
-		386538DA406D1855F65ACCE8 /* CDPodsFileProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = 386534336F1745D66BBA313F /* CDPodsFileProcessor.h */; };
-		3865393271B4383B934D2815 /* CDPbxProjectTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 386539791525CE4F9E7BF95C /* CDPbxProjectTarget.h */; };
 		38653A25F5998C54C612637D /* contents in Resources */ = {isa = PBXBuildFile; fileRef = 386536B9FC21D6EC530F845F /* contents */; };
 		38653AA8D0BB76F2E7A3F233 /* CDSymbolMapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 38653326FC8AC1EF7FFD8B64 /* CDSymbolMapper.m */; };
 		38653ADDFDE75A1C22C8712B /* CDCoreDataModelParserSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 386532CC33E4C3F5B3FAA673 /* CDCoreDataModelParserSpec.m */; };
 		38653BCF4F669169F4F24BB6 /* CDSymoblsGeneratorVisitorSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 3865353F3CA1A51ACE6B2854 /* CDSymoblsGeneratorVisitorSpec.m */; };
 		38653BDE31667E0577C95CA8 /* podsProject.json in Resources */ = {isa = PBXBuildFile; fileRef = 38653FE32A2E2A4644B0556E /* podsProject.json */; };
 		38653C893116E1C93360D3EE /* CDXibStoryboardParserSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 38653357CEF55B23B6235855 /* CDXibStoryboardParserSpec.m */; };
-		38653C9C210BA3DEECC2C6F9 /* CDPbxProjectProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = 38653C7555270BE430941E2B /* CDPbxProjectProcessor.h */; };
 		38653CCEE0A8426D8A432A2B /* CDSymbolsGeneratorVisitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 386531EACC711C0310583BE8 /* CDSymbolsGeneratorVisitor.h */; };
-		38653EF867E63B4B3B91EBB6 /* CDPbxProjectParserSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 386532EE2EDE51C8226599D8 /* CDPbxProjectParserSpec.m */; };
-		38653F512991515845361D71 /* CDPbxProjectTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 38653B5D64EAFC28A7E814AD /* CDPbxProjectTarget.m */; };
 		479E9A3A1EE542E3BD725B35 /* libPods-UnitTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA6B93F373B4E5BA48C4048 /* libPods-UnitTests.a */; };
 		670B79781970082F0069F751 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 670B7971197007120069F751 /* libxml2.dylib */; };
 		6772E06D197FF624004CF475 /* GDataXMLNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 6772E06B197FF624004CF475 /* GDataXMLNode.h */; };
@@ -370,25 +361,16 @@
 		364BEF5CFF0445CF1D2A268B /* CHANGELOG */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CHANGELOG; sourceTree = "<group>"; };
 		364BEFACF4AA074F66468F1B /* ahocorasick.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ahocorasick.c; sourceTree = "<group>"; };
 		3865319AABA771A64371AE68 /* CDSymbolMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDSymbolMapper.h; sourceTree = "<group>"; };
-		386531D90E730B9631616535 /* CDPbxProjectParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDPbxProjectParser.m; sourceTree = "<group>"; };
 		386531EACC711C0310583BE8 /* CDSymbolsGeneratorVisitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDSymbolsGeneratorVisitor.h; path = Source/CDSymbolsGeneratorVisitor.h; sourceTree = "<group>"; };
 		386532CC33E4C3F5B3FAA673 /* CDCoreDataModelParserSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDCoreDataModelParserSpec.m; sourceTree = "<group>"; };
-		386532EE2EDE51C8226599D8 /* CDPbxProjectParserSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDPbxProjectParserSpec.m; sourceTree = "<group>"; };
 		38653326FC8AC1EF7FFD8B64 /* CDSymbolMapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDSymbolMapper.m; sourceTree = "<group>"; };
 		38653357CEF55B23B6235855 /* CDXibStoryboardParserSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDXibStoryboardParserSpec.m; sourceTree = "<group>"; };
 		3865337A461890DF05AC46A6 /* CDXibStoryboardParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDXibStoryboardParser.m; path = Source/CDXibStoryboardParser.m; sourceTree = "<group>"; };
-		386534336F1745D66BBA313F /* CDPodsFileProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDPodsFileProcessor.h; sourceTree = "<group>"; };
 		3865353F3CA1A51ACE6B2854 /* CDSymoblsGeneratorVisitorSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDSymoblsGeneratorVisitorSpec.m; sourceTree = "<group>"; };
 		386536B9FC21D6EC530F845F /* contents */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = contents; sourceTree = "<group>"; };
 		3865375BADCC7B605A7911C4 /* CDXibStoryboardParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDXibStoryboardParser.h; path = Source/CDXibStoryboardParser.h; sourceTree = "<group>"; };
 		3865380C2F57EBDECDBA0C4D /* CDSymbolsMapperSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDSymbolsMapperSpec.m; sourceTree = "<group>"; };
 		3865383609890719919F2183 /* CustomCellTableViewCell_xib.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CustomCellTableViewCell_xib.txt; sourceTree = "<group>"; };
-		386539791525CE4F9E7BF95C /* CDPbxProjectTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDPbxProjectTarget.h; sourceTree = "<group>"; };
-		38653AE5159BC7ECCE6A6D53 /* CDPbxProjectParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDPbxProjectParser.h; sourceTree = "<group>"; };
-		38653B5D64EAFC28A7E814AD /* CDPbxProjectTarget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDPbxProjectTarget.m; sourceTree = "<group>"; };
-		38653B78A063EFBEBF01976B /* CDPodsFileProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDPodsFileProcessor.m; sourceTree = "<group>"; };
-		38653C7555270BE430941E2B /* CDPbxProjectProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDPbxProjectProcessor.h; sourceTree = "<group>"; };
-		38653D4E701206F58BCF2067 /* CDPbxProjectProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDPbxProjectProcessor.m; sourceTree = "<group>"; };
 		38653E065CFA1710C3829B18 /* CDSymbolsGeneratorVisitor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDSymbolsGeneratorVisitor.m; path = Source/CDSymbolsGeneratorVisitor.m; sourceTree = "<group>"; };
 		38653E984667C6F15F7B56E0 /* Main_iPhone_storyboard.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Main_iPhone_storyboard.txt; sourceTree = "<group>"; };
 		38653FE32A2E2A4644B0556E /* podsProject.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; path = podsProject.json; sourceTree = "<group>"; };
@@ -562,7 +544,6 @@
 				01EB826213A590D9003EDE60 /* Frameworks */,
 				01EB826013A590D9003EDE60 /* Products */,
 				38653105C3AD1ECFFF532A50 /* ios-class-guard Spec */,
-				386534195B889C7A4C539891 /* Pods support */,
 				38653F0A1888F8B2CC4309CE /* Symbol mapping */,
 				364BE06F241D1A1CA1EA4917 /* System Protocols Dumping */,
 				CCD5A5BACBC317C94D8CFF5B /* Pods */,
@@ -841,27 +822,11 @@
 				386532CC33E4C3F5B3FAA673 /* CDCoreDataModelParserSpec.m */,
 				386536B9FC21D6EC530F845F /* contents */,
 				38653FE32A2E2A4644B0556E /* podsProject.json */,
-				386532EE2EDE51C8226599D8 /* CDPbxProjectParserSpec.m */,
 				3865380C2F57EBDECDBA0C4D /* CDSymbolsMapperSpec.m */,
 				364BE69F3A3ADC92AFDA50DA /* CDSystemProtocolsProcessorSpec.m */,
 				364BE4CC20B4DB8ABBBF7606 /* CDdSYMProcessorSpec.m */,
 			);
 			path = "ios-class-guard Spec";
-			sourceTree = "<group>";
-		};
-		386534195B889C7A4C539891 /* Pods support */ = {
-			isa = PBXGroup;
-			children = (
-				386531D90E730B9631616535 /* CDPbxProjectParser.m */,
-				38653D4E701206F58BCF2067 /* CDPbxProjectProcessor.m */,
-				38653C7555270BE430941E2B /* CDPbxProjectProcessor.h */,
-				38653AE5159BC7ECCE6A6D53 /* CDPbxProjectParser.h */,
-				38653B78A063EFBEBF01976B /* CDPodsFileProcessor.m */,
-				386534336F1745D66BBA313F /* CDPodsFileProcessor.h */,
-				38653B5D64EAFC28A7E814AD /* CDPbxProjectTarget.m */,
-				386539791525CE4F9E7BF95C /* CDPbxProjectTarget.h */,
-			);
-			path = "Pods support";
 			sourceTree = "<group>";
 		};
 		38653F0A1888F8B2CC4309CE /* Symbol mapping */ = {
@@ -947,11 +912,7 @@
 				3865377A5684612B7E682F4E /* CDXibStoryboardParser.h in Headers */,
 				6772E06D197FF624004CF475 /* GDataXMLNode.h in Headers */,
 				38653CCEE0A8426D8A432A2B /* CDSymbolsGeneratorVisitor.h in Headers */,
-				38653C9C210BA3DEECC2C6F9 /* CDPbxProjectProcessor.h in Headers */,
-				386536D2F4B20F1E339044E0 /* CDPbxProjectParser.h in Headers */,
-				386538DA406D1855F65ACCE8 /* CDPodsFileProcessor.h in Headers */,
 				95E3D89F1C88D21800CF28E2 /* CDCoreDataModelParser.h in Headers */,
-				3865393271B4383B934D2815 /* CDPbxProjectTarget.h in Headers */,
 				38653884ADB7BE52F188F251 /* CDSymbolMapper.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1196,10 +1157,6 @@
 				C270B5C616C54AD6006CA75D /* ULEB128.m in Sources */,
 				38653154389A509D361F7270 /* CDXibStoryboardParser.m in Sources */,
 				386530298BA07BFEFD74B44E /* CDSymbolsGeneratorVisitor.m in Sources */,
-				38653682BE642D98192D454B /* CDPbxProjectParser.m in Sources */,
-				386535D51FC5E6A26DA0CF73 /* CDPbxProjectProcessor.m in Sources */,
-				386535BC366D39D3E3AA06DD /* CDPodsFileProcessor.m in Sources */,
-				38653F512991515845361D71 /* CDPbxProjectTarget.m in Sources */,
 				38653AA8D0BB76F2E7A3F233 /* CDSymbolMapper.m in Sources */,
 				364BE6461620A0161AA764C8 /* CDSystemProtocolsProcessor.m in Sources */,
 			);
@@ -1222,7 +1179,6 @@
 				38653BCF4F669169F4F24BB6 /* CDSymoblsGeneratorVisitorSpec.m in Sources */,
 				38653C893116E1C93360D3EE /* CDXibStoryboardParserSpec.m in Sources */,
 				38653ADDFDE75A1C22C8712B /* CDCoreDataModelParserSpec.m in Sources */,
-				38653EF867E63B4B3B91EBB6 /* CDPbxProjectParserSpec.m in Sources */,
 				386534A6D09F073EE4DE26D9 /* CDSymbolsMapperSpec.m in Sources */,
 				364BE69E032FC93F586245D4 /* CDSystemProtocolsProcessorSpec.m in Sources */,
 			);

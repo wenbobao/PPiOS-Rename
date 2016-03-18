@@ -10,15 +10,10 @@
 #import "CDLCDylib.h"
 #import "CDMachOFile.h"
 #import "CDObjectiveCProcessor.h"
-#import "CDType.h"
-#import "CDTypeFormatter.h"
-#import "CDTypeParser.h"
 #import "CDVisitor.h"
-#import "CDLCSegment.h"
 #import "CDTypeController.h"
 #import "CDSearchPathState.h"
 #import "CDXibStoryBoardProcessor.h"
-#import "CDPbxProjectProcessor.h"
 #import "CDSymbolsGeneratorVisitor.h"
 
 NSString *CDErrorDomain_ClassDump = @"CDErrorDomain_ClassDump";
@@ -344,7 +339,6 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
               symbolsHeaderFile:(NSString *)symbolsHeaderFile
                workingDirectory:(NSString *)workingDirectory
                    xibDirectory:(NSString *)xibDirectory
-                podsProjectFile:(NSString *)podsProjectFile
 {
     NSData * symbolsData = [NSData dataWithContentsOfFile:symbolsPath];
     if (symbolsData == nil) {
@@ -385,12 +379,6 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     processor.xibBaseDirectory = xibDirectory;
     [processor obfuscateFilesUsingSymbols:symbols];
     
-    // apply renaming to the Pods
-    if (podsProjectFile) {
-        CDPbxProjectProcessor * projectProcessor = [CDPbxProjectProcessor new];
-        [projectProcessor processPodsProjectAtPath:podsProjectFile symbolsFilePath:symbolsHeaderFile];
-    }
-
     return 0;
 }
 

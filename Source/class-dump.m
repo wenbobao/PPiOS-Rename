@@ -16,7 +16,6 @@
 #import "CDSymbolsGeneratorVisitor.h"
 #import "CDXibStoryBoardProcessor.h"
 #import "CDCoreDataModelProcessor.h"
-#import "CDPbxProjectProcessor.h"
 #import "CDSymbolMapper.h"
 #import "CDSystemProtocolsProcessor.h"
 #import "CDdSYMProcessor.h"
@@ -29,7 +28,8 @@ void print_usage(void)
             "PreEmptive Protection for iOS - Class Guard, version %s\n"
             "\n"
             "Usage:\n"
-            "  ios-class-guard --analyze [options] <mach-o-file>\n"
+            "  ios-class-guard --analyze [options] \\\n"
+            "    ( --sdk-root <path> | ( --sdk-ios | --sdk-mac ) <version> ) <mach-o-file>\n"
             "  ios-class-guard --obfuscate-sources [options]\n"
             "  ios-class-guard --list-arches <mach-o-file>\n"
             "\n"
@@ -59,8 +59,6 @@ void print_usage(void)
             "\n"
             "  --obfuscate-sources mode options:\n"
             "        -X <directory>    path for XIBs and storyboards (searched recursively)\n"
-            "        -P <path>         path to project.pbxproj of Pods project\n"
-            "                          (default: Pods/Pods.xcodeproj/project.pbxproj)\n"
             "        -O <path>         path of where to write obfuscated symbols header\n"
             "                          (default: symbols.h)\n"
             "\n"
@@ -68,6 +66,7 @@ void print_usage(void)
             "        -c <path>         path to symbolicated crash dump\n"
             "        --dsym <path>     path to dSym file to translate\n"
             "        --dsym-out <path> path to dSym file to translate\n"
+            "\n"
             ,
             CLASS_DUMP_VERSION
     );
@@ -102,7 +101,6 @@ int main(int argc, char *argv[])
         NSMutableArray *classFilter = [NSMutableArray new];
         NSMutableArray *ignoreSymbols = [NSMutableArray new];
         NSString *xibBaseDirectory = nil;
-        NSString *podsPath = nil;
         NSString *symbolsPath = nil;
         NSString *symbolMappingPath = nil;
         NSString *crashDumpPath = nil;
@@ -127,7 +125,6 @@ int main(int argc, char *argv[])
                 { "filter-class",            no_argument,       NULL, 'F' },
                 { "ignore-symbols",          no_argument,       NULL, 'i' },
                 { "xib-directory",           required_argument, NULL, 'X' },
-                { "pods-project",            required_argument, NULL, 'P' },
                 { "symbols-file",            required_argument, NULL, 'O' },
                 { "symbols-map",             required_argument, NULL, 'm' },
                 { "crash-dump",              required_argument, NULL, 'c' },
@@ -252,10 +249,6 @@ int main(int argc, char *argv[])
                     xibBaseDirectory = [NSString stringWithUTF8String:optarg];
                     break;
 
-                case 'P':
-                    podsPath = [NSString stringWithUTF8String:optarg];
-                    break;
-
                 case 'O':
                     symbolsPath = [NSString stringWithUTF8String:optarg];
                     break;
@@ -359,15 +352,10 @@ int main(int argc, char *argv[])
         }
 
         if (classDump.shouldOnlyObfuscate) {
-            if (!podsPath) {
-                podsPath = @"Pods/Pods.xcodeproj/project.pbxproj";
-            }
-
             int result = [classDump obfuscateSourcesUsingMap:symbolMappingPath
                                            symbolsHeaderFile:symbolsPath
                                             workingDirectory:@"."
-                                                xibDirectory:xibBaseDirectory
-                                             podsProjectFile:podsPath];
+                                                xibDirectory:xibBaseDirectory];
             if (result != 0) {
                 // errors already reported
                 exit(result);
@@ -478,11 +466,6 @@ int main(int argc, char *argv[])
                             CDXibStoryBoardProcessor *processor = [[CDXibStoryBoardProcessor alloc] init];
                             processor.xibBaseDirectory = xibBaseDirectory;
                             [processor obfuscateFilesUsingSymbols:visitor.symbols];
-
-                            if (podsPath) {
-                                CDPbxProjectProcessor *projectProcessor = [[CDPbxProjectProcessor alloc] init];
-                                [projectProcessor processPodsProjectAtPath:podsPath symbolsFilePath:symbolsPath];
-                            }
                         }
                         CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
                         [mapper writeSymbolsFromSymbolsVisitor:visitor toFile:symbolMappingPath];
