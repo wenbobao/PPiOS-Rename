@@ -348,7 +348,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 {
     NSData * symbolsData = [NSData dataWithContentsOfFile:symbolsPath];
     if (symbolsData == nil) {
-        NSLog(@"Warning: Could not read from: %@", symbolsPath);
+        NSLog(@"Error: Could not read from: %@", symbolsPath);
         return 1;
     }
 
