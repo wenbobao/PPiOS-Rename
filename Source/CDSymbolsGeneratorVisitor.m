@@ -36,7 +36,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     NSMutableString *_resultString;
 }
 
-- (void)addForbiddenSymbols {
+- (void)addKnownForbiddenSymbols {
     // More important than this list itself, is deciding on the right process to produce this list.
     // Items have been added to this list manually which should perhaps be found automatically, but
     // determining this is an aspect of refining the process to produce this list.
@@ -115,7 +115,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     _symbolLength = 3;
     _external = NO;
     _ignored = NO;
-    [self addForbiddenSymbols];
+    [self addKnownForbiddenSymbols];
 }
 
 - (void)didEndVisiting {
@@ -406,7 +406,9 @@ static NSString *const lettersSet[maxLettersSet] = {
 
     // don't generate symbol if any of the name is forbidden
     if (shouldSymbolBeIgnored) {
-        [_forbiddenNames addObjectsFromArray:symbols];
+        for (NSString * symbol in symbols) {
+            [self addForbiddenSymbol:symbol];
+        }
         return;
     }
 
@@ -423,6 +425,10 @@ static NSString *const lettersSet[maxLettersSet] = {
 
     [self createNewSymbolsForProperty:propertyName];
 
+}
+
+- (void)addForbiddenSymbol:(NSString *)symbol {
+    [_forbiddenNames addObject:symbol];
 }
 
 - (void)createNewSymbolsForProperty:(NSString *)propertyName {
@@ -544,11 +550,11 @@ static NSString *const lettersSet[maxLettersSet] = {
 
 - (void)willVisitProtocol:(CDOCProtocol *)protocol {
     if (_external) {
-        [_forbiddenNames addObject:protocol.name];
+        [self addForbiddenSymbol:protocol.name];
         _ignored = YES;
     } else if (![self shouldClassBeObfuscated:protocol.name]) {
         NSLog(@"Ignoring @protocol %@", protocol.name);
-        [_forbiddenNames addObject:protocol.name];
+        [self addForbiddenSymbol:protocol.name];
         _ignored = YES;
     } else {
         NSLog(@"Adding @protocol %@", protocol.name);
@@ -559,17 +565,17 @@ static NSString *const lettersSet[maxLettersSet] = {
 
 - (void)willVisitClass:(CDOCClass *)aClass {
     if (_external) {
-        [_forbiddenNames addObject:aClass.name];
+        [self addForbiddenSymbol:aClass.name];
 
         if (![aClass.name hasSuffix:@"Delegate"] && ![aClass.name hasSuffix:@"Protocol"]) {
-            [_forbiddenNames addObject:[aClass.name stringByAppendingString:@"Delegate"]];
-            [_forbiddenNames addObject:[aClass.name stringByAppendingString:@"Protocol"]];
+            [self addForbiddenSymbol:[aClass.name stringByAppendingString:@"Delegate"]];
+            [self addForbiddenSymbol:[aClass.name stringByAppendingString:@"Protocol"]];
         }
 
         _ignored = YES;
     } else if (![self shouldClassBeObfuscated:aClass.name]) {
         NSLog(@"Ignoring @class %@", aClass.name);
-        [_forbiddenNames addObject:aClass.name];
+        [self addForbiddenSymbol:aClass.name];
         _ignored = YES;
     } else {
         NSLog(@"Adding @class %@", aClass.name);
@@ -596,7 +602,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     for (NSString *component in [method componentsSeparatedByString:@":"]) {
         if ([component length]) {
             if (_ignored) {
-                [_forbiddenNames addObject:component];
+                [self addForbiddenSymbol:component];
             } else {
                 [_methodNames addObject:component];
             }
@@ -622,10 +628,10 @@ static NSString *const lettersSet[maxLettersSet] = {
 
 - (void)visitProperty:(CDOCProperty *)property {
     if (_ignored) {
-        [_forbiddenNames addObject:property.name];
-        [_forbiddenNames addObject:property.defaultGetter];
-        [_forbiddenNames addObject:[@"_" stringByAppendingString:property.name]];
-        [_forbiddenNames addObject:property.defaultSetter];
+        [self addForbiddenSymbol:property.name];
+        [self addForbiddenSymbol:property.defaultGetter];
+        [self addForbiddenSymbol:[@"_" stringByAppendingString:property.name]];
+        [self addForbiddenSymbol:property.defaultSetter];
         [self visitType:property.type];
     } else {
         [_propertyNames addObject:property.name];
@@ -641,11 +647,11 @@ static NSString *const lettersSet[maxLettersSet] = {
 - (void)visitType:(CDType *)type {
     if (_ignored) {
         for (NSString *protocol in type.protocols) {
-            [_forbiddenNames addObject:protocol];
+            [self addForbiddenSymbol:protocol];
         }
 
         if (type.typeName) {
-            [_forbiddenNames addObject:[NSString stringWithFormat:@"%@", type.typeName]];
+            [self addForbiddenSymbol:[NSString stringWithFormat:@"%@", type.typeName]];
         }
     }
 }
