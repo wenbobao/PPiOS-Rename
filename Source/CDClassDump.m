@@ -38,6 +38,28 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 }
 @end
 
+
+// Category to wrap the C-struct CDArch in an NSValue
+@interface NSValue (CDArch)
++ (id)valueOf:(CDArch)arch;
+- (CDArch)arch;
+@end
+
+@implementation NSValue (CDArch)
++ (id)valueOf:(CDArch)arch
+{
+    return [NSValue value:&arch withObjCType:@encode(CDArch)];
+}
+
+- (CDArch)arch
+{
+    CDArch value;
+    [self getValue:&value];
+    return value;
+}
+@end
+
+
 @interface CDClassDump ()
 @end
 
@@ -68,6 +90,44 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     CDTypeController *_typeController;
     
     CDArch _targetArch;
+}
+
+static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
+
++ (NSValue *)archFor:(NSString *)name
+{
+    return [NSValue valueOf:CDArchFromName(name)];
+}
+
++ (void)addEntryTo:(NSMutableDictionary<NSValue *, NSArray<NSValue *> *> *)dictionary
+           forArch:(NSString *)arch
+        candidates:(NSString *)first, ... // "candidates" not "alternatives", since it could be same
+{
+    NSMutableArray * candidateArray = [NSMutableArray new];
+    [candidateArray addObject:[self archFor:first]];
+
+    id candidate;
+    va_list argumentList;
+    va_start(argumentList, first);
+    while ((candidate = va_arg(argumentList, NSObject *))) {
+        [candidateArray addObject:[self archFor:candidate]];
+    }
+    va_end(argumentList);
+
+    dictionary[[self archFor:arch]] = [NSArray arrayWithArray:candidateArray];
+}
+
++ (NSDictionary<NSValue *, NSArray<NSValue *> *> *)getSupportedArches
+{
+    if (supportedArches == nil) {
+         NSMutableDictionary<NSValue *, NSArray<NSValue *> *> * arches = [NSMutableDictionary new];
+        [self addEntryTo:arches forArch:@"armv7" candidates:@"armv7", @"x86_64", nil];
+        [self addEntryTo:arches forArch:@"armv7s" candidates:@"armv7s", @"x86_64", nil];
+        [self addEntryTo:arches forArch:@"arm64" candidates:@"arm64", @"x86_64", nil];
+        supportedArches = [NSDictionary dictionaryWithDictionary:arches];
+    }
+
+    return supportedArches;
 }
 
 - (id)init;
@@ -137,9 +197,20 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 }
 
 - (BOOL)loadFile:(CDFile *)file error:(NSError **)error depth:(int)depth {
-    //NSLog(@"targetArch: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
-    CDMachOFile *machOFile = [file machOFileWithArch:_targetArch];
-    //NSLog(@"machOFile: %@", machOFile);
+    NSValue * archObject = [NSValue valueOf:_targetArch];
+    NSArray<NSValue *> * candidates = [[self class] getSupportedArches][archObject];
+    if (candidates == nil) {
+        // if no alternatives have been specified for the target architecture, only allow the target
+        candidates = @[archObject];
+    }
+
+    CDMachOFile * machOFile = nil;
+    for (NSValue * alternative in candidates) {
+        machOFile = [file machOFileWithArch:alternative.arch];
+        if (machOFile != nil)
+            break;
+    }
+
     if (machOFile == nil) {
         if (error != NULL) {
             NSString *failureReason;
