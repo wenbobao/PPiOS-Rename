@@ -88,7 +88,6 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
         
         _shouldShowHeader = YES;
 
-        _maxRecursiveDepth = INT_MAX;
         _shouldOnlyAnalyze = NO;
         _shouldOnlyObfuscate = NO;
     }
@@ -161,11 +160,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     [_machOFiles addObject:machOFile];
     _machOFilesByName[machOFile.filename] = machOFile;
 
-    BOOL shouldProcessRecursively = [self shouldProcessRecursively] && depth < _maxRecursiveDepth;
-    if(!shouldProcessRecursively && [self.forceRecursiveAnalyze containsObject:machOFile.importBaseName]) {
-        shouldProcessRecursively = YES;
-        NSLog(@"Forced recursively processing of %@", machOFile.importBaseName);
-    }
+    BOOL shouldProcessRecursively = YES;
 
     if (shouldProcessRecursively) {
         @try {
@@ -222,11 +217,8 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     [visitor willBeginVisiting];
 
     NSEnumerator *objcProcessors;
-    if(self.shouldIterateInReverse) {
-        objcProcessors = [self.objcProcessors reverseObjectEnumerator];
-    } else {
-        objcProcessors = [self.objcProcessors objectEnumerator];
-    }
+    objcProcessors = [self.objcProcessors objectEnumerator];
+    
 
     for (CDObjectiveCProcessor *processor in objcProcessors) {
         [processor recursivelyVisit:visitor];

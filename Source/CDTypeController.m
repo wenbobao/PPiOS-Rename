@@ -90,16 +90,6 @@ static BOOL debug = NO;
 
 #pragma mark -
 
-- (BOOL)shouldShowIvarOffsets;
-{
-    return self.classDump.shouldShowIvarOffsets;
-}
-
-- (BOOL)shouldShowMethodAddresses;
-{
-    return self.classDump.shouldShowMethodAddresses;
-}
-
 - (BOOL)targetArchUses64BitABI;
 {
     return CDArchUses64BitABI(self.classDump.targetArch);

@@ -189,11 +189,6 @@
     for (CDOCProtocol *protocol in [self.protocolUniquer uniqueProtocolsSortedByName])
         [protocol recursivelyVisit:visitor];
 
-    if ([[visitor classDump] shouldSortClassesByInheritance]) {
-        [classesAndCategories sortTopologically];
-    } else if ([[visitor classDump] shouldSortClasses])
-        [classesAndCategories sortUsingSelector:@selector(ascendingCompareByName:)];
-
     for (id aClassOrCategory in classesAndCategories)
         [aClassOrCategory recursivelyVisit:visitor];
 

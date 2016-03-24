@@ -141,8 +141,6 @@ int main(int argc, char *argv[])
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
         generateSymbolsTable = YES;
-        classDump.shouldProcessRecursively = YES;
-        classDump.shouldIterateInReverse = YES;
         // classDump.maxRecursiveDepth = 1;
         // classDump.forceRecursiveAnalyze = @[@"Foundation"];
 
@@ -227,8 +225,6 @@ int main(int argc, char *argv[])
 
                 case 'G':
                     generateSymbolsTable = YES;
-                    classDump.shouldProcessRecursively = YES;
-                    classDump.shouldIterateInReverse = YES;
                     break;
 
                 case 'F':

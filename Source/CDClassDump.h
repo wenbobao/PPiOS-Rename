@@ -15,16 +15,7 @@
 @interface CDClassDump : NSObject
 
 @property (readonly) CDSearchPathState *searchPathState;
-
-@property (assign) BOOL shouldProcessRecursively;
-@property (assign) BOOL shouldSortClasses;
-@property (assign) BOOL shouldSortClassesByInheritance;
-@property (assign) BOOL shouldSortMethods;
-@property (assign) BOOL shouldShowIvarOffsets;
-@property (assign) BOOL shouldShowMethodAddresses;
 @property (assign) BOOL shouldShowHeader;
-@property (assign) int maxRecursiveDepth;
-@property (assign) BOOL shouldIterateInReverse;
 @property BOOL shouldOnlyAnalyze;
 @property BOOL shouldOnlyObfuscate;
 @property (copy, nonatomic) NSArray *forceRecursiveAnalyze;

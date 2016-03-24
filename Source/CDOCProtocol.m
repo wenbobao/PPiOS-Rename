@@ -191,14 +191,10 @@
 - (void)visitMethods:(CDVisitor *)visitor propertyState:(CDVisitorPropertyState *)propertyState;
 {
     NSArray *methods = self.classMethods;
-    if (visitor.classDump.shouldSortMethods)
-        methods = [methods sortedArrayUsingSelector:@selector(ascendingCompareByName:)];
     for (CDOCMethod *method in methods)
         [visitor visitClassMethod:method];
 
     methods = self.instanceMethods;
-    if (visitor.classDump.shouldSortMethods)
-        methods = [methods sortedArrayUsingSelector:@selector(ascendingCompareByName:)];
     for (CDOCMethod *method in methods)
         [visitor visitInstanceMethod:method propertyState:propertyState];
 
@@ -206,14 +202,10 @@
         [visitor willVisitOptionalMethods];
 
         methods = self.optionalClassMethods;
-        if (visitor.classDump.shouldSortMethods)
-            methods = [methods sortedArrayUsingSelector:@selector(ascendingCompareByName:)];
         for (CDOCMethod *method in methods)
             [visitor visitClassMethod:method];
 
         methods = self.optionalInstanceMethods;
-        if (visitor.classDump.shouldSortMethods)
-            methods = [methods sortedArrayUsingSelector:@selector(ascendingCompareByName:)];
         for (CDOCMethod *method in methods)
             [visitor visitInstanceMethod:method propertyState:propertyState];
 
