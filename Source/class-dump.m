@@ -111,16 +111,6 @@ int main(int argc, char *argv[])
         BOOL errorFlag = NO;
 
         struct option longopts[] = {
-                { "show-ivar-offsets",       no_argument,       NULL, 'a' },
-                { "show-imp-addr",           no_argument,       NULL, 'A' },
-                { "match",                   required_argument, NULL, 'C' },
-                { "find",                    required_argument, NULL, 'f' },
-                { "generate-multiple-files", no_argument,       NULL, 'H' },
-                { "sort-by-inheritance",     no_argument,       NULL, 'I' },
-                { "output-dir",              required_argument, NULL, 'o' },
-                { "recursive",               no_argument,       NULL, 'r' },
-                { "sort",                    no_argument,       NULL, 's' },
-                { "sort-methods",            no_argument,       NULL, 'S' },
                 { "generate-symbols-table",  no_argument,       NULL, 'G' },
                 { "filter-class",            no_argument,       NULL, 'F' },
                 { "ignore-symbols",          no_argument,       NULL, 'i' },
@@ -130,7 +120,7 @@ int main(int argc, char *argv[])
                 { "crash-dump",              required_argument, NULL, 'c' },
                 { "dsym",                    required_argument, NULL, CD_OPT_DSYM },
                 { "dsym-out",                required_argument, NULL, CD_OPT_DSYM_OUT },
-                { "arch",                    required_argument, NULL, CD_OPT_ARCH },
+                { "arch",                    required_argument, NULL, CD_OPT_ARCH }, //needed?
                 { "list-arches",             no_argument,       NULL, CD_OPT_LIST_ARCHES },
                 { "suppress-header",         no_argument,       NULL, 't' },
                 { "version",                 no_argument,       NULL, CD_OPT_VERSION },
@@ -138,8 +128,8 @@ int main(int argc, char *argv[])
                 { "sdk-mac",                 required_argument, NULL, CD_OPT_SDK_MAC },
                 { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
                 { "hide",                    required_argument, NULL, CD_OPT_HIDE },
-                { "analyze",                 no_argument,       NULL, PPIOS_CG_OPT_ANALYZE },
-                { "obfuscate-sources",       no_argument,       NULL, PPIOS_CG_OPT_OBFUSCATE },
+                { "analyze",                 no_argument,       NULL, PPIOS_CG_OPT_ANALYZE }, //'z'
+                { "obfuscate-sources",       no_argument,       NULL, PPIOS_CG_OPT_OBFUSCATE }, //'y'
                 { NULL,                      0,                 NULL, 0 },
         };
 
@@ -156,7 +146,7 @@ int main(int argc, char *argv[])
         // classDump.maxRecursiveDepth = 1;
         // classDump.forceRecursiveAnalyze = @[@"Foundation"];
 
-        while ( (ch = getopt_long(argc, argv, "aGAC:f:HIo:rRsStF:X:P:i:O:m:c:", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "GFitXzy:O:m:c:", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -265,57 +255,13 @@ int main(int argc, char *argv[])
                     [ignoreSymbols addObject:[NSString stringWithUTF8String:optarg]];
                     break;
 
-                case 'a':
-                    classDump.shouldShowIvarOffsets = YES;
-                    break;
-
-                case 'A':
-                    classDump.shouldShowMethodAddresses = YES;
-                    break;
-
-                case 'C': {
-                    NSError *error;
-                    NSRegularExpression *regularExpression = [NSRegularExpression regularExpressionWithPattern:[NSString stringWithUTF8String:optarg]
-                                                                                                       options:(NSRegularExpressionOptions)0
-                                                                                                         error:&error];
-                    if (regularExpression != nil) {
-                        classDump.regularExpression = regularExpression;
-                    } else {
-                        fprintf(stderr, "class-dump: Error with regular expression: %s\n\n", [[error localizedFailureReason] UTF8String]);
-                        errorFlag = YES;
-                    }
-
-                    // Last one wins now.
-                    break;
-                }
-
                 case 'f': {
                     searchString = [NSString stringWithUTF8String:optarg];
                     break;
                 }
 
-                case 'H':
-                    shouldGenerateSeparateHeaders = YES;
-                    break;
-
-                case 'I':
-                    classDump.shouldSortClassesByInheritance = YES;
-                    break;
-
                 case 'o':
                     outputPath = [NSString stringWithUTF8String:optarg];
-                    break;
-
-                case 'r':
-                    classDump.shouldProcessRecursively = YES;
-                    break;
-
-                case 's':
-                    classDump.shouldSortClasses = YES;
-                    break;
-
-                case 'S':
-                    classDump.shouldSortMethods = YES;
                     break;
 
                 case 't':
