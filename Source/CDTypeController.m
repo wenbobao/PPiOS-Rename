@@ -326,10 +326,6 @@ static BOOL debug = NO;
 
 #pragma mark -
 
-- (BOOL)shouldShowName:(NSString *)name;
-{
-    return [self.classDump shouldShowName:name];
-}
 
 - (BOOL)shouldExpandType:(CDType *)type;
 {

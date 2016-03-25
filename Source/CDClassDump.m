@@ -55,8 +55,8 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     BOOL _shouldShowIvarOffsets;
     BOOL _shouldShowMethodAddresses;
     BOOL _shouldShowHeader;
-    BOOL _shouldOnlyAnalyze;
-    BOOL _shouldOnlyObfuscate;
+    BOOL _shouldAnalyze;
+    BOOL _shouldObfuscate;
     
     NSRegularExpression *_regularExpression;
     
@@ -88,26 +88,12 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
         
         _shouldShowHeader = YES;
 
-        _shouldOnlyAnalyze = NO;
-        _shouldOnlyObfuscate = NO;
+        _shouldAnalyze = NO;
+        _shouldObfuscate = NO;
     }
 
     return self;
 }
-
-#pragma mark - Regular expression handling
-
-- (BOOL)shouldShowName:(NSString *)name;
-{
-    if (self.regularExpression != nil) {
-        NSTextCheckingResult *firstMatch = [self.regularExpression firstMatchInString:name options:(NSMatchingOptions)0 range:NSMakeRange(0, [name length])];
-        return firstMatch != nil;
-    }
-
-    return YES;
-}
-
-#pragma mark -
 
 - (BOOL)containsObjectiveCData;
 {

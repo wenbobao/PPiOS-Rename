@@ -70,25 +70,6 @@
 
 - (void)recursivelyVisit:(CDVisitor *)visitor;
 {
-    if ([visitor.classDump shouldShowName:self.name]) {
-        CDVisitorPropertyState *propertyState = [[CDVisitorPropertyState alloc] initWithProperties:self.properties];
-        
-        [visitor willVisitClass:self];
-        
-        [visitor willVisitIvarsOfClass:self];
-        for (CDOCInstanceVariable *instanceVariable in self.instanceVariables)
-            [visitor visitIvar:instanceVariable];
-        [visitor didVisitIvarsOfClass:self];
-        
-        //[visitor willVisitPropertiesOfClass:self];
-        //[self visitProperties:visitor];
-        //[visitor didVisitPropertiesOfClass:self];
-        
-        [self visitMethods:visitor propertyState:propertyState];
-        // Should mostly be dynamic properties
-        [visitor visitRemainingProperties:propertyState];
-        [visitor didVisitClass:self];
-    }
 }
 
 #pragma mark - CDTopologicalSort protocol

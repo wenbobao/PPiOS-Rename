@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         struct option longopts[] = {
                 { "generate-symbols-table",  no_argument,       NULL, 'G' },
                 { "filter-class",            no_argument,       NULL, 'F' },
-                { "ignore-symbols",          no_argument,       NULL, 'i' },
+                { "ignore-symbols",          required_argument, NULL, 'i' },
                 { "xib-directory",           required_argument, NULL, 'X' },
                 { "symbols-file",            required_argument, NULL, 'O' },
                 { "symbols-map",             required_argument, NULL, 'm' },
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
         // classDump.maxRecursiveDepth = 1;
         // classDump.forceRecursiveAnalyze = @[@"Foundation"];
 
-        while ( (ch = getopt_long(argc, argv, "GFitXzy:O:m:c:", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "GFi:tX:zy:O:m:c:", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -265,11 +265,11 @@ int main(int argc, char *argv[])
                     break;
                 case PPIOS_CG_OPT_ANALYZE:
                     //do analysis
-                    classDump.shouldOnlyAnalyze = YES;
+                    classDump.shouldAnalyze = YES;
                     break;
 
                 case PPIOS_CG_OPT_OBFUSCATE:
-                    classDump.shouldOnlyObfuscate = YES;
+                    classDump.shouldObfuscate = YES;
                     break;
 
                 case '?':
@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
             symbolMappingPath = defaultSymbolMappingPath;
         }
 
-        if (classDump.shouldOnlyObfuscate) {
+        if (classDump.shouldObfuscate) {
             int result = [classDump obfuscateSourcesUsingMap:symbolMappingPath
                                            symbolsHeaderFile:symbolsPath
                                             workingDirectory:@"."
@@ -369,11 +369,11 @@ int main(int argc, char *argv[])
                         print_usage();
                         exit(3);
                     }
-                    if (symbolsPath == nil && !classDump.shouldOnlyAnalyze) {
+                    if (symbolsPath == nil && !classDump.shouldAnalyze) {
                         printf("Please specify symbols file path\n");
                         print_usage();
                         exit(3);
-                    }else if(symbolsPath != nil && classDump.shouldOnlyAnalyze) {
+                    }else if(symbolsPath != nil && classDump.shouldAnalyze) {
                         printf("Do not specify the symbols file path when using --analyze\n");
                         print_usage();
                         exit(3);
@@ -404,7 +404,7 @@ int main(int argc, char *argv[])
                         visitor.symbolsFilePath = symbolsPath;
                         
                         [classDump recursivelyVisit:visitor];
-                        if(!classDump.shouldOnlyAnalyze){
+                        if(!classDump.shouldAnalyze){
                             CDXibStoryBoardProcessor *processor = [[CDXibStoryBoardProcessor alloc] init];
                             processor.xibBaseDirectory = xibBaseDirectory;
                             [processor obfuscateFilesUsingSymbols:visitor.symbols];
