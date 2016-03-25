@@ -72,7 +72,7 @@ void print_usage(void)
             "\n"
             "Other options:\n"
             "  -c <path>             Path to symbolicated crash dump\n"
-            "  --dsym <path>         Path to dSym file to translate\n"
+            "  --dsym-in <path>         Path to dSym file to translate\n"
             "  --dsym-out <path>     Path to dSym file to translate\n"
             "\n"
             ,
@@ -87,8 +87,10 @@ void print_usage(void)
 #define CD_OPT_SDK_MAC     5
 #define CD_OPT_SDK_ROOT    6
 #define CD_OPT_HIDE        7
-#define CD_OPT_DSYM        8
+#define CD_OPT_DSYM_IN     8
 #define CD_OPT_DSYM_OUT    9
+#define CD_OPT_TRANSLATE_CRASH 10
+#define CD_OPT_TRANSLATE_DSYM 11
 
 #define PPIOS_CG_OPT_ANALYZE ((int)'z')
 #define PPIOS_CG_OPT_OBFUSCATE ((int)'y')
@@ -112,7 +114,7 @@ int main(int argc, char *argv[])
         NSString *symbolsPath = nil;
         NSString *symbolMappingPath = nil;
         NSString *crashDumpPath = nil;
-        NSString *dSYMPath = nil;
+        NSString *dSYMInPath = nil;
         NSString *dSYMOutPath = nil;
 
         int ch;
@@ -126,7 +128,7 @@ int main(int argc, char *argv[])
                 { "symbols-file",            required_argument, NULL, 'O' },
                 { "symbols-map",             required_argument, NULL, 'm' },
                 { "crash-dump",              required_argument, NULL, 'c' },
-                { "dsym",                    required_argument, NULL, CD_OPT_DSYM },
+                { "dsym",                    required_argument, NULL, CD_OPT_DSYM_IN },
                 { "dsym-out",                required_argument, NULL, CD_OPT_DSYM_OUT },
                 { "arch",                    required_argument, NULL, CD_OPT_ARCH }, //needed?
                 { "list-arches",             no_argument,       NULL, CD_OPT_LIST_ARCHES },
@@ -138,6 +140,8 @@ int main(int argc, char *argv[])
                 { "hide",                    required_argument, NULL, CD_OPT_HIDE },
                 { "analyze",                 no_argument,       NULL, PPIOS_CG_OPT_ANALYZE }, //'z'
                 { "obfuscate-sources",       no_argument,       NULL, PPIOS_CG_OPT_OBFUSCATE }, //'y'
+                { "translate-crashdump",     no_argument,       NULL, CD_OPT_TRANSLATE_CRASH},
+                { "translate-dsym",          no_argument,       NULL, CD_OPT_TRANSLATE_DSYM},
                 { NULL,                      0,                 NULL, 0 },
         };
 
@@ -221,8 +225,8 @@ int main(int argc, char *argv[])
                     break;
                 }
 
-                case CD_OPT_DSYM: {
-                    dSYMPath = [NSString stringWithUTF8String:optarg];
+                case CD_OPT_DSYM_IN: {
+                    dSYMInPath = [NSString stringWithUTF8String:optarg];
                     break;
                 }
 
@@ -450,21 +454,21 @@ int main(int argc, char *argv[])
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
             NSString *processedFile = [mapper processCrashDump:crashDump withSymbols:[NSJSONSerialization JSONObjectWithData:[symbolsData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil]];
             [processedFile writeToFile:crashDumpPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
-        } else if (dSYMPath) {
+        } else if (dSYMInPath) {
             NSString *symbolsData = [NSString stringWithContentsOfFile:symbolMappingPath encoding:NSUTF8StringEncoding error:nil];
             if (symbolsData.length == 0) {
                 fprintf(stderr, "class-dump: symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
                 exit(5);
             }
 
-            NSRange dSYMPathRange = [dSYMPath rangeOfString:@".dSYM"];
+            NSRange dSYMPathRange = [dSYMInPath rangeOfString:@".dSYM"];
             if (dSYMPathRange.location == NSNotFound) {
                 fprintf(stderr, "class-dump: no valid dsym file provided %s", [dSYMOutPath fileSystemRepresentation]);
                 exit(4);
             }
 
             CDdSYMProcessor *processor = [[CDdSYMProcessor alloc] init];
-            NSArray *dwarfFilesPaths = [processor extractDwarfPathsForDSYM:dSYMPath];
+            NSArray *dwarfFilesPaths = [processor extractDwarfPathsForDSYM:dSYMInPath];
 
             for (NSString *dwarfFilePath in dwarfFilesPaths) {
                 NSData *dwarfdumpData = [NSData dataWithContentsOfFile:dwarfFilePath];
@@ -477,7 +481,7 @@ int main(int argc, char *argv[])
                                                                withSymbols:[NSJSONSerialization JSONObjectWithData:[symbolsData dataUsingEncoding:NSUTF8StringEncoding]
                                                                                                            options:0
                                                                                                              error:nil]];
-                [processor writeDwarfdump:processedFileContent originalDwarfPath:dwarfFilePath inputDSYM:dSYMPath outputDSYM:dSYMOutPath];
+                [processor writeDwarfdump:processedFileContent originalDwarfPath:dwarfFilePath inputDSYM:dSYMInPath outputDSYM:dSYMOutPath];
             }
         }
         exit(0); // avoid costly autorelease pool drain, we’re exiting anyway
