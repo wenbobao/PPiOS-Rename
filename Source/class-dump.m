@@ -163,7 +163,6 @@ int main(int argc, char *argv[])
 
                 case CD_OPT_SDK_IOS: {
                     NSString *root = [NSString stringWithUTF8String:optarg];
-                    //NSLog(@"root: %@", root);
                     NSString *str;
                     if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Applications/Xcode.app"]) {
                         str = [NSString stringWithFormat:@"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%@.sdk", root];
@@ -177,7 +176,6 @@ int main(int argc, char *argv[])
 
                 case CD_OPT_SDK_MAC: {
                     NSString *root = [NSString stringWithUTF8String:optarg];
-                    //NSLog(@"root: %@", root);
                     NSString *str;
                     if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Applications/Xcode.app"]) {
                         str = [NSString stringWithFormat:@"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX%@.sdk", root];
@@ -191,7 +189,6 @@ int main(int argc, char *argv[])
 
                 case CD_OPT_SDK_ROOT: {
                     NSString *root = [NSString stringWithUTF8String:optarg];
-                    //NSLog(@"root: %@", root);
                     classDump.sdkRoot = root;
 
                     break;
@@ -343,9 +340,6 @@ int main(int argc, char *argv[])
                         fprintf(stderr, "Error: Couldn't get local architecture\n");
                         exit(1);
                     }
-                    //NSLog(@"No arch specified, best match for local arch is: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
-                } else {
-                    //NSLog(@"chosen arch is: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
                 }
 
                 classDump.targetArch = targetArch;
