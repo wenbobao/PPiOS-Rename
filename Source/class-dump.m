@@ -121,7 +121,6 @@ int main(int argc, char *argv[])
         BOOL errorFlag = NO;
 
         struct option longopts[] = {
-                { "generate-symbols-table",  no_argument,       NULL, 'G' },
                 { "filter-class",            no_argument,       NULL, 'F' },
                 { "ignore-symbols",          required_argument, NULL, 'i' },
                 { "xib-directory",           required_argument, NULL, 'X' },
@@ -156,7 +155,7 @@ int main(int argc, char *argv[])
         // classDump.maxRecursiveDepth = 1;
         // classDump.forceRecursiveAnalyze = @[@"Foundation"];
 
-        while ( (ch = getopt_long(argc, argv, "GFi:tX:zy:O:m:c:", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "Fi:tX:zy:O:m:c:", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -234,10 +233,6 @@ int main(int argc, char *argv[])
                     dSYMOutPath = [NSString stringWithUTF8String:optarg];
                     break;
                 }
-
-                case 'G':
-                    generateSymbolsTable = YES;
-                    break;
 
                 case 'F':
                     [classFilter addObject:[NSString stringWithUTF8String:optarg]];
