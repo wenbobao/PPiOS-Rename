@@ -99,14 +99,10 @@ void print_usage(void)
 int main(int argc, char *argv[])
 {
     @autoreleasepool {
-        NSString *searchString;
-        BOOL shouldGenerateSeparateHeaders = NO;
         BOOL shouldListArches = NO;
         BOOL shouldPrintVersion = NO;
         CDArch targetArch;
         BOOL hasSpecifiedArch = NO;
-        BOOL generateSymbolsTable = NO;
-        NSString *outputPath;
         NSMutableSet *hiddenSections = [NSMutableSet set];
         NSMutableArray *classFilter = [NSMutableArray new];
         NSMutableArray *ignoreSymbols = [NSMutableArray new];
@@ -151,10 +147,6 @@ int main(int argc, char *argv[])
 
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
-        generateSymbolsTable = YES;
-        // classDump.maxRecursiveDepth = 1;
-        // classDump.forceRecursiveAnalyze = @[@"Foundation"];
-
         while ( (ch = getopt_long(argc, argv, "Fi:tX:zy:O:m:c:", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
@@ -168,14 +160,6 @@ int main(int argc, char *argv[])
                     }
                     break;
                 }
-
-                case CD_OPT_LIST_ARCHES:
-                    shouldListArches = YES;
-                    break;
-
-                case CD_OPT_VERSION:
-                    shouldPrintVersion = YES;
-                    break;
 
                 case CD_OPT_SDK_IOS: {
                     NSString *root = [NSString stringWithUTF8String:optarg];
@@ -258,18 +242,11 @@ int main(int argc, char *argv[])
                     [ignoreSymbols addObject:[NSString stringWithUTF8String:optarg]];
                     break;
 
-                case 'f': {
-                    searchString = [NSString stringWithUTF8String:optarg];
-                    break;
-                }
-
-                case 'o':
-                    outputPath = [NSString stringWithUTF8String:optarg];
-                    break;
-
                 case 't':
                     classDump.shouldShowHeader = NO;
                     break;
+
+                //modes..
                 case PPIOS_CG_OPT_ANALYZE:
                     //do analysis
                     classDump.shouldAnalyze = YES;
@@ -277,6 +254,14 @@ int main(int argc, char *argv[])
 
                 case PPIOS_CG_OPT_OBFUSCATE:
                     classDump.shouldObfuscate = YES;
+                    break;
+
+                case CD_OPT_LIST_ARCHES:
+                    shouldListArches = YES;
+                    break;
+
+                case CD_OPT_VERSION:
+                    shouldPrintVersion = YES;
                     break;
 
                 case '?':
@@ -396,41 +381,20 @@ int main(int argc, char *argv[])
                     CDSystemProtocolsProcessor *systemProtocolsProcessor = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.sdkRoot];
                     [ignoreSymbols addObjectsFromArray:[systemProtocolsProcessor systemProtocolsSymbolsToExclude]];
 
-                    if (searchString != nil) {
-                        CDFindMethodVisitor *visitor = [[CDFindMethodVisitor alloc] init];
-                        visitor.classDump = classDump;
-                        visitor.searchString = searchString;
-                        [classDump recursivelyVisit:visitor];
-                    } else if (generateSymbolsTable) {
+                    CDSymbolsGeneratorVisitor *visitor = [CDSymbolsGeneratorVisitor new];
+                    visitor.classDump = classDump;
+                    visitor.classFilter = classFilter;
+                    visitor.ignoreSymbols = ignoreSymbols;
+                    visitor.symbolsFilePath = symbolsPath;
 
-
-                        CDSymbolsGeneratorVisitor *visitor = [CDSymbolsGeneratorVisitor new];
-                        visitor.classDump = classDump;
-                        visitor.classFilter = classFilter;
-                        visitor.ignoreSymbols = ignoreSymbols;
-                        visitor.symbolsFilePath = symbolsPath;
-                        
-                        [classDump recursivelyVisit:visitor];
-                        if(!classDump.shouldAnalyze){
-                            CDXibStoryBoardProcessor *processor = [[CDXibStoryBoardProcessor alloc] init];
-                            processor.xibBaseDirectory = xibBaseDirectory;
-                            [processor obfuscateFilesUsingSymbols:visitor.symbols];
-                        }
-                        CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
-                        [mapper writeSymbolsFromSymbolsVisitor:visitor toFile:symbolMappingPath];
-                    } else if (shouldGenerateSeparateHeaders) {
-                        CDMultiFileVisitor *multiFileVisitor = [[CDMultiFileVisitor alloc] init];
-                        multiFileVisitor.classDump = classDump;
-                        classDump.typeController.delegate = multiFileVisitor;
-                        multiFileVisitor.outputPath = outputPath;
-                        [classDump recursivelyVisit:multiFileVisitor];
-                    } else {
-                        CDClassDumpVisitor *visitor = [[CDClassDumpVisitor alloc] init];
-                        visitor.classDump = classDump;
-                        if ([hiddenSections containsObject:@"structures"]) visitor.shouldShowStructureSection = NO;
-                        if ([hiddenSections containsObject:@"protocols"])  visitor.shouldShowProtocolSection  = NO;
-                        [classDump recursivelyVisit:visitor];
+                    [classDump recursivelyVisit:visitor];
+                    if(!classDump.shouldAnalyze){
+                        CDXibStoryBoardProcessor *processor = [[CDXibStoryBoardProcessor alloc] init];
+                        processor.xibBaseDirectory = xibBaseDirectory;
+                        [processor obfuscateFilesUsingSymbols:visitor.symbols];
                     }
+                    CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
+                    [mapper writeSymbolsFromSymbolsVisitor:visitor toFile:symbolMappingPath];
                 }
             }
         }  else if (crashDumpPath) {
