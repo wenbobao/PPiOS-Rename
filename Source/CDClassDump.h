@@ -16,8 +16,6 @@
 
 @property (readonly) CDSearchPathState *searchPathState;
 @property (assign) BOOL shouldShowHeader;
-@property BOOL shouldAnalyze;
-@property BOOL shouldObfuscate;
 @property (copy, nonatomic) NSArray *forceRecursiveAnalyze;
 
 @property (strong) NSString *sdkRoot;

@@ -87,9 +87,6 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
         _targetArch.cpusubtype = 0;
         
         _shouldShowHeader = YES;
-
-        _shouldAnalyze = NO;
-        _shouldObfuscate = NO;
     }
 
     return self;

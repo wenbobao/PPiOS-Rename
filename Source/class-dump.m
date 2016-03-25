@@ -99,6 +99,8 @@ void print_usage(void)
 int main(int argc, char *argv[])
 {
     @autoreleasepool {
+        BOOL shouldAnalyze = NO;
+        BOOL shouldObfuscate = NO;
         BOOL shouldListArches = NO;
         BOOL shouldPrintVersion = NO;
         CDArch targetArch;
@@ -246,11 +248,11 @@ int main(int argc, char *argv[])
                 //modes..
                 case PPIOS_CG_OPT_ANALYZE:
                     //do analysis
-                    classDump.shouldAnalyze = YES;
+                    shouldAnalyze = YES;
                     break;
 
                 case PPIOS_CG_OPT_OBFUSCATE:
-                    classDump.shouldObfuscate = YES;
+                    shouldObfuscate = YES;
                     break;
 
                 case CD_OPT_LIST_ARCHES:
@@ -267,22 +269,19 @@ int main(int argc, char *argv[])
                     break;
             }
         }
-
         if (errorFlag) {
             print_usage();
             exit(2);
-        }
-
-        if (shouldPrintVersion) {
-            printf("PreEmptive Protection for iOS - Class Guard, version %s\n", CLASS_DUMP_VERSION);
-            exit(0);
         }
 
         if (!symbolMappingPath) {
             symbolMappingPath = defaultSymbolMappingPath;
         }
 
-        if (classDump.shouldObfuscate) {
+        if (shouldPrintVersion) {
+            printf("PreEmptive Protection for iOS - Class Guard, version %s\n", CLASS_DUMP_VERSION);
+            exit(0);
+        }else if(shouldObfuscate){
             int result = [classDump obfuscateSourcesUsingMap:symbolMappingPath
                                            symbolsHeaderFile:symbolsPath
                                             workingDirectory:@"."
@@ -291,104 +290,98 @@ int main(int argc, char *argv[])
                 // errors already reported
                 exit(result);
             }
-        } else if (optind < argc) {
-            NSString *arg = [NSString stringWithFileSystemRepresentation:argv[optind]];
-            NSString *executablePath = [arg executablePathForFilename];
-            if (shouldListArches) {
-                if (executablePath == nil) {
-                    printf("none\n");
-                } else {
-                    CDSearchPathState *searchPathState = [[CDSearchPathState alloc] init];
-                    searchPathState.executablePath = executablePath;
-                    id macho = [CDFile fileWithContentsOfFile:executablePath searchPathState:searchPathState];
-                    if (macho == nil) {
+        }else if(shouldAnalyze){
+            if (optind < argc) {
+                NSString *arg = [NSString stringWithFileSystemRepresentation:argv[optind]];
+                NSString *executablePath = [arg executablePathForFilename];
+                if (shouldListArches) {
+                    if (executablePath == nil) {
                         printf("none\n");
                     } else {
-                        if ([macho isKindOfClass:[CDMachOFile class]]) {
-                            printf("%s\n", [[macho archName] UTF8String]);
-                        } else if ([macho isKindOfClass:[CDFatFile class]]) {
-                            printf("%s\n", [[[macho archNames] componentsJoinedByString:@" "] UTF8String]);
-                        }
-                    }
-                }
-            } else {
-                if (executablePath == nil) {
-                    fprintf(stderr, "class-dump: Input file (%s) doesn't contain an executable.\n", [arg fileSystemRepresentation]);
-                    exit(1);
-                }
-
-                classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
-                CDFile *file = [CDFile fileWithContentsOfFile:executablePath searchPathState:classDump.searchPathState];
-                if (file == nil) {
-                    NSFileManager *defaultManager = [NSFileManager defaultManager];
-
-                    if ([defaultManager fileExistsAtPath:executablePath]) {
-                        if ([defaultManager isReadableFileAtPath:executablePath]) {
-                            fprintf(stderr, "class-dump: Input file (%s) is neither a Mach-O file nor a fat archive.\n", [executablePath UTF8String]);
+                        CDSearchPathState *searchPathState = [[CDSearchPathState alloc] init];
+                        searchPathState.executablePath = executablePath;
+                        id macho = [CDFile fileWithContentsOfFile:executablePath searchPathState:searchPathState];
+                        if (macho == nil) {
+                            printf("none\n");
                         } else {
-                            fprintf(stderr, "class-dump: Input file (%s) is not readable (check read permissions).\n", [executablePath UTF8String]);
+                            if ([macho isKindOfClass:[CDMachOFile class]]) {
+                                printf("%s\n", [[macho archName] UTF8String]);
+                            } else if ([macho isKindOfClass:[CDFatFile class]]) {
+                                printf("%s\n", [[[macho archNames] componentsJoinedByString:@" "] UTF8String]);
+                            }
                         }
-                    } else {
-                        fprintf(stderr, "class-dump: Input file (%s) does not exist.\n", [executablePath UTF8String]);
                     }
-
-                    exit(1);
-                }
-
-                if (hasSpecifiedArch == NO) {
-                    if ([file bestMatchForLocalArch:&targetArch] == NO) {
-                        fprintf(stderr, "Error: Couldn't get local architecture\n");
+                } else {
+                    if (executablePath == nil) {
+                        fprintf(stderr, "class-dump: Input file (%s) doesn't contain an executable.\n", [arg fileSystemRepresentation]);
                         exit(1);
                     }
-                }
 
-                classDump.targetArch = targetArch;
-                classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
+                    classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
+                    CDFile *file = [CDFile fileWithContentsOfFile:executablePath searchPathState:classDump.searchPathState];
+                    if (file == nil) {
+                        NSFileManager *defaultManager = [NSFileManager defaultManager];
 
-                NSError *error;
-                if (![classDump loadFile:file error:&error depth:0]) {
-                    fprintf(stderr, "Error: %s\n", [[error localizedFailureReason] UTF8String]);
-                    exit(1);
-                } else {
-                    if (![classDump.sdkRoot length]) {
-                        printf("Please specify either --sdk-mac/--sdk-ios or --sdk-root\n");
-                        print_usage();
-                        exit(3);
+                        if ([defaultManager fileExistsAtPath:executablePath]) {
+                            if ([defaultManager isReadableFileAtPath:executablePath]) {
+                                fprintf(stderr, "class-dump: Input file (%s) is neither a Mach-O file nor a fat archive.\n", [executablePath UTF8String]);
+                            } else {
+                                fprintf(stderr, "class-dump: Input file (%s) is not readable (check read permissions).\n", [executablePath UTF8String]);
+                            }
+                        } else {
+                            fprintf(stderr, "class-dump: Input file (%s) does not exist.\n", [executablePath UTF8String]);
+                        }
+
+                        exit(1);
                     }
-                    if (symbolsPath == nil && !classDump.shouldAnalyze) {
-                        printf("Please specify symbols file path\n");
-                        print_usage();
-                        exit(3);
-                    }else if(symbolsPath != nil && classDump.shouldAnalyze) {
-                        printf("Do not specify the symbols file path when using --analyze\n");
-                        print_usage();
-                        exit(3);
+
+                    if (hasSpecifiedArch == NO) {
+                        if ([file bestMatchForLocalArch:&targetArch] == NO) {
+                            fprintf(stderr, "Error: Couldn't get local architecture\n");
+                            exit(1);
+                        }
                     }
-                    
-                    [classDump processObjectiveCData];
-                    [classDump registerTypes];
 
-                    CDCoreDataModelProcessor *coreDataModelProcessor = [[CDCoreDataModelProcessor alloc] init];
-                    [classFilter addObjectsFromArray:[coreDataModelProcessor coreDataModelSymbolsToExclude]];
+                    classDump.targetArch = targetArch;
+                    classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
+
+                    NSError *error;
+                    if (![classDump loadFile:file error:&error depth:0]) {
+                        fprintf(stderr, "Error: %s\n", [[error localizedFailureReason] UTF8String]);
+                        exit(1);
+                    } else {
+                        if (![classDump.sdkRoot length]) {
+                            printf("Please specify either --sdk-mac/--sdk-ios or --sdk-root\n");
+                            print_usage();
+                            exit(3);
+                        }
+
+                        if (symbolsPath != nil && shouldAnalyze) {
+                            printf("Do not specify the symbols file path when using --analyze\n");
+                            print_usage();
+                            exit(3);
+                        }
+
+                        [classDump processObjectiveCData];
+                        [classDump registerTypes];
+
+                        CDCoreDataModelProcessor *coreDataModelProcessor = [[CDCoreDataModelProcessor alloc] init];
+                        [classFilter addObjectsFromArray:[coreDataModelProcessor coreDataModelSymbolsToExclude]];
 
 
-                    CDSystemProtocolsProcessor *systemProtocolsProcessor = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.sdkRoot];
-                    [ignoreSymbols addObjectsFromArray:[systemProtocolsProcessor systemProtocolsSymbolsToExclude]];
+                        CDSystemProtocolsProcessor *systemProtocolsProcessor = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.sdkRoot];
+                        [ignoreSymbols addObjectsFromArray:[systemProtocolsProcessor systemProtocolsSymbolsToExclude]];
 
-                    CDSymbolsGeneratorVisitor *visitor = [CDSymbolsGeneratorVisitor new];
-                    visitor.classDump = classDump;
-                    visitor.classFilter = classFilter;
-                    visitor.ignoreSymbols = ignoreSymbols;
-                    visitor.symbolsFilePath = symbolsPath;
+                        CDSymbolsGeneratorVisitor *visitor = [CDSymbolsGeneratorVisitor new];
+                        visitor.classDump = classDump;
+                        visitor.classFilter = classFilter;
+                        visitor.ignoreSymbols = ignoreSymbols;
+                        visitor.symbolsFilePath = symbolsPath;
 
-                    [classDump recursivelyVisit:visitor];
-                    if(!classDump.shouldAnalyze){
-                        CDXibStoryBoardProcessor *processor = [[CDXibStoryBoardProcessor alloc] init];
-                        processor.xibBaseDirectory = xibBaseDirectory;
-                        [processor obfuscateFilesUsingSymbols:visitor.symbols];
+                        [classDump recursivelyVisit:visitor];
+                        CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
+                        [mapper writeSymbolsFromSymbolsVisitor:visitor toFile:symbolMappingPath];
                     }
-                    CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
-                    [mapper writeSymbolsFromSymbolsVisitor:visitor toFile:symbolMappingPath];
                 }
             }
         }  else if (crashDumpPath) {
