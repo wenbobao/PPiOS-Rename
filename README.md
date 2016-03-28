@@ -61,21 +61,69 @@ brew install --HEAD ios-class-guard
 
 How to use it?
 -----------
-A few steps are required to integrate iOS Class Guard in a project.
+The basic process is:
 
-1. Download ```obfuscate_project``` in to your project root path.
+    build the program
+    analyze the program and obfuscate the sources
+    build the program again
 
-``` sh
-curl -o obfuscate_project https://raw.githubusercontent.com/Polidea/ios-class-guard/master/contrib/obfuscate_project && chmod +x obfuscate_project
-```
+The second step can be accomplished with the following, adjusting the specifics for the project and system:
 
-2. Update the project file, scheme and configuration name.
+    SDK=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk
+    PROGRAM=/Users/jsmith/Library/Developer/Xcode/DerivedData/your-app-crgbyxabagbmvieqdqcyikjibigv/Build/Products/Debug-iphonesimulator/your-app.app/your-app
 
-3. Do ```bash obfuscate_project``` every time when you want to obfuscate your project. It should be done every release. Store the json file containing symbol mapping so you can get the original symbol names in case of a crash.
+    ios-class-guard --analyze --sdk-root "${SDK}" "${PROGRAM}"
+    ios-class-guard --obfuscate-sources
 
-4. Build, test and archive your project using Xcode or other tools.
+Where SDK is the path to the iPhoneSimulator SDK, and PROGRAM is the path to the executable binary.  The analyze process generates symbols.json, the file containing a symbol mapping that can be used to decode stack traces in the event of a crash.  The symbols file created during a build that is released should always be archived for subsequent use.
 
-The presented way is the simplest one. You can also add additional target that will automatically regenerate the symbols map during compilation.
+Note that the obfuscation process cannot be rerun on the sources to "choose different renames".  Thus, once obfuscated, the sources should not be checked in.
+
+
+Another alternative is to integrate the obfuscation step into an Xcode project directly.  This can be set up with the following process:
+
+1. Open the project in Xcode.
+
+2. Go to the Project Navigator, and select the project.
+
+3. Select the icon to open the "Show project and targets list" (near the upper left corner of the main pane).
+
+4. Select the target to obfuscate, right-click, and select Duplicate (Command-D).
+
+5. Select the duplicated target and rename it to "Obfuscate <original-target-name>".
+
+6. Select Build Phases.
+
+7. Add a script phase by selecting the "+" and then selecting New Run Script Phase (it should run as the last phase, and will by default).
+
+8. Rename the phase from "Run Script" to "Analyze and Obfuscate Sources".
+
+9. Where it says "Type a script or ...", paste the following script:
+
+        set -e
+        PATH="${PATH}:${HOME}/Downloads/PPiOS-ClassGuard-v1.0.0"
+        [[ "${SDKROOT}" == *iPhoneSimulator*.sdk* ]] && sdk="${SDKROOT}" || sdk="${CORRESPONDING_SIMULATOR_SDK_DIR}"
+        ios-class-guard --analyze --sdk-root "${sdk}" "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}"
+        ios-class-guard --obfuscate-sources
+
+10. Replace "${HOME}/Downloads/PPiOS-ClassGuard-v1.0.0" with the correct path to ios-class-guard.
+
+11. Go to Product | Schemes | Manage Schemes.
+
+12. If Autocreate Schemes is enabled, a new scheme for the obfuscate target will have already been created, rename it to "Obfuscate <original-scheme-name>".
+
+13. Otherwise, create a new scheme for the obfuscate target.
+
+14. These changes should be committed at this point, since running the script will change the sources in ways that shouldn't generally be committed.
+
+When ready to start testing an obfuscated build:
+
+1. Build using the Obfuscate scheme, this will alter the sources, obfuscating them by applying the renaming, and then
+
+2. Build using the original scheme.
+
+Once the sources are obfuscated, the process of building and testing for different destinations can be repeated using the original scheme.  If the original scheme or build target is changed, the obfuscating counterparts can be deleted and then recreated using the process above.
+
 
 Pre compiled header file
 -----------
