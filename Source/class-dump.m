@@ -42,8 +42,7 @@ void print_usage(void)
             "                        directory), renaming based on the symbol map\n"
             "  --list-arches         List architectures available in a fat binary\n"
             "  --version             Print out the version information of ios-class-guard\n"
-            "  --translate-crash-dump\n"
-            "                        Translate symbolicated crash dump\n"
+            "  --translate-crashdump Translate symbolicated crash dump\n"
             "  --translate-dsym      Translates a dsym file with obfuscated symbols to a\n"
             "                        dsym with unobfuscated names\n"
             "\n"
@@ -103,6 +102,8 @@ int main(int argc, char *argv[])
         BOOL shouldObfuscate = NO;
         BOOL shouldListArches = NO;
         BOOL shouldPrintVersion = NO;
+        BOOL shouldTranslateDsym = NO;
+        BOOL shouldTranslateCrashDump = NO;
         CDArch targetArch;
         BOOL hasSpecifiedArch = NO;
         NSMutableSet *hiddenSections = [NSMutableSet set];
@@ -263,6 +264,13 @@ int main(int argc, char *argv[])
                     shouldPrintVersion = YES;
                     break;
 
+                case CD_OPT_TRANSLATE_DSYM:
+                    shouldTranslateDsym = YES;
+                    break;
+                case CD_OPT_TRANSLATE_CRASH:
+                    shouldTranslateCrashDump = YES;
+                    break;
+
                 case '?':
                 default:
                     errorFlag = YES;
@@ -281,7 +289,9 @@ int main(int argc, char *argv[])
         if (shouldPrintVersion) {
             printf("PreEmptive Protection for iOS - Class Guard, version %s\n", CLASS_DUMP_VERSION);
             exit(0);
-        }else if(shouldObfuscate){
+        }
+
+        if(shouldObfuscate){
             int result = [classDump obfuscateSourcesUsingMap:symbolMappingPath
                                            symbolsHeaderFile:symbolsPath
                                             workingDirectory:@"."
@@ -290,19 +300,19 @@ int main(int argc, char *argv[])
                 // errors already reported
                 exit(result);
             }
-        }else if(shouldAnalyze){
+        }
+
+        if(shouldAnalyze){
             if (optind < argc) {
                 NSString *arg = [NSString stringWithFileSystemRepresentation:argv[optind]];
                 NSString *executablePath = [arg executablePathForFilename];
                 if (shouldListArches) {
                     if (executablePath == nil) {
-                        printf("none\n");
                     } else {
                         CDSearchPathState *searchPathState = [[CDSearchPathState alloc] init];
                         searchPathState.executablePath = executablePath;
                         id macho = [CDFile fileWithContentsOfFile:executablePath searchPathState:searchPathState];
                         if (macho == nil) {
-                            printf("none\n");
                         } else {
                             if ([macho isKindOfClass:[CDMachOFile class]]) {
                                 printf("%s\n", [[macho archName] UTF8String]);
@@ -313,7 +323,7 @@ int main(int argc, char *argv[])
                     }
                 } else {
                     if (executablePath == nil) {
-                        fprintf(stderr, "class-dump: Input file (%s) doesn't contain an executable.\n", [arg fileSystemRepresentation]);
+                        fprintf(stderr, "class-guard: Input file (%s) doesn't contain an executable.\n", [arg fileSystemRepresentation]);
                         exit(1);
                     }
 
@@ -324,12 +334,12 @@ int main(int argc, char *argv[])
 
                         if ([defaultManager fileExistsAtPath:executablePath]) {
                             if ([defaultManager isReadableFileAtPath:executablePath]) {
-                                fprintf(stderr, "class-dump: Input file (%s) is neither a Mach-O file nor a fat archive.\n", [executablePath UTF8String]);
+                                fprintf(stderr, "class-guard: Input file (%s) is neither a Mach-O file nor a fat archive.\n", [executablePath UTF8String]);
                             } else {
-                                fprintf(stderr, "class-dump: Input file (%s) is not readable (check read permissions).\n", [executablePath UTF8String]);
+                                fprintf(stderr, "class-guard: Input file (%s) is not readable (check read permissions).\n", [executablePath UTF8String]);
                             }
                         } else {
-                            fprintf(stderr, "class-dump: Input file (%s) does not exist.\n", [executablePath UTF8String]);
+                            fprintf(stderr, "class-guard: Input file (%s) does not exist.\n", [executablePath UTF8String]);
                         }
 
                         exit(1);
@@ -384,32 +394,42 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-        }  else if (crashDumpPath) {
+        }
+
+        if(shouldTranslateCrashDump){
+            if (crashDumpPath) {
+                fprintf(stderr, "class-guard: Crash dump file must be specified");
+            }
             NSString *crashDump = [NSString stringWithContentsOfFile:crashDumpPath encoding:NSUTF8StringEncoding error:nil];
             if (crashDump.length == 0) {
-                fprintf(stderr, "class-dump: crash dump file does not exist or is empty %s", [crashDumpPath fileSystemRepresentation]);
+                fprintf(stderr, "class-guard: crash dump file does not exist or is empty %s", [crashDumpPath fileSystemRepresentation]);
                 exit(4);
             }
 
             NSString *symbolsData = [NSString stringWithContentsOfFile:symbolMappingPath encoding:NSUTF8StringEncoding error:nil];
             if (symbolsData.length == 0) {
-                fprintf(stderr, "class-dump: symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
+                fprintf(stderr, "class-guard: symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
                 exit(5);
             }
 
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
             NSString *processedFile = [mapper processCrashDump:crashDump withSymbols:[NSJSONSerialization JSONObjectWithData:[symbolsData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil]];
             [processedFile writeToFile:crashDumpPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
-        } else if (dSYMInPath) {
+        }
+
+        if (shouldTranslateDsym){
+            if(!dSYMInPath) {
+                fprintf(stderr, "class-guard: dSYM input file must be specified");
+            }
             NSString *symbolsData = [NSString stringWithContentsOfFile:symbolMappingPath encoding:NSUTF8StringEncoding error:nil];
             if (symbolsData.length == 0) {
-                fprintf(stderr, "class-dump: symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
+                fprintf(stderr, "class-guard: symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
                 exit(5);
             }
 
             NSRange dSYMPathRange = [dSYMInPath rangeOfString:@".dSYM"];
             if (dSYMPathRange.location == NSNotFound) {
-                fprintf(stderr, "class-dump: no valid dsym file provided %s", [dSYMOutPath fileSystemRepresentation]);
+                fprintf(stderr, "class-guard: no valid dsym file provided %s", [dSYMOutPath fileSystemRepresentation]);
                 exit(4);
             }
 
@@ -419,7 +439,7 @@ int main(int argc, char *argv[])
             for (NSString *dwarfFilePath in dwarfFilesPaths) {
                 NSData *dwarfdumpData = [NSData dataWithContentsOfFile:dwarfFilePath];
                 if (dwarfdumpData.length == 0) {
-                    fprintf(stderr, "class-dump: dwarf file does not exist or is empty %s", [dwarfFilePath fileSystemRepresentation]);
+                    fprintf(stderr, "class-guard: dwarf file does not exist or is empty %s", [dwarfFilePath fileSystemRepresentation]);
                     exit(4);
                 }
 
