@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
                 { "symbols-file",            required_argument, NULL, 'O' },
                 { "symbols-map",             required_argument, NULL, 'm' },
                 { "crash-dump",              required_argument, NULL, 'c' },
-                { "dsym",                    required_argument, NULL, CD_OPT_DSYM_IN },
+                { "dsym-in",                 required_argument, NULL, CD_OPT_DSYM_IN },
                 { "dsym-out",                required_argument, NULL, CD_OPT_DSYM_OUT },
                 { "arch",                    required_argument, NULL, CD_OPT_ARCH }, //needed?
                 { "list-arches",             no_argument,       NULL, CD_OPT_LIST_ARCHES },
