@@ -29,7 +29,7 @@ void print_usage(void)
             "\n"
             "Usage:\n"
             "ios-class-guard --analyze [options] \n"
-            "  ( --sdk-root <path> | ( --sdk-ios | --sdk-mac ) <version> ) <mach-o-file>\n"
+            "  ( --sdk-root <path> | ( --sdk-ios  <version> ) <mach-o-file>\n"
             "ios-class-guard --obfuscate-sources [options]\n"
             "ios-class-guard --list-arches <mach-o-file>\n"
             "ios-class-guard --version\n"
@@ -60,9 +60,6 @@ void print_usage(void)
             "  --sdk-ios             Specify iOS SDK by version, searching for:\n"
             "                        /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk\n"
             "                        and /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk\n"
-            "  --sdk-mac             Specify Mac OS X SDK by version, searching:\n"
-            "                        /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX<version>.sdk\n"
-            "                        and /Developer/SDKs/MacOSX<version>.sdk\n"
             "\n"
             "Obfuscate sources mode options:\n"
             "  -X <directory>        Path for XIBs and storyboards (searched recursively)\n"
@@ -83,7 +80,6 @@ void print_usage(void)
 #define CD_OPT_LIST_ARCHES 2
 #define CD_OPT_VERSION     3
 #define CD_OPT_SDK_IOS     4
-#define CD_OPT_SDK_MAC     5
 #define CD_OPT_SDK_ROOT    6
 #define CD_OPT_HIDE        7
 #define CD_OPT_DSYM_IN     8
@@ -133,7 +129,6 @@ int main(int argc, char *argv[])
                 { "suppress-header",         no_argument,       NULL, 't' },
                 { "version",                 no_argument,       NULL, CD_OPT_VERSION },
                 { "sdk-ios",                 required_argument, NULL, CD_OPT_SDK_IOS },
-                { "sdk-mac",                 required_argument, NULL, CD_OPT_SDK_MAC },
                 { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
                 { "hide",                    required_argument, NULL, CD_OPT_HIDE },
                 { "analyze",                 no_argument,       NULL, PPIOS_CG_OPT_ANALYZE }, //'z'
@@ -171,19 +166,6 @@ int main(int argc, char *argv[])
                         str = [NSString stringWithFormat:@"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%@.sdk", root];
                     } else if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Developer"]) {
                         str = [NSString stringWithFormat:@"/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%@.sdk", root];
-                    }
-                    classDump.sdkRoot = str;
-
-                    break;
-                }
-
-                case CD_OPT_SDK_MAC: {
-                    NSString *root = [NSString stringWithUTF8String:optarg];
-                    NSString *str;
-                    if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Applications/Xcode.app"]) {
-                        str = [NSString stringWithFormat:@"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX%@.sdk", root];
-                    } else if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Developer"]) {
-                        str = [NSString stringWithFormat:@"/Developer/SDKs/MacOSX%@.sdk", root];
                     }
                     classDump.sdkRoot = str;
 
@@ -361,13 +343,7 @@ int main(int argc, char *argv[])
                         exit(1);
                     } else {
                         if (![classDump.sdkRoot length]) {
-                            printf("Please specify either --sdk-mac/--sdk-ios or --sdk-root\n");
-                            print_usage();
-                            exit(3);
-                        }
-
-                        if (symbolsPath != nil && shouldAnalyze) {
-                            printf("Do not specify the symbols file path when using --analyze\n");
+                            printf("Please specify either --sdk-ios or --sdk-root\n");
                             print_usage();
                             exit(3);
                         }
