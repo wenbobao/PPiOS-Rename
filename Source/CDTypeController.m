@@ -90,16 +90,6 @@ static BOOL debug = NO;
 
 #pragma mark -
 
-- (BOOL)shouldShowIvarOffsets;
-{
-    return self.classDump.shouldShowIvarOffsets;
-}
-
-- (BOOL)shouldShowMethodAddresses;
-{
-    return self.classDump.shouldShowMethodAddresses;
-}
-
 - (BOOL)targetArchUses64BitABI;
 {
     return CDArchUses64BitABI(self.classDump.targetArch);
@@ -109,10 +99,6 @@ static BOOL debug = NO;
 
 - (CDType *)typeFormatter:(CDTypeFormatter *)typeFormatter replacementForType:(CDType *)type;
 {
-#if 0
-    if (type.type == '{') return [structureTable replacementForType:type];
-    if (type.type == '(') return [unionTable     replacementForType:type];
-#endif
     return nil;
 }
 
@@ -336,10 +322,6 @@ static BOOL debug = NO;
 
 #pragma mark -
 
-- (BOOL)shouldShowName:(NSString *)name;
-{
-    return [self.classDump shouldShowName:name];
-}
 
 - (BOOL)shouldExpandType:(CDType *)type;
 {

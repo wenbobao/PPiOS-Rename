@@ -368,15 +368,6 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         exit(5);
     }
 
-#if 0
-    NSLog(@"---------->");
-    NSLog(@"segment is: %@", segment);
-    NSLog(@"address: 0x%08x", address);
-    NSLog(@"CDFile offset:    0x%08x", offset);
-    NSLog(@"file off for address: 0x%08x", [segment fileOffsetForAddress:address]);
-    NSLog(@"data offset:      0x%08x", offset + [segment fileOffsetForAddress:address]);
-    NSLog(@"<----------");
-#endif
     return [segment fileOffsetForAddress:address];
 }
 

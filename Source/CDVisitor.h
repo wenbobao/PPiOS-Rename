@@ -48,7 +48,4 @@
 
 - (void)visitRemainingProperties:(CDVisitorPropertyState *)propertyState;
 
-@property (assign) BOOL shouldShowStructureSection;
-@property (assign) BOOL shouldShowProtocolSection;
-
 @end

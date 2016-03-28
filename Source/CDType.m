@@ -1011,13 +1011,6 @@ static BOOL debugMerge = NO;
             // >0 members so we don't try replacing things like... {_xmlNode=^{_xmlNode}}
             if ([_members count] > 0 && [self canMergeWithType:phase3Type]) {
                 [self mergeWithType:phase3Type];
-            } else {
-#if 0
-                // This can happen in AU Lab, that struct has no members...
-                NSLog(@"Found phase3 type, but can't merge with it.");
-                NSLog(@"this: %@", self.typeString);
-                NSLog(@"that: %@", phase3Type.typeString);
-#endif
             }
         }
     }

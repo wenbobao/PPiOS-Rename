@@ -170,35 +170,29 @@
 
 - (void)recursivelyVisit:(CDVisitor *)visitor;
 {
-    if ([visitor.classDump shouldShowName:self.name] && visitor.shouldShowProtocolSection) {
-        CDVisitorPropertyState *propertyState = [[CDVisitorPropertyState alloc] initWithProperties:self.properties];
-        
-        [visitor willVisitProtocol:self];
-        
-        //[aVisitor willVisitPropertiesOfProtocol:self];
-        //[self visitProperties:aVisitor];
-        //[aVisitor didVisitPropertiesOfProtocol:self];
-        
-        [self visitMethods:visitor propertyState:propertyState];
-        
-        // @optional properties will generate optional instance methods, and we'll emit @property in the @optional section.
-        [visitor visitRemainingProperties:propertyState];
-        
-        [visitor didVisitProtocol:self];
-    }
+    CDVisitorPropertyState *propertyState = [[CDVisitorPropertyState alloc] initWithProperties:self.properties];
+
+    [visitor willVisitProtocol:self];
+
+    //[aVisitor willVisitPropertiesOfProtocol:self];
+    //[self visitProperties:aVisitor];
+    //[aVisitor didVisitPropertiesOfProtocol:self];
+
+    [self visitMethods:visitor propertyState:propertyState];
+
+    // @optional properties will generate optional instance methods, and we'll emit @property in the @optional section.
+    [visitor visitRemainingProperties:propertyState];
+
+    [visitor didVisitProtocol:self];
 }
 
 - (void)visitMethods:(CDVisitor *)visitor propertyState:(CDVisitorPropertyState *)propertyState;
 {
     NSArray *methods = self.classMethods;
-    if (visitor.classDump.shouldSortMethods)
-        methods = [methods sortedArrayUsingSelector:@selector(ascendingCompareByName:)];
     for (CDOCMethod *method in methods)
         [visitor visitClassMethod:method];
 
     methods = self.instanceMethods;
-    if (visitor.classDump.shouldSortMethods)
-        methods = [methods sortedArrayUsingSelector:@selector(ascendingCompareByName:)];
     for (CDOCMethod *method in methods)
         [visitor visitInstanceMethod:method propertyState:propertyState];
 
@@ -206,14 +200,10 @@
         [visitor willVisitOptionalMethods];
 
         methods = self.optionalClassMethods;
-        if (visitor.classDump.shouldSortMethods)
-            methods = [methods sortedArrayUsingSelector:@selector(ascendingCompareByName:)];
         for (CDOCMethod *method in methods)
             [visitor visitClassMethod:method];
 
         methods = self.optionalInstanceMethods;
-        if (visitor.classDump.shouldSortMethods)
-            methods = [methods sortedArrayUsingSelector:@selector(ascendingCompareByName:)];
         for (CDOCMethod *method in methods)
             [visitor visitInstanceMethod:method propertyState:propertyState];
 
@@ -221,16 +211,6 @@
     }
 }
 
-#if 0
-- (void)visitProperties:(CDVisitor *)visitor;
-{
-    NSArray *array = properties;
-    if (visitor.classDump.shouldSortMethods)
-        array = [array sortedArrayUsingSelector:@selector(ascendingCompareByName:)];
-    for (CDOCProperty *property in array)
-        [visitor visitProperty:property];
-}
-#endif
 
 #pragma mark -
 

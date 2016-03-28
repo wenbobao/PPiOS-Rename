@@ -1441,6 +1441,16 @@
 					"-lxml2",
 				);
 				PRODUCT_NAME = "ios-class-guard";
+				WARNING_CFLAGS = (
+					"-fdiagnostics-show-option",
+					"-Wno-semicolon-before-method-body",
+					"-Wno-c11-extensions",
+					"-Wno-overriding-method-mismatch",
+					"-Wno-unused-macros",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-direct-ivar-access",
+					"-Wno-arc-repeated-use-of-weak",
+				);
 			};
 			name = Debug;
 		};
@@ -1460,6 +1470,16 @@
 					"-lxml2",
 				);
 				PRODUCT_NAME = "ios-class-guard";
+				WARNING_CFLAGS = (
+					"-fdiagnostics-show-option",
+					"-Wno-semicolon-before-method-body",
+					"-Wno-c11-extensions",
+					"-Wno-overriding-method-mismatch",
+					"-Wno-unused-macros",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-direct-ivar-access",
+					"-Wno-arc-repeated-use-of-weak",
+				);
 			};
 			name = Release;
 		};

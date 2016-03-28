@@ -77,13 +77,5 @@ static NSString *CDDylibVersionString(uint32_t version)
     return CDDylibVersionString(self.compatibilityVersion);
 }
 
-#if 0
-- (NSString *)extraDescription;
-{
-    return [NSString stringWithFormat:@"%@ (compatibility version %@, current version %@, timestamp %d [%@])",
-                     self.path, CDDylibVersionString(self.compatibilityVersion), CDDylibVersionString(self.currentVersion),
-                     self.timestamp, [NSDate dateWithTimeIntervalSince1970:self.timestamp]];
-}
-#endif
 
 @end

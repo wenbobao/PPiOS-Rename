@@ -77,8 +77,8 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     BOOL _shouldShowIvarOffsets;
     BOOL _shouldShowMethodAddresses;
     BOOL _shouldShowHeader;
-    BOOL _shouldOnlyAnalyze;
-    BOOL _shouldOnlyObfuscate;
+    BOOL _shouldAnalyze;
+    BOOL _shouldObfuscate;
     
     NSRegularExpression *_regularExpression;
     
@@ -147,28 +147,10 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
         _targetArch.cpusubtype = 0;
         
         _shouldShowHeader = YES;
-
-        _maxRecursiveDepth = INT_MAX;
-        _shouldOnlyAnalyze = NO;
-        _shouldOnlyObfuscate = NO;
     }
 
     return self;
 }
-
-#pragma mark - Regular expression handling
-
-- (BOOL)shouldShowName:(NSString *)name;
-{
-    if (self.regularExpression != nil) {
-        NSTextCheckingResult *firstMatch = [self.regularExpression firstMatchInString:name options:(NSMatchingOptions)0 range:NSMakeRange(0, [name length])];
-        return firstMatch != nil;
-    }
-
-    return YES;
-}
-
-#pragma mark -
 
 - (BOOL)containsObjectiveCData;
 {
@@ -232,11 +214,7 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
     [_machOFiles addObject:machOFile];
     _machOFilesByName[machOFile.filename] = machOFile;
 
-    BOOL shouldProcessRecursively = [self shouldProcessRecursively] && depth < _maxRecursiveDepth;
-    if(!shouldProcessRecursively && [self.forceRecursiveAnalyze containsObject:machOFile.importBaseName]) {
-        shouldProcessRecursively = YES;
-        NSLog(@"Forced recursively processing of %@", machOFile.importBaseName);
-    }
+    BOOL shouldProcessRecursively = YES;
 
     if (shouldProcessRecursively) {
         @try {
@@ -293,11 +271,8 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
     [visitor willBeginVisiting];
 
     NSEnumerator *objcProcessors;
-    if(self.shouldIterateInReverse) {
-        objcProcessors = [self.objcProcessors reverseObjectEnumerator];
-    } else {
-        objcProcessors = [self.objcProcessors objectEnumerator];
-    }
+    objcProcessors = [self.objcProcessors objectEnumerator];
+    
 
     for (CDObjectiveCProcessor *processor in objcProcessors) {
         [processor recursivelyVisit:visitor];

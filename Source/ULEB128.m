@@ -28,21 +28,6 @@ uint64_t read_uleb128(const uint8_t **ptrptr, const uint8_t *end)
     }
     while ((*ptr++ & 0x80) != 0);
     
-#if 0
-    static NSUInteger maxlen = 0;
-    if (maxlen < ptr - *ptrptr) {
-        const uint8_t *ptr2 = *ptrptr;
-        
-        NSMutableArray *byteStrs = [NSMutableArray array];
-        do {
-            [byteStrs addObject:[NSString stringWithFormat:@"%02x", *ptr2]];
-        } while (++ptr2 < ptr);
-        //NSLog(@"max uleb length now: %u (%@)", ptr - *ptrptr, [byteStrs componentsJoinedByString:@" "]);
-        //NSLog(@"sizeof(uint64_t): %u, sizeof(uintptr_t): %u", sizeof(uint64_t), sizeof(uintptr_t));
-        maxlen = ptr - *ptrptr;
-    }
-#endif
-    
     *ptrptr = ptr;
     return result;
 }
