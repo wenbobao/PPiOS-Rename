@@ -10,17 +10,10 @@
 @implementation CDVisitor
 {
     CDClassDump *_classDump;
-    BOOL _shouldShowStructureSection;
-    BOOL _shouldShowProtocolSection;
 }
 
 - (id)init;
 {
-    if ((self = [super init])) {
-        _shouldShowStructureSection = YES;
-        _shouldShowProtocolSection  = YES;
-    }
-    
     return self;
 }
 
