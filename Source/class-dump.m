@@ -68,7 +68,7 @@ void print_usage(void)
             "\n"
             "Other options:\n"
             "  -c <path>             Path to symbolicated crash dump\n"
-            "  --dsym-in <path>         Path to dSym file to translate\n"
+            "  --dsym-in <path>      Path to dSym file to translate\n"
             "  --dsym-out <path>     Path to dSym file to translate\n"
             "\n"
             ,
@@ -395,7 +395,12 @@ int main(int argc, char *argv[])
 
         if (shouldTranslateDsym){
             if(!dSYMInPath) {
-                fprintf(stderr, "class-guard: dSYM input file must be specified");
+                fprintf(stderr, "class-guard: no valid dSYM input file provided");
+                exit(5);
+            }
+            if(!dSYMOutPath) {
+                fprintf(stderr, "class-guard: no valid dSYM output file path provided");
+                exit(5);
             }
             NSString *symbolsData = [NSString stringWithContentsOfFile:symbolMappingPath encoding:NSUTF8StringEncoding error:nil];
             if (symbolsData.length == 0) {
@@ -405,7 +410,7 @@ int main(int argc, char *argv[])
 
             NSRange dSYMPathRange = [dSYMInPath rangeOfString:@".dSYM"];
             if (dSYMPathRange.location == NSNotFound) {
-                fprintf(stderr, "class-guard: no valid dsym file provided %s", [dSYMOutPath fileSystemRepresentation]);
+                fprintf(stderr, "class-guard: no valid dSYM file provided %s", [dSYMOutPath fileSystemRepresentation]);
                 exit(4);
             }
 
