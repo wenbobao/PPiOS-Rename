@@ -314,12 +314,6 @@ static BOOL debug = NO;
         metaClass.cache         = [cursor readInt32];
         metaClass.protocols     = [cursor readInt32];
 
-#if 0
-        // TODO: (2009-06-23) See if there's anything else interesting here.
-        NSLog(@"metaclass= isa:%08x super:%08x  name:%08x ver:%08x  info:%08x isize:%08x  ivar:%08x meth:%08x  cache:%08x proto:%08x",
-              metaClass.isa, metaClass.super_class, metaClass.name, metaClass.version, metaClass.info, metaClass.instance_size,
-              metaClass.ivars, metaClass.methods, metaClass.cache, metaClass.protocols);
-#endif
         // Process class methods
         for (CDOCMethod *method in [self processMethodsAtAddress:metaClass.methods])
             [aClass addClassMethod:method];

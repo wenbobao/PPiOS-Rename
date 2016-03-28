@@ -67,18 +67,6 @@
     XCTAssertTrue(arch.cpusubtype == CPU_SUBTYPE_386, @"Best match cpusubtype should be CPU_SUBTYPE_386");
 }
 
-#if 0
-// We don't build 32-bit any more, so this test case shouldn't come up.
-- (void)test_bestMatchIntel32;
-{
-    CDArch arch = { CPU_TYPE_X86, CPU_SUBTYPE_386 };
-    
-    BOOL result = [_intel_32_64 bestMatchForArch:&arch];
-    XCTAssertTrue(result,                             @"Didn't find a best match for i386");
-    XCTAssertTrue(arch.cputype == CPU_TYPE_X86,       @"Best match cputype should be CPU_TYPE_X86");
-    XCTAssertTrue(arch.cpusubtype == CPU_SUBTYPE_386, @"Best match cpusubtype should be CPU_SUBTYPE_386");
-}
-#endif
 
 - (void)test_machOFileWithArch_x86_64;
 {

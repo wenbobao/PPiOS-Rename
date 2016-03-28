@@ -99,10 +99,6 @@ static BOOL debug = NO;
 
 - (CDType *)typeFormatter:(CDTypeFormatter *)typeFormatter replacementForType:(CDType *)type;
 {
-#if 0
-    if (type.type == '{') return [structureTable replacementForType:type];
-    if (type.type == '(') return [unionTable     replacementForType:type];
-#endif
     return nil;
 }
 

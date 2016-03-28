@@ -211,16 +211,6 @@
     }
 }
 
-#if 0
-- (void)visitProperties:(CDVisitor *)visitor;
-{
-    NSArray *array = properties;
-    if (visitor.classDump.shouldSortMethods)
-        array = [array sortedArrayUsingSelector:@selector(ascendingCompareByName:)];
-    for (CDOCProperty *property in array)
-        [visitor visitProperty:property];
-}
-#endif
 
 #pragma mark -
 

@@ -69,20 +69,6 @@ static NSString *CDBindTypeDescription(uint8_t type)
         _dyldInfoCommand.export_off     = [cursor readInt32];
         _dyldInfoCommand.export_size    = [cursor readInt32];
         
-#if 0
-        NSLog(@"       cmdsize: %08x", _dyldInfoCommand.cmdsize);
-        NSLog(@"    rebase_off: %08x", _dyldInfoCommand.rebase_off);
-        NSLog(@"   rebase_size: %08x", _dyldInfoCommand.rebase_size);
-        NSLog(@"      bind_off: %08x", _dyldInfoCommand.bind_off);
-        NSLog(@"     bind_size: %08x", _dyldInfoCommand.bind_size);
-        NSLog(@" weak_bind_off: %08x", _dyldInfoCommand.weak_bind_off);
-        NSLog(@"weak_bind_size: %08x", _dyldInfoCommand.weak_bind_size);
-        NSLog(@" lazy_bind_off: %08x", _dyldInfoCommand.lazy_bind_off);
-        NSLog(@"lazy_bind_size: %08x", _dyldInfoCommand.lazy_bind_size);
-        NSLog(@"    export_off: %08x", _dyldInfoCommand.export_off);
-        NSLog(@"   export_size: %08x", _dyldInfoCommand.export_size);
-#endif
-        
         _ptrSize = [[cursor machOFile] ptrSize];
         
         _symbolNamesByAddress = [[NSMutableDictionary alloc] init];
@@ -430,10 +416,6 @@ static NSString *CDBindTypeDescription(uint8_t type)
 - (void)bindAddress:(uint64_t)address type:(uint8_t)type symbolName:(const char *)symbolName flags:(uint8_t)flags
              addend:(int64_t)addend libraryOrdinal:(int64_t)libraryOrdinal;
 {
-#if 0
-    NSLog(@"    Bind address: %016lx, type: 0x%02x, flags: %02x, addend: %016lx, libraryOrdinal: %ld, symbolName: %s",
-          address, type, flags, addend, libraryOrdinal, symbolName);
-#endif
 
     NSNumber *key = [NSNumber numberWithUnsignedInteger:address]; // I don't think 32-bit will dump 64-bit stuff.
     NSString *str = [[NSString alloc] initWithUTF8String:symbolName];

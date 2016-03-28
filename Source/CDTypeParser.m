@@ -235,14 +235,6 @@ static NSString *CDTokenDescription(int token)
         result = [[CDType alloc] initBitfieldType:number];
     } else if (_lookahead == '@') { // id
         [self match:'@'];
-#if 0
-        if (lookahead == TK_QUOTED_STRING) {
-            NSLog(@"%s, quoted string ahead, shouldCheckFieldNames: %d, end: %d",
-                  __cmd, shouldCheckFieldNames, [lexer.scanner isAtEnd]);
-            if ([lexer.scanner isAtEnd] == NO)
-                NSLog(@"next character: %d (%c), isInTypeStartSet: %d", lexer.peekChar, lexer.peekChar, [self isTokenInTypeStartSet:lexer.peekChar]);
-        }
-#endif
         if (_lookahead == TK_QUOTED_STRING && (isInStruct == NO || [self.lexer.lexText isFirstLetterUppercase] || [self isTokenInTypeStartSet:self.lexer.peekChar] == NO)) {
             NSString *str = self.lexer.lexText;
             
@@ -418,12 +410,6 @@ static NSString *CDTokenDescription(int token)
         }
     }
 
-#if 0
-    // This breaks a bunch of the unit tests... need to figure out what's up with that first.
-    // We'll treat "?" as no name, returning nil here instead of testing the type name for this later.
-    if ([[typeName name] isEqualToString:@"?"] && [typeName isTemplateType] == NO)
-        typeName = nil;
-#endif
 
     return typeName;
 }

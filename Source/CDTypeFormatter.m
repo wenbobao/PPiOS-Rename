@@ -60,13 +60,6 @@ static BOOL debug = NO;
             return @"BOOL";
         else
             return [NSString stringWithFormat:@"BOOL %@", name];
-#if 0
-    } else if ([type isEqual:@"b1"]) {
-        if (name == nil)
-            return @"BOOL :1";
-        else
-            return [NSString stringWithFormat:@"BOOL %@:1", name];
-#endif
     }
 
     return nil;

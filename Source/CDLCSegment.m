@@ -197,22 +197,6 @@ NSString *CDSegmentEncryptionTypeName(CDSegmentEncryptionType type)
 - (void)appendToString:(NSMutableString *)resultString verbose:(BOOL)isVerbose;
 {
     [super appendToString:resultString verbose:isVerbose];
-#if 0
-    int padding = (int)self.machOFile.ptrSize * 2;
-    [resultString appendFormat:@"  segname %@\n",       self.name];
-    [resultString appendFormat:@"   vmaddr 0x%0*llx\n", padding, _segmentCommand.vmaddr];
-    [resultString appendFormat:@"   vmsize 0x%0*llx\n", padding, _segmentCommand.vmsize];
-    [resultString appendFormat:@"  fileoff %lld\n",     _segmentCommand.fileoff];
-    [resultString appendFormat:@" filesize %lld\n",     _segmentCommand.filesize];
-    [resultString appendFormat:@"  maxprot 0x%08x\n",   _segmentCommand.maxprot];
-    [resultString appendFormat:@" initprot 0x%08x\n",   _segmentCommand.initprot];
-    [resultString appendFormat:@"   nsects %d\n",       _segmentCommand.nsects];
-
-    if (isVerbose)
-        [resultString appendFormat:@"    flags %@\n", [self flagDescription]];
-    else
-        [resultString appendFormat:@"    flags 0x%x\n", _segmentCommand.flags];
-#endif
 }
 
 - (void)writeSectionData;

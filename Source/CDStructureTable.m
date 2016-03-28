@@ -300,10 +300,6 @@ static BOOL debugAnonStructures = NO;
                 if ([combined.type canMergeWithType:info.type]) {
                     [combined.type mergeWithType:info.type];
                     [combined addReferenceCount:info.referenceCount];
-#if 0
-                    if (info.isUsedInMethod)
-                        combined.isUsedInMethod = YES;
-#endif
                 } else {
                     combined = nil;
                     break;
@@ -354,10 +350,6 @@ static BOOL debugAnonStructures = NO;
                 if ([combined.type canMergeWithType:info.type]) {
                     [combined.type mergeWithType:info.type];
                     [combined addReferenceCount:info.referenceCount];
-#if 0
-                    if (info.isUsedInMethod)
-                        combined.isUsedInMethod = YES;
-#endif
                 } else {
                     if (debugAnonStructures) {
                         NSLog(@"previous: %@", combined.type.typeString);
@@ -846,20 +838,11 @@ static BOOL debugAnonStructures = NO;
     if (info == nil) {
         // Check name exceptions
         info = _phase3_nameExceptions[type.typeString];
-#if 0
-        if (info != nil)
-            NSLog(@"Got typedef name for phase3 name exception: %@", info.typedefName);
-#endif
     }
 
     if (info == nil) {
         info = _phase3_namedStructureInfo[[type.typeName description]];
     }
-#if 0
-    if (type.isTemplateType && info.typedefName == nil) {
-        NSLog(@"Warning: no typedef name for type: %@", type.typeString);
-    }
-#endif
 
     return info.typedefName;
 }
@@ -888,53 +871,16 @@ static BOOL debugAnonStructures = NO;
 
 - (void)logPhase2Info;
 {
-#if 0
-    NSLog(@"======================================================================");
-    NSLog(@"[%@] %s, named:", identifier, __cmd);
-    for (CDStructureInfo *info in [[phase2_namedStructureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
-        NSLog(@"%@", [info shortDescription]);
-    }
-#endif
-#if 0
-    NSLog(@"======================================================================");
-    NSLog(@"[%@] %s, anon:", identifier, __cmd);
-    for (CDStructureInfo *info in [[phase2_anonStructureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
-        NSLog(@"%@", [info shortDescription]);
-    }
-#endif
-#if 1
     NSLog(@"======================================================================");
     NSLog(@"[%@] %s, named exceptions:", self.identifier, __cmd);
     for (CDStructureInfo *info in [_phase2_nameExceptions sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
         NSLog(@"%@", [info shortDescription]);
     }
-#endif
-#if 0
-    NSLog(@"======================================================================");
-    NSLog(@"[%@] %s, anon exceptions:", identifier, __cmd);
-    for (CDStructureInfo *info in [phase2_anonExceptions sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
-        NSLog(@"%@", [info shortDescription]);
-    }
-#endif
 }
 
 - (void)logPhase3Info;
 {
     NSLog(@"[%@]  > %s", self.identifier, __cmd);
-#if 0
-    NSLog(@"----------------------------------------------------------------------");
-    NSLog(@"named:");
-    for (NSString *name in [[phase3_namedStructureInfo allKeys] sortedArrayUsingSelector:@selector(compare:)]) {
-        CDStructureInfo *info = phase3_namedStructureInfo[name];
-        NSLog(@"%@", [info shortDescription]);
-    }
-    
-    NSLog(@"----------------------------------------------------------------------");
-    NSLog(@"anon:");
-    for (CDStructureInfo *info in [[phase3_anonStructureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
-        NSLog(@"%@", [info shortDescription]);
-    }
-#endif
     NSLog(@"======================================================================");
     NSLog(@"[%@] %s, anon exceptions:", self.identifier, __cmd);
     for (CDStructureInfo *info in [[_phase3_anonExceptions allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {

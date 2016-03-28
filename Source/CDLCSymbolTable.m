@@ -41,13 +41,7 @@
         
         // symoff is at the start of the first section (__pointers) of the __IMPORT segment
         // stroff falls within the __LINKEDIT segment
-#if 0
-        NSLog(@"symtab: %08x %08x  %08x %08x %08x %08x",
-              symtabCommand.cmd, symtabCommand.cmdsize,
-              symtabCommand.symoff, symtabCommand.nsyms, symtabCommand.stroff, symtabCommand.strsize);
-        NSLog(@"data offset for stroff: %lu", [cursor.machOFile dataOffsetForAddress:symtabCommand.stroff]);
-#endif
-        
+
         _symbols = nil;
         _baseAddress = 0;
         
@@ -133,10 +127,6 @@
             nlist.n_sect      = [cursor readByte];
             nlist.n_desc      = [cursor readInt16];
             nlist.n_value     = [cursor readInt32];
-#if 0
-            NSLog(@"%5u: %08x           %02x    %02x  %04x  %08x - %s",
-                  index, nlist.n_un.n_strx, nlist.n_type, nlist.n_sect, nlist.n_desc, nlist.n_value, strtab + nlist.n_un.n_strx);
-#endif
 
             const char *ptr = strtab + nlist.n_un.n_strx;
             NSString *str = [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];
@@ -157,10 +147,6 @@
             nlist.n_sect      = [cursor readByte];
             nlist.n_desc      = [cursor readInt16];
             nlist.n_value     = [cursor readInt64];
-#if 0
-            NSLog(@"%5u: %08x           %02x    %02x  %04x  %016x - %s",
-                  index, nlist.n_un.n_strx, nlist.n_type, nlist.n_sect, nlist.n_desc, nlist.n_value, strtab + nlist.n_un.n_strx);
-#endif
             const char *ptr = strtab + nlist.n_un.n_strx;
             NSString *str = [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];
 
