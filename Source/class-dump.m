@@ -283,16 +283,6 @@ int main(int argc, char *argv[])
             exit(0);
         }
 
-        if(shouldObfuscate){
-            int result = [classDump obfuscateSourcesUsingMap:symbolMappingPath
-                                           symbolsHeaderFile:symbolsPath
-                                            workingDirectory:@"."
-                                                xibDirectory:xibBaseDirectory];
-            if (result != 0) {
-                // errors already reported
-                exit(result);
-            }
-        }
 
         if (shouldListArches) {
             if(executablePath == nil){
@@ -313,7 +303,7 @@ int main(int argc, char *argv[])
 
         if(shouldAnalyze){
             if(executablePath == nil){
-                fprintf(stderr, "class-guard: Input file must be specified for --list-arches\n");
+                fprintf(stderr, "class-guard: Input file must be specified for --analyze\n");
                 exit(1);
             }
             classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
@@ -373,6 +363,17 @@ int main(int argc, char *argv[])
             [classDump recursivelyVisit:visitor];
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
             [mapper writeSymbolsFromSymbolsVisitor:visitor toFile:symbolMappingPath];
+        }
+
+        if(shouldObfuscate){
+            int result = [classDump obfuscateSourcesUsingMap:symbolMappingPath
+                                           symbolsHeaderFile:symbolsPath
+                                            workingDirectory:@"."
+                                                xibDirectory:xibBaseDirectory];
+            if (result != 0) {
+                // errors already reported
+                exit(result);
+            }
         }
 
         if(shouldTranslateCrashDump){
