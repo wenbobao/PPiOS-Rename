@@ -120,10 +120,10 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
 + (NSDictionary<NSValue *, NSArray<NSValue *> *> *)getSupportedArches
 {
     if (supportedArches == nil) {
-         NSMutableDictionary<NSValue *, NSArray<NSValue *> *> * arches = [NSMutableDictionary new];
-        [self addEntryTo:arches forArch:@"armv7" candidates:@"armv7", @"x86_64", nil];
-        [self addEntryTo:arches forArch:@"armv7s" candidates:@"armv7s", @"x86_64", nil];
-        [self addEntryTo:arches forArch:@"arm64" candidates:@"arm64", @"x86_64", nil];
+        NSMutableDictionary<NSValue *, NSArray<NSValue *> *> * arches = [NSMutableDictionary new];
+        [self addEntryTo:arches forArch:@"armv7" candidates:@"armv7", @"x86_64", @"i386", nil];
+        [self addEntryTo:arches forArch:@"armv7s" candidates:@"armv7s", @"x86_64", @"i386", nil];
+        [self addEntryTo:arches forArch:@"arm64" candidates:@"arm64", @"x86_64", @"i386", nil];
         supportedArches = [NSDictionary dictionaryWithDictionary:arches];
     }
 
