@@ -7,20 +7,23 @@
 
 #import "CDClassDump.h"
 #import "CDFindMethodVisitor.h"
-#import "CDClassDumpVisitor.h"
-#import "CDMultiFileVisitor.h"
 #import "CDMachOFile.h"
 #import "CDFatFile.h"
 #import "CDFatArch.h"
 #import "CDSearchPathState.h"
 #import "CDSymbolsGeneratorVisitor.h"
-#import "CDXibStoryBoardProcessor.h"
 #import "CDCoreDataModelProcessor.h"
 #import "CDSymbolMapper.h"
 #import "CDSystemProtocolsProcessor.h"
 #import "CDdSYMProcessor.h"
 
 NSString *defaultSymbolMappingPath = @"symbols.json";
+
+#define SDK_PATH_BEFORE \
+        "/Applications/Xcode.app/Contents/Developer" \
+            "/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator"
+#define SDK_PATH_AFTER ".sdk"
+#define SDK_PATH_USAGE_STRING SDK_PATH_BEFORE "<version>" SDK_PATH_AFTER
 
 void print_usage(void)
 {
@@ -29,7 +32,7 @@ void print_usage(void)
             "\n"
             "Usage:\n"
             "ios-class-guard --analyze [options] \n"
-            "  ( --sdk-root <path> | ( --sdk-ios  <version> ) <mach-o-file>\n"
+            "  ( --sdk-root <path> | --sdk-ios  <version> ) <mach-o-file>\n"
             "ios-class-guard --obfuscate-sources [options]\n"
             "ios-class-guard --list-arches <mach-o-file>\n"
             "ios-class-guard --version\n"
@@ -56,10 +59,9 @@ void print_usage(void)
             "  -i <symbol>           Ignore obfuscation of specific symbol\n"
             "  --arch <arch>         Choose specific architecture from universal binary:\n"
             "                        ppc|ppc64|i386|x86_64|armv6|armv7|armv7s|arm64\n"
-            "  --sdk-root            Specify full SDK root path (or one of the shortcuts)\n"
-            "  --sdk-ios             Specify iOS SDK by version, searching for:\n"
-            "                        /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk\n"
-            "                        and /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk\n"
+            "  --sdk-root <path>     Specify full SDK root path (or one of the shortcuts)\n"
+            "  --sdk-ios <version>   Specify iOS SDK by version, searching for:\n"
+            "                        " SDK_PATH_USAGE_STRING "\n"
             "\n"
             "Obfuscate sources mode options:\n"
             "  -X <directory>        Path for XIBs and storyboards (searched recursively)\n"
@@ -94,6 +96,8 @@ void print_usage(void)
 int main(int argc, char *argv[])
 {
     @autoreleasepool {
+        NSString * const SDK_PATH_PATTERN
+                = [NSString stringWithUTF8String:SDK_PATH_BEFORE "%@" SDK_PATH_AFTER];
         BOOL shouldAnalyze = NO;
         BOOL shouldObfuscate = NO;
         BOOL shouldListArches = NO;
@@ -160,15 +164,8 @@ int main(int argc, char *argv[])
                 }
 
                 case CD_OPT_SDK_IOS: {
-                    NSString *root = [NSString stringWithUTF8String:optarg];
-                    NSString *str;
-                    if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Applications/Xcode.app"]) {
-                        str = [NSString stringWithFormat:@"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%@.sdk", root];
-                    } else if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Developer"]) {
-                        str = [NSString stringWithFormat:@"/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%@.sdk", root];
-                    }
-                    classDump.sdkRoot = str;
-
+                    NSString * versionString = [NSString stringWithUTF8String:optarg];
+                    classDump.sdkRoot = [NSString stringWithFormat:SDK_PATH_PATTERN, versionString];
                     break;
                 }
 
