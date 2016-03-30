@@ -19,6 +19,7 @@
 @property (copy, nonatomic) NSArray *forceRecursiveAnalyze;
 
 @property (strong) NSString *sdkRoot;
+@property (strong) NSString * excludedSymbolsListFilename;
 
 @property (readonly) NSArray *machOFiles;
 @property (readonly) NSArray *objcProcessors;

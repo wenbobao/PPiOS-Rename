@@ -32,8 +32,6 @@ static NSString *const lettersSet[maxLettersSet] = {
     NSInteger _symbolLength;
     BOOL _external;
     BOOL _ignored;
-
-    NSMutableString *_resultString;
 }
 
 - (void)addKnownForbiddenSymbols {
@@ -127,7 +125,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     NSLog(@"I-vars = %zd", _ivarNames.count);
     NSLog(@"Forbidden keywords = %zd", _forbiddenNames.count);
 
-    _resultString = [NSMutableString new];
+    [self writeExcludesIfRequested];
 
     NSArray *propertyNames = [_propertyNames.allObjects sortedArrayUsingComparator:^NSComparisonResult(NSString *n1, NSString *n2) {
         if (n1.length > n2.length)
@@ -137,49 +135,58 @@ static NSString *const lettersSet[maxLettersSet] = {
         return NSOrderedSame;
     }];
 
-    [_resultString appendFormat:@"// Properties\r\n"];
     for (NSString *propertyName in propertyNames) {
         [self generatePropertySymbols:propertyName];
     }
-    [_resultString appendFormat:@"\r\n"];
 
-    [_resultString appendFormat:@"// Protocols\r\n"];
     for (NSString *protocolName in _protocolNames) {
         [self generateSimpleSymbols:protocolName];
     }
-    [_resultString appendFormat:@"\r\n"];
 
-    [_resultString appendFormat:@"// Classes\r\n"];
     for (NSString *className in _classNames) {
         [self generateSimpleSymbols:className];
     }
-    [_resultString appendFormat:@"\r\n"];
 
-    [_resultString appendFormat:@"// Categories\r\n"];
     for (NSString *categoryName in _categoryNames) {
         [self generateSimpleSymbols:categoryName];
     }
-    [_resultString appendFormat:@"\r\n"];
 
-    [_resultString appendFormat:@"// Methods\r\n"];
     for (NSString *methodName in _methodNames) {
         [self generateMethodSymbols:methodName];
     }
-    [_resultString appendFormat:@"\r\n"];
 
-    [_resultString appendFormat:@"// I-vars\r\n"];
     for (NSString *ivarName in _ivarNames) {
         [self generateSimpleSymbols:ivarName];
     }
-    [_resultString appendFormat:@"\r\n"];
 
-    //todo don't generate resultString unnecessarily when adding in the --obfuscate phase support
-    if(self.symbolsFilePath != NULL){
-        NSData *data = [_resultString dataUsingEncoding:NSUTF8StringEncoding];
-        [data writeToFile:self.symbolsFilePath atomically:YES];
-    }
     NSLog(@"Done generating symbol table.");
     NSLog(@"Generated unique symbols = %zd", _uniqueSymbols.count);
+}
+
+- (void)writeExcludesIfRequested {
+    if (_excludedSymbolsListFilename) {
+        NSMutableArray<NSString *> * list
+                = [NSMutableArray arrayWithArray:[_forbiddenNames allObjects]];
+        [list sortUsingSelector:@selector(compare:)];
+
+        NSMutableString * stringBuilder = [NSMutableString new];
+        for (NSString * symbol in list) {
+            [stringBuilder appendFormat:@"%@\n", symbol];
+        }
+
+        NSError * error = nil;
+        [stringBuilder writeToFile:_excludedSymbolsListFilename
+                        atomically:TRUE
+                          encoding:NSUTF8StringEncoding
+                             error:&error];
+
+        if (error) {
+            NSLog(@"Error: class-guard: unable to write list: %@ reason: %@",
+                    _excludedSymbolsListFilename,
+                    [error localizedFailureReason]);
+            exit(1);
+        }
+    }
 }
 
 + (void)appendDefineTo:(NSMutableString *)stringBuilder
@@ -390,8 +397,6 @@ static NSString *const lettersSet[maxLettersSet] = {
 - (void)addGenerated:(NSString *)generatedSymbol forSymbol:(NSString *)symbol {
     [_uniqueSymbols addObject:generatedSymbol];
     _symbols[symbol] = generatedSymbol;
-
-    [[self class] appendDefineTo:_resultString renaming:symbol to:generatedSymbol];
 }
 
 - (void)generatePropertySymbols:(NSString *)propertyName {

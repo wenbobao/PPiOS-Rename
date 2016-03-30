@@ -62,6 +62,8 @@ void print_usage(void)
             "  --sdk-root <path>     Specify full SDK root path (or one of the shortcuts)\n"
             "  --sdk-ios <version>   Specify iOS SDK by version, searching for:\n"
             "                        " SDK_PATH_USAGE_STRING "\n"
+            "  --list-excluded-symbols <path>\n"
+            "                        Emit the computed list of symbols to exclude from renaming\n"
             "\n"
             "Obfuscate sources mode options:\n"
             "  -X <directory>        Path for XIBs and storyboards (searched recursively)\n"
@@ -89,9 +91,9 @@ void print_usage(void)
 #define CD_OPT_TRANSLATE_CRASH 10
 #define CD_OPT_TRANSLATE_DSYM 11
 
-#define PPIOS_CG_OPT_ANALYZE ((int)'z')
-#define PPIOS_CG_OPT_OBFUSCATE ((int)'y')
-
+#define PPIOS_OPT_ANALYZE ((int)'z')
+#define PPIOS_OPT_OBFUSCATE ((int)'y')
+#define PPIOS_OPT_LIST_EXCLUDED_SYMBOLS ((int)'x')
 
 int main(int argc, char *argv[])
 {
@@ -131,13 +133,14 @@ int main(int argc, char *argv[])
                 { "dsym-out",                required_argument, NULL, CD_OPT_DSYM_OUT },
                 { "arch",                    required_argument, NULL, CD_OPT_ARCH }, //needed?
                 { "list-arches",             no_argument,       NULL, CD_OPT_LIST_ARCHES },
+                { "list-excluded-symbols",   required_argument, NULL, PPIOS_OPT_LIST_EXCLUDED_SYMBOLS }, //'x'
                 { "suppress-header",         no_argument,       NULL, 't' },
                 { "version",                 no_argument,       NULL, CD_OPT_VERSION },
                 { "sdk-ios",                 required_argument, NULL, CD_OPT_SDK_IOS },
                 { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
                 { "hide",                    required_argument, NULL, CD_OPT_HIDE },
-                { "analyze",                 no_argument,       NULL, PPIOS_CG_OPT_ANALYZE }, //'z'
-                { "obfuscate-sources",       no_argument,       NULL, PPIOS_CG_OPT_OBFUSCATE }, //'y'
+                { "analyze",                 no_argument,       NULL, PPIOS_OPT_ANALYZE }, //'z'
+                { "obfuscate-sources",       no_argument,       NULL, PPIOS_OPT_OBFUSCATE }, //'y'
                 { "translate-crashdump",     no_argument,       NULL, CD_OPT_TRANSLATE_CRASH},
                 { "translate-dsym",          no_argument,       NULL, CD_OPT_TRANSLATE_DSYM},
                 { NULL,                      0,                 NULL, 0 },
@@ -226,13 +229,17 @@ int main(int argc, char *argv[])
                     classDump.shouldShowHeader = NO;
                     break;
 
+                case PPIOS_OPT_LIST_EXCLUDED_SYMBOLS:
+                    classDump.excludedSymbolsListFilename = [NSString stringWithUTF8String:optarg];
+                    break;
+
                 //modes..
-                case PPIOS_CG_OPT_ANALYZE:
+                case PPIOS_OPT_ANALYZE:
                     //do analysis
                     shouldAnalyze = YES;
                     break;
 
-                case PPIOS_CG_OPT_OBFUSCATE:
+                case PPIOS_OPT_OBFUSCATE:
                     shouldObfuscate = YES;
                     break;
 
@@ -363,6 +370,7 @@ int main(int argc, char *argv[])
             visitor.classFilter = classFilter;
             visitor.ignoreSymbols = ignoreSymbols;
             visitor.symbolsFilePath = symbolsPath;
+            visitor.excludedSymbolsListFilename = classDump.excludedSymbolsListFilename;
 
             [classDump recursivelyVisit:visitor];
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
