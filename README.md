@@ -64,7 +64,8 @@ How to use it?
 The basic process is:
 
     build the program
-    analyze the program and obfuscate the sources
+    analyze the program
+    obfuscate the sources
     build the program again
 
 The second step can be accomplished with the following, adjusting the specifics for the project and system:
@@ -73,14 +74,17 @@ The second step can be accomplished with the following, adjusting the specifics 
     PROGRAM=/Users/jsmith/Library/Developer/Xcode/DerivedData/your-app-crgbyxabagbmvieqdqcyikjibigv/Build/Products/Debug-iphonesimulator/your-app.app/your-app
 
     ios-class-guard --analyze --sdk-root "${SDK}" "${PROGRAM}"
-    ios-class-guard --obfuscate-sources
 
 Where SDK is the path to the iPhoneSimulator SDK, and PROGRAM is the path to the executable binary.  The analyze process generates symbols.json, the file containing a symbol mapping that can be used to decode stack traces in the event of a crash.  The symbols file created during a build that is released should always be archived for subsequent use.
+
+The third step can be accomplished with the following:
+
+    ios-class-guard --obfuscate-sources
 
 Note that the obfuscation process cannot be rerun on the sources to "choose different renames".  Thus, once obfuscated, the sources should not be checked in.
 
 
-Another alternative is to integrate the obfuscation step into an Xcode project directly.  This can be set up with the following process:
+Another alternative is to integrate the analyze and obfuscation steps into an Xcode project directly.  This can be set up with the following process:
 
 1. Open the project in Xcode.
 
@@ -90,39 +94,59 @@ Another alternative is to integrate the obfuscation step into an Xcode project d
 
 4. Select the target to obfuscate, right-click, and select Duplicate (Command-D).
 
-5. Select the duplicated target and rename it to "Obfuscate <original-target-name>".
+5. Select the duplicated target and rename it to "Build and Analyze <original-target-name>".
 
 6. Select Build Phases.
 
 7. Add a script phase by selecting the "+" and then selecting New Run Script Phase (it should run as the last phase, and will by default).
 
-8. Rename the phase from "Run Script" to "Analyze and Obfuscate Sources".
+8. Rename the phase from "Run Script" to "Analyze Binary".
 
-9. Where it says "Type a script or ...", paste the following script:
+9. Where it says "Type a script or ...", paste the following script, adjusting for the correct path:
 
-        set -e
         PATH="${PATH}:${HOME}/Downloads/PPiOS-ClassGuard-v1.0.0"
         [[ "${SDKROOT}" == *iPhoneSimulator*.sdk* ]] && sdk="${SDKROOT}" || sdk="${CORRESPONDING_SIMULATOR_SDK_DIR}"
         ios-class-guard --analyze --sdk-root "${sdk}" "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}"
+
+10. Go to Product | Scheme | Manage Schemes.
+
+11. If Autocreate Schemes is enabled, a new scheme for the obfuscate target will have already been created, rename it to "Build and Analyze <original-scheme-name>".
+
+12. Otherwise, create a new scheme for the Build and Analyze target.
+
+13. Duplicate the original target again, and rename it to "Obfuscate Sources".
+
+14. Delete all of the steps in this target.
+
+15. If there are any target dependencies, delete them as well.
+
+16. Add a script phase, and rename it to "Obfuscate Sources" (this should be the only real action for this target).
+
+17. Paste the following script, again adjusting for the correct path:
+
+        Path="${PATH}:${HOME}/Downloads/PPiOS-ClassGuard-v1.0.0"
         ios-class-guard --obfuscate-sources
 
-10. Replace "${HOME}/Downloads/PPiOS-ClassGuard-v1.0.0" with the correct path to ios-class-guard.
+18. Edit the scheme (or add one) for this new target, renaming the scheme to "Obfuscate Sources".
 
-11. Go to Product | Schemes | Manage Schemes.
+19. These changes should be committed at this point, since building the Obfuscate Sources target will change the sources in ways that shouldn't generally be committed.
 
-12. If Autocreate Schemes is enabled, a new scheme for the obfuscate target will have already been created, rename it to "Obfuscate <original-scheme-name>".
-
-13. Otherwise, create a new scheme for the obfuscate target.
-
-14. These changes should be committed at this point, since running the script will change the sources in ways that shouldn't generally be committed.
 
 When ready to start testing an obfuscated build:
 
-1. Build using the Obfuscate scheme, this will alter the sources, obfuscating them by applying the renaming, and then
+1. Build using the Build and Analyze scheme, producing the symbols file, symbols.json.
 
-2. Build using the original scheme.
+2. Commit or otherwise preserve the symbols.json file.
 
-Once the sources are obfuscated, the process of building and testing for different destinations can be repeated using the original scheme.  If the original scheme or build target is changed, the obfuscating counterparts can be deleted and then recreated using the process above.
+3. Build using the Obfuscate Sources scheme, which applies the renaming to the sources.
+
+4. Build using the original scheme.
+
+5. Revert changes to the sources before continuing development.
+
+Once the sources are obfuscated, the process of building and testing for different destinations can be repeated using the original scheme.
+
+If the original build target or scheme is changed, be sure to delete and then recreate the Build and Analyze target as above.  Under certain conditions, the Obfuscate Sources target and scheme will need to be recreated as well.
 
 
 Pre compiled header file
