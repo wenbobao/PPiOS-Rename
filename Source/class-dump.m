@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
     @autoreleasepool {
         NSString * const SDK_PATH_PATTERN
                 = [NSString stringWithUTF8String:SDK_PATH_BEFORE "%@" SDK_PATH_AFTER];
+        NSFileManager * fileManager = [NSFileManager defaultManager];
         BOOL shouldAnalyze = NO;
         BOOL shouldObfuscate = NO;
         BOOL shouldListArches = NO;
@@ -305,11 +306,17 @@ int main(int argc, char *argv[])
             }
             classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
 
+            if (![fileManager fileExistsAtPath:classDump.sdkRoot]) {
+                fprintf(stderr,
+                        "Error: class-guard: Specified SDK does not exist: %s\n",
+                        [classDump.sdkRoot UTF8String]);
+                exit(1);
+            }
+
             CDFile *file = [CDFile fileWithContentsOfFile:executablePath searchPathState:classDump.searchPathState];
             if (file == nil) {
-                NSFileManager *defaultManager = [NSFileManager defaultManager];
-                if ([defaultManager fileExistsAtPath:executablePath]) {
-                    if ([defaultManager isReadableFileAtPath:executablePath]) {
+                if ([fileManager fileExistsAtPath:executablePath]) {
+                    if ([fileManager isReadableFileAtPath:executablePath]) {
                         fprintf(stderr, "class-guard: Input file (%s) is neither a Mach-O file nor a fat archive.\n", [executablePath UTF8String]);
                     } else {
                         fprintf(stderr, "class-guard: Input file (%s) is not readable (check read permissions).\n", [executablePath UTF8String]);
