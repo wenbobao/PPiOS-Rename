@@ -298,14 +298,12 @@ int main(int argc, char *argv[])
 
         if (shouldListArches) {
             if(firstArg == nil){
-                fprintf(stderr, "class-guard: Input file must be specified for --list-arches\n");
-                exit(1);
+                reportError(1, "Input file must be specified for --list-arches");
             }
             NSString *executablePath = nil;
             executablePath = [firstArg executablePathForFilename];
             if (executablePath == nil) {
-                fprintf(stderr, "class-guard: Input file (%s) doesn't contain an executable.\n", [firstArg fileSystemRepresentation]);
-                exit(1);
+                reportError(1, "Input file (%s) doesn't contain an executable.", [firstArg fileSystemRepresentation]);
             }
             CDSearchPathState *searchPathState = [[CDSearchPathState alloc] init];
             searchPathState.executablePath = executablePath;
@@ -321,42 +319,35 @@ int main(int argc, char *argv[])
 
         if(shouldAnalyze){
             if(firstArg == nil){
-                fprintf(stderr, "class-guard: Input file must be specified for --analyze\n");
-                exit(1);
+                reportError(1, "Input file must be specified for --analyze");
             }
             NSString *executablePath = nil;
             executablePath = [firstArg executablePathForFilename];
             if (executablePath == nil) {
-                fprintf(stderr, "class-guard: Input file (%s) doesn't contain an executable.\n", [firstArg fileSystemRepresentation]);
-                exit(1);
+                reportError(1, "Input file (%s) doesn't contain an executable.", [firstArg fileSystemRepresentation]);
             }
             classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
 
             if (![fileManager fileExistsAtPath:classDump.sdkRoot]) {
-                fprintf(stderr,
-                        "Error: class-guard: Specified SDK does not exist: %s\n",
-                        [classDump.sdkRoot UTF8String]);
-                exit(1);
+                reportError(1, "Specified SDK does not exist: %s", [classDump.sdkRoot UTF8String]);
             }
 
             CDFile *file = [CDFile fileWithContentsOfFile:executablePath searchPathState:classDump.searchPathState];
             if (file == nil) {
                 if ([fileManager fileExistsAtPath:executablePath]) {
                     if ([fileManager isReadableFileAtPath:executablePath]) {
-                        fprintf(stderr, "class-guard: Input file (%s) is neither a Mach-O file nor a fat archive.\n", [executablePath UTF8String]);
+                        reportError(1, "Input file (%s) is neither a Mach-O file nor a fat archive.", [executablePath UTF8String]);
                     } else {
-                        fprintf(stderr, "class-guard: Input file (%s) is not readable (check read permissions).\n", [executablePath UTF8String]);
+                        reportError(1, "Input file (%s) is not readable (check read permissions).", [executablePath UTF8String]);
                     }
                 } else {
-                    fprintf(stderr, "class-guard: Input file (%s) does not exist.\n", [executablePath UTF8String]);
+                    reportError(1, "Input file (%s) does not exist.", [executablePath UTF8String]);
                 }
-                exit(1);
             }
 
             if (hasSpecifiedArch == NO) {
                 if ([file bestMatchForLocalArch:&targetArch] == NO) {
-                    fprintf(stderr, "Error: Couldn't get local architecture\n");
-                    exit(1);
+                    reportError(1, "Error: Couldn't get local architecture");
                 }
             }
 
@@ -365,13 +356,10 @@ int main(int argc, char *argv[])
 
             NSError *error;
             if (![classDump loadFile:file error:&error depth:0]) {
-                fprintf(stderr, "Error: %s\n", [[error localizedFailureReason] UTF8String]);
-                exit(1);
+                reportError(1, "Error: %s", [[error localizedFailureReason] UTF8String]);
             }
             if (![classDump.sdkRoot length]) {
-                printf("Please specify either --sdk-ios or --sdk-root\n");
-                print_usage();
-                exit(3);
+                reportError(3, "Please specify either --sdk-ios or --sdk-root");
             }
 
             [classDump processObjectiveCData];
@@ -409,20 +397,17 @@ int main(int argc, char *argv[])
 
         if(shouldTranslateCrashDump) {
             if (!firstArg) {
-                fprintf(stderr, "class-guard: Crash dump file must be specified\n");
-                exit(4);
+                reportError(4, "Crash dump file must be specified");
             }
             NSString* crashDumpPath = firstArg;
             NSString *crashDump = [NSString stringWithContentsOfFile:crashDumpPath encoding:NSUTF8StringEncoding error:nil];
             if (crashDump.length == 0) {
-                fprintf(stderr, "class-guard: crash dump file does not exist or is empty %s\n", [crashDumpPath fileSystemRepresentation]);
-                exit(4);
+                reportError(4, "Crash dump file does not exist or is empty %s", [crashDumpPath fileSystemRepresentation]);
             }
 
             NSString *symbolsData = [NSString stringWithContentsOfFile:symbolMappingPath encoding:NSUTF8StringEncoding error:nil];
             if (symbolsData.length == 0) {
-                fprintf(stderr, "class-guard: symbols file does not exist or is empty %s\n", [symbolMappingPath fileSystemRepresentation]);
-                exit(5);
+                reportError(5, "Symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
             }
 
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
@@ -435,23 +420,19 @@ int main(int argc, char *argv[])
             NSString *dSYMOutPath = secondArg;
 
             if(!dSYMInPath) {
-                fprintf(stderr, "class-guard: no valid dSYM input file provided\n");
-                exit(5);
+                reportError(5, "No valid dSYM input file provided");
             }
             if(!dSYMOutPath) {
-                fprintf(stderr, "class-guard: no valid dSYM output file path provided\n");
-                exit(5);
+                reportError(5, "No valid dSYM output file path provided");
             }
             NSString *symbolsData = [NSString stringWithContentsOfFile:symbolMappingPath encoding:NSUTF8StringEncoding error:nil];
             if (symbolsData.length == 0) {
-                fprintf(stderr, "class-guard: symbols file does not exist or is empty %s\n", [symbolMappingPath fileSystemRepresentation]);
-                exit(5);
+                reportError(5, "Symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
             }
 
             NSRange dSYMPathRange = [dSYMInPath rangeOfString:@".dSYM"];
             if (dSYMPathRange.location == NSNotFound) {
-                fprintf(stderr, "class-guard: no valid dSYM file provided %s\n", [dSYMOutPath fileSystemRepresentation]);
-                exit(4);
+                reportError(4, "No valid dSYM file provided %s", [dSYMOutPath fileSystemRepresentation]);
             }
 
             CDdSYMProcessor *processor = [[CDdSYMProcessor alloc] init];
@@ -460,8 +441,7 @@ int main(int argc, char *argv[])
             for (NSString *dwarfFilePath in dwarfFilesPaths) {
                 NSData *dwarfdumpData = [NSData dataWithContentsOfFile:dwarfFilePath];
                 if (dwarfdumpData.length == 0) {
-                    fprintf(stderr, "class-guard: dwarf file does not exist or is empty %s\n", [dwarfFilePath fileSystemRepresentation]);
-                    exit(4);
+                    reportError(4, "DWARF file does not exist or is empty %s", [dwarfFilePath fileSystemRepresentation]);
                 }
 
                 NSData *processedFileContent = [processor processDwarfdump:dwarfdumpData
