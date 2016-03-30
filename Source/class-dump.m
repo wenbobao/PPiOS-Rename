@@ -4,6 +4,8 @@
 //  Copyright (C) 1997-1998, 2000-2001, 2004-2015 Steve Nygard.
 
 #include <getopt.h>
+#include <libgen.h>
+#import <mach-o/dyld.h>
 
 #import "CDClassDump.h"
 #import "CDFindMethodVisitor.h"
@@ -36,8 +38,8 @@ void print_usage(void)
             "ios-class-guard --obfuscate-sources [options]\n"
             "ios-class-guard --list-arches <mach-o-file>\n"
             "ios-class-guard --version\n"
-            "ios-class-guard --translate-crashdump [options] -c <crash dump file>\n"
-            "ios-class-guard --translate-dsym [options] --dsym-in <input file> --dsym-out <output file>\n"
+            "ios-class-guard --translate-crashdump [-m <path>] [options] -c <crash dump file>\n"
+            "ios-class-guard --translate-dsym [-m <path>] [options] --dsym-in <input file> --dsym-out <output file>\n"
             "\n"
             "Modes of operation:\n"
             "  --analyze             Analyze a Mach-O binary and generate a symbol map\n"
@@ -94,6 +96,31 @@ void print_usage(void)
 #define PPIOS_OPT_ANALYZE ((int)'z')
 #define PPIOS_OPT_OBFUSCATE ((int)'y')
 #define PPIOS_OPT_LIST_EXCLUDED_SYMBOLS ((int)'x')
+char* programName;
+
+void reportError(int exitCode, const char* format, ...){
+    va_list  args;
+    va_start(args, format);
+    fprintf(stderr, "%s: ", programName);
+    vfprintf(stderr, format, args);
+    fprintf(stderr, "\n");
+    exit(exitCode);
+}
+
+void populateProgramName(){
+    uint32_t bufsize;
+    // Ask _NSGetExecutablePath() to return the buffer size
+    // needed to hold the string containing the executable path
+
+    _NSGetExecutablePath(NULL, &bufsize);
+
+    // Allocate the string buffer and ask _NSGetExecutablePath()
+    // to fill it with the executable path
+    char *exepath = malloc(bufsize);
+    _NSGetExecutablePath(exepath, &bufsize);
+
+    programName = basename(exepath);
+}
 
 int main(int argc, char *argv[])
 {
@@ -115,7 +142,6 @@ int main(int argc, char *argv[])
         NSString *xibBaseDirectory = nil;
         NSString *symbolsPath = nil;
         NSString *symbolMappingPath = nil;
-        NSString *crashDumpPath = nil;
         NSString *dSYMInPath = nil;
         NSString *dSYMOutPath = nil;
 
@@ -146,6 +172,8 @@ int main(int argc, char *argv[])
                 { NULL,                      0,                 NULL, 0 },
         };
 
+        populateProgramName();
+
         if (argc == 1) {
             print_usage();
             exit(0);
@@ -153,7 +181,7 @@ int main(int argc, char *argv[])
 
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
-        while ( (ch = getopt_long(argc, argv, "Fi:tX:zy:O:m:c:", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "Fi:tX:zy:O:m:", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -217,10 +245,6 @@ int main(int argc, char *argv[])
                     symbolMappingPath = [NSString stringWithUTF8String:optarg];
                     break;
 
-                case 'c':
-                    crashDumpPath = [NSString stringWithUTF8String:optarg];
-                    break;
-
                 case 'i':
                     [ignoreSymbols addObject:[NSString stringWithUTF8String:optarg]];
                     break;
@@ -273,14 +297,13 @@ int main(int argc, char *argv[])
             symbolMappingPath = defaultSymbolMappingPath;
         }
 
-        NSString *executablePath = nil;
+        NSString *firstArg = nil;
         if (optind < argc) {
-            NSString *arg = [NSString stringWithFileSystemRepresentation:argv[optind]];
-            executablePath = [arg executablePathForFilename];
-            if (executablePath == nil) {
-                fprintf(stderr, "class-guard: Input file (%s) doesn't contain an executable.\n", [arg fileSystemRepresentation]);
-                exit(1);
-            }
+            firstArg = [NSString stringWithFileSystemRepresentation:argv[optind]];
+        }
+        NSString *secondArg = nil;
+        if(optind + 1 < argc ){
+            secondArg = [NSString stringWithFileSystemRepresentation:argv[optind]];
         }
 
         if (shouldPrintVersion) {
@@ -290,8 +313,14 @@ int main(int argc, char *argv[])
 
 
         if (shouldListArches) {
-            if(executablePath == nil){
+            if(firstArg == nil){
                 fprintf(stderr, "class-guard: Input file must be specified for --list-arches\n");
+                exit(1);
+            }
+            NSString *executablePath = nil;
+            executablePath = [firstArg executablePathForFilename];
+            if (executablePath == nil) {
+                fprintf(stderr, "class-guard: Input file (%s) doesn't contain an executable.\n", [firstArg fileSystemRepresentation]);
                 exit(1);
             }
             CDSearchPathState *searchPathState = [[CDSearchPathState alloc] init];
@@ -307,8 +336,14 @@ int main(int argc, char *argv[])
         }
 
         if(shouldAnalyze){
-            if(executablePath == nil){
+            if(firstArg == nil){
                 fprintf(stderr, "class-guard: Input file must be specified for --analyze\n");
+                exit(1);
+            }
+            NSString *executablePath = nil;
+            executablePath = [firstArg executablePathForFilename];
+            if (executablePath == nil) {
+                fprintf(stderr, "class-guard: Input file (%s) doesn't contain an executable.\n", [firstArg fileSystemRepresentation]);
                 exit(1);
             }
             classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
@@ -388,11 +423,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if(shouldTranslateCrashDump){
-            if (crashDumpPath) {
+        if(shouldTranslateCrashDump) {
+            if (!firstArg) {
                 fprintf(stderr, "class-guard: Crash dump file must be specified\n");
                 exit(4);
             }
+            NSString* crashDumpPath = firstArg;
             NSString *crashDump = [NSString stringWithContentsOfFile:crashDumpPath encoding:NSUTF8StringEncoding error:nil];
             if (crashDump.length == 0) {
                 fprintf(stderr, "class-guard: crash dump file does not exist or is empty %s\n", [crashDumpPath fileSystemRepresentation]);
@@ -448,6 +484,7 @@ int main(int argc, char *argv[])
                 [processor writeDwarfdump:processedFileContent originalDwarfPath:dwarfFilePath inputDSYM:dSYMInPath outputDSYM:dSYMOutPath];
             }
         }
+        free(programName);
         exit(0); // avoid costly autorelease pool drain, we’re exiting anyway
     }
 }
