@@ -38,8 +38,8 @@ void print_usage(void)
             "ios-class-guard --obfuscate-sources [options]\n"
             "ios-class-guard --list-arches <mach-o-file>\n"
             "ios-class-guard --version\n"
-            "ios-class-guard --translate-crashdump [-m <path>] [options] -c <crash dump file>\n"
-            "ios-class-guard --translate-dsym [-m <path>] [options] --dsym-in <input file> --dsym-out <output file>\n"
+            "ios-class-guard --translate-crashdump [-m <path>] [options] <crash dump file>\n"
+            "ios-class-guard --translate-dsym [-m <path>] [options] <input dsym file> <output dsym file>\n"
             "\n"
             "Modes of operation:\n"
             "  --analyze             Analyze a Mach-O binary and generate a symbol map\n"
@@ -88,8 +88,6 @@ void print_usage(void)
 #define CD_OPT_SDK_IOS     4
 #define CD_OPT_SDK_ROOT    6
 #define CD_OPT_HIDE        7
-#define CD_OPT_DSYM_IN     8
-#define CD_OPT_DSYM_OUT    9
 #define CD_OPT_TRANSLATE_CRASH 10
 #define CD_OPT_TRANSLATE_DSYM 11
 
@@ -142,8 +140,6 @@ int main(int argc, char *argv[])
         NSString *xibBaseDirectory = nil;
         NSString *symbolsPath = nil;
         NSString *symbolMappingPath = nil;
-        NSString *dSYMInPath = nil;
-        NSString *dSYMOutPath = nil;
 
         int ch;
         BOOL errorFlag = NO;
@@ -155,8 +151,6 @@ int main(int argc, char *argv[])
                 { "symbols-file",            required_argument, NULL, 'O' },
                 { "symbols-map",             required_argument, NULL, 'm' },
                 { "crash-dump",              required_argument, NULL, 'c' },
-                { "dsym-in",                 required_argument, NULL, CD_OPT_DSYM_IN },
-                { "dsym-out",                required_argument, NULL, CD_OPT_DSYM_OUT },
                 { "arch",                    required_argument, NULL, CD_OPT_ARCH }, //needed?
                 { "list-arches",             no_argument,       NULL, CD_OPT_LIST_ARCHES },
                 { "list-excluded-symbols",   required_argument, NULL, PPIOS_OPT_LIST_EXCLUDED_SYMBOLS }, //'x'
@@ -216,16 +210,6 @@ int main(int argc, char *argv[])
                     } else {
                         [hiddenSections addObject:str];
                     }
-                    break;
-                }
-
-                case CD_OPT_DSYM_IN: {
-                    dSYMInPath = [NSString stringWithUTF8String:optarg];
-                    break;
-                }
-
-                case CD_OPT_DSYM_OUT: {
-                    dSYMOutPath = [NSString stringWithUTF8String:optarg];
                     break;
                 }
 
@@ -303,7 +287,7 @@ int main(int argc, char *argv[])
         }
         NSString *secondArg = nil;
         if(optind + 1 < argc ){
-            secondArg = [NSString stringWithFileSystemRepresentation:argv[optind]];
+            secondArg = [NSString stringWithFileSystemRepresentation:argv[optind + 1]];
         }
 
         if (shouldPrintVersion) {
@@ -447,6 +431,9 @@ int main(int argc, char *argv[])
         }
 
         if (shouldTranslateDsym){
+            NSString *dSYMInPath = firstArg;
+            NSString *dSYMOutPath = secondArg;
+
             if(!dSYMInPath) {
                 fprintf(stderr, "class-guard: no valid dSYM input file provided\n");
                 exit(5);
