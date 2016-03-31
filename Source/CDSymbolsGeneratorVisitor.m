@@ -39,64 +39,103 @@ static NSString *const lettersSet[maxLettersSet] = {
     // Items have been added to this list manually which should perhaps be found automatically, but
     // determining this is an aspect of refining the process to produce this list.
     [_forbiddenNames addObjectsFromArray:@[
-            @"NO",
-            @"NULL",
-            @"YES",
-            @"_Bool",
-            @"_cmd",
-            @"_inline",
-            @"alloc",
-            @"auto",
-            @"bool",
-            @"break",
-            @"case",
-            @"char",
-            @"const",
-            @"continue",
-            @"default",
-            @"do",
-            @"double",
-            @"else",
-            @"end",
-            @"enum",
-            @"extern",
-            @"false",
-            @"float",
-            @"for",
-            @"goto",
-            @"id",
-            @"if",
-            @"implementation",
-            @"in",
-            @"init",
-            @"inline",
-            @"inout",
-            @"instancetype",
-            @"int",
-            @"interface",
-            @"long",
-            @"nil",
-            @"nonatomic",
-            @"oneway",
-            @"out",
-            @"property",
-            @"readonly",
-            @"register",
-            @"return",
-            @"self",
-            @"short",
-            @"signed",
-            @"sizeof",
-            @"static",
-            @"struct",
-            @"switch",
-            @"true",
-            @"typedef",
-            @"union",
-            @"unsigned",
-            @"void",
-            @"volatile",
-            @"while"
+            @"BOOL", // objc typedef, objc.h
+            @"Class", // objc typedef, objc.h
+            @"IMP", // objc typedef, objc.h
+            @"NO", // objc define, objc.h
+            @"NULL", // c define, _null.h
+            @"SEL", // objc typedef, objc.h
+            @"YES", // objc define, objc.h
+            @"_Bool", // historical
+            @"_cmd", // historical
+            @"_inline", // historical
+            @"assign", // objc keyword, properties
+            @"atomic", // objc keyword, properties
+            @"auto", // c keyword
+            @"autoreleasepool", // objc @ keyword
+            @"bool", // c define, stdbool.h
+            @"break", // c keyword
+            @"bycopy", // objc keyword
+            @"byref", // objc keyword
+            @"case", // c keyword
+            @"catch", // objc @ keyword
+            @"char", // c keyword
+            @"class", // objc @ keyword
+            @"compatibility_alias", // objc @ keyword
+            @"const", // c keyword
+            @"continue", // c keyword
+            @"default", // c keyword
+            @"do", // c keyword
+            @"double", // c keyword
+            @"dynamic", // objc @ keyword
+            @"else", // c keyword
+            @"encode", // objc @ keyword
+            @"end", // objc @ keyword
+            @"enum", // c keyword
+            @"extern", // c keyword
+            @"false", // c define, stdbool.h
+            @"finally", // objc @ keyword
+            @"float", // c keyword
+            @"for", // c keyword
+            @"getter", // objc keyword, properties
+            @"goto", // c keyword
+            @"id", // objc typedef, objc.h
+            @"if", // c keyword
+            @"implementation", // objc @ keyword
+            @"import", // objc @ keyword
+            @"in", // objc keyword
+            @"inline", // c keyword
+            @"inout", // objc keyword
+            @"instancetype", // objc keyword
+            @"int", // c keyword
+            @"interface", // objc @ keyword
+            @"long", // c keyword
+            @"nil", // objc keyword
+            @"nonatomic", // objc keyword, properties
+            @"nullable", // objc keyword
+            @"objc_object", // objc struct, objc.h
+            @"objc_selector", // objc struct, objc.h
+            @"oneway", // objc keyword
+            @"optional", // objc @ keyword
+            @"out", // objc keyword
+            @"package", // objc @ keyword
+            @"private", // objc @ keyword
+            @"property", // objc @ keyword
+            @"protected", // objc @ keyword
+            @"protocol", // objc @ keyword
+            @"public", // objc @ keyword
+            @"readonly", // objc keyword, properties
+            @"readwrite", // objc keyword, properties
+            @"register", // c keyword
+            @"required", // objc @ keyword
+            @"restrict", // c keyword
+            @"retain", // objc keyword, properties
+            @"return", // c keyword
+            @"selector", // objc @ keyword
+            @"self", // objc keyword
+            @"setter", // objc keyword, properties
+            @"short", // c keyword
+            @"signed", // c keyword
+            @"sizeof", // c keyword
+            @"static", // c keyword
+            @"strong", // objc keyword, properties
+            @"struct", // c keyword
+            @"super", // objc keyword
+            @"switch", // c keyword
+            @"synchronized", // objc @ keyword
+            @"synthesize", // objc @ keyword
+            @"throw", // objc @ keyword
+            @"true", // c define, stdbool.h
+            @"try", // objc @ keyword
+            @"typedef", // c keyword
+            @"typeof", // c keyword
+            @"union", // c keyword
+            @"unsafe_unretained", // objc keyword, properties
+            @"unsigned", // c keyword
+            @"void", // c keyword
+            @"volatile", // c keyword
+            @"weak", // objc keyword, properties
+            @"while", // c keyword
     ]];
 }
 
