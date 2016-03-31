@@ -90,19 +90,8 @@ void reportError(int exitCode, const char* format, ...){
     exit(exitCode);
 }
 
-void populateProgramName(){
-    uint32_t bufsize;
-    // Ask _NSGetExecutablePath() to return the buffer size
-    // needed to hold the string containing the executable path
-
-    _NSGetExecutablePath(NULL, &bufsize);
-
-    // Allocate the string buffer and ask _NSGetExecutablePath()
-    // to fill it with the executable path
-    char *exepath = malloc(bufsize);
-    _NSGetExecutablePath(exepath, &bufsize);
-
-    programName = basename(exepath);
+void populateProgramName(char* argv0){
+    programName = basename(argv0);
 }
 
 int main(int argc, char *argv[])
@@ -151,7 +140,7 @@ int main(int argc, char *argv[])
                 { NULL,                      0,                 NULL, 0 },
         };
 
-        populateProgramName();
+        populateProgramName(argv[0]);
 
         if (argc == 1) {
             print_usage();
@@ -436,7 +425,6 @@ int main(int argc, char *argv[])
                 [processor writeDwarfdump:processedFileContent originalDwarfPath:dwarfFilePath inputDSYM:dSYMInPath outputDSYM:dSYMOutPath];
             }
         }
-        free(programName);
         exit(0); // avoid costly autorelease pool drain, we’re exiting anyway
     }
 }
