@@ -106,6 +106,7 @@ int main(int argc, char *argv[])
         BOOL shouldPrintVersion = NO;
         BOOL shouldTranslateDsym = NO;
         BOOL shouldTranslateCrashDump = NO;
+        BOOL shouldShowUsage = NO;
         CDArch targetArch;
         BOOL hasSpecifiedArch = NO;
         NSMutableSet *hiddenSections = [NSMutableSet set];
@@ -137,6 +138,7 @@ int main(int argc, char *argv[])
                 { "obfuscate-sources",       no_argument,       NULL, PPIOS_OPT_OBFUSCATE }, //'y'
                 { "translate-crashdump",     no_argument,       NULL, CD_OPT_TRANSLATE_CRASH},
                 { "translate-dsym",          no_argument,       NULL, CD_OPT_TRANSLATE_DSYM},
+                { "help",                    no_argument,       NULL, 'h'},
                 { NULL,                      0,                 NULL, 0 },
         };
 
@@ -149,7 +151,7 @@ int main(int argc, char *argv[])
 
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
-        while ( (ch = getopt_long(argc, argv, "Fi:tX:zy:O:m:", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "Fi:tX:zy:O:m:h", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -240,7 +242,10 @@ int main(int argc, char *argv[])
                     shouldTranslateCrashDump = YES;
                     break;
 
-                case '?':
+                case 'h':
+                    shouldShowUsage = YES;
+                    break;
+
                 default:
                     errorFlag = YES;
                     break;
@@ -249,6 +254,10 @@ int main(int argc, char *argv[])
         if (errorFlag) {
             print_usage();
             exit(2);
+        }
+        if(shouldShowUsage){
+            print_usage();
+            exit(0);
         }
 
         if (!symbolMappingPath) {
