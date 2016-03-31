@@ -89,6 +89,7 @@ static NSString *const lettersSet[maxLettersSet] = {
             @"instancetype", // objc keyword
             @"int", // c keyword
             @"interface", // objc @ keyword
+            @"isa", // objc struct member, objc.h, deprecated but still accessible
             @"long", // c keyword
             @"nil", // objc keyword
             @"nonatomic", // objc keyword, properties
