@@ -40,6 +40,7 @@ void print_usage(void)
             "ios-class-guard --translate-crashdump [-m <path>] [options] <crash dump file>\n"
             "ios-class-guard --translate-dsym [-m <path>] [options] <input dsym file> <output dsym file>\n"
             "ios-class-guard --version\n"
+            "ios-class-guard --help\n"
             "\n"
             "Common options:\n"
             "  -m <path>             Path to symbol map file (default: symbols.json)\n"
