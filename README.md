@@ -1,90 +1,99 @@
-iOS Class Guard
-=========
 
-iOS-Class-Guard is a command-line utility for obfuscating Objective-C class, protocol, property and method names. It was made as an extension for [class-dump](https://github.com/nygard/class-dump). The utility generates a symbol table which is then included during compilation. It effectively hides most of class, protocol, method, property and i-var names.
+# TODO:
+````
+Figure out the right product name
+Italicize the product name anywhere it is used
+Don't abbreviate the product name?
+Make sure we get the product and binary name right, everywhere
+Should we document the changes from Polidea's version, somewhere?
+````
 
-**iOS Class Guard itself is not the silver bullet for security of your application. However, it will definitiely make your application harder to read by an attacker.**
 
-Read the official announcement at [Polidea Blog](http://www.polidea.com/#!heartbeat/blog/Protecting_iOS_Applications)
+PreEmptive Protection for iOS - Class Guard
+===========================================
+PreEmptive Protection for iOS - Class Guard, or PPiOS-CG for short, is a command-line utility for obfuscating Objective-C class, protocol, property, and methods names, in iOS apps. It is based on [iOS-Class-Guard](https://github.com/Polidea/ios-class-guard) from [Polidea](https://www.polidea.com/), with extensive modifications and improvements.
 
-if you need **iOS Class Guard Pro** with more features [click here](#pro-version).
+PPiOS-CG can be used on its own or alongside [PreEmptive Protection for iOS](https://www.preemptive.com/products/ppios), [PreEmptive Solutions](https://www.preemptive.com/)' product for control-flow obfuscation of iOS apps.
 
-Version
------------
-0.8
+PPiOS-CG works by generating a special set of `#define` statements that automatically rename symbols during compilation. It includes a number of features:
 
-Do I need It?
------------
-This utility makes code analyzing and runtime inspection more difficult, which can be referred to as a simple/basic method of obfuscation. You may ask yourself why it is needed; due to Objective-C architecture any dissection of iOS applications is rather simple. You may want to check out the following links:
+* Analyze a Mach-O binary to identify symbols to be renamed
+* Apply the renaming rules to the project source code
+* Translate an obfuscated stack track back to un-obfuscated names
 
-* http://www.infointox.net/?p=123
-* http://www.cycript.org/
-* http://resources.infosecinstitute.com/ios-application-security-part-2-getting-class-information-of-ios-apps/
-* http://timourrashed.com/decrypting-ios-app/
+PPiOS-CG works with more than just your project's code. It also automatically finds symbols to exclude from renaming by looking at all external/dependent frameworks and in Core Data (xcdatamodel) files. The renamed symbols will also be applied to your XIB/Storyboard files, and to any open-source CocoaPods libraries in your project.
 
-How does it work?
-----------
-The utility works on the compiled version of an application. It reads the Objective-C portion of Mach-O object files. It parses all classes, properties, methods and i-vars defined in that file adding all symbols to the list. Then it reads all dependent frameworks doing the same (parsing Objective-C code structure), but now adding symbols to a forbidden list. Then all symbols from your executable that aren't in the forbidden list are obfuscated. For each symbol a random identifier consisting of letters and digits is generated. Every time you do obfuscation, a unique symbol map is generated. The generated map is then formatted as a header file with C-preprocessor defines. This file is then included in .pch file. Then it finds all XIBs and Storyboards and updates names inside (so effectively Interface Builder files are also obfuscated). The utility also finds xcdatamodel files (Core Data) inside your project and adds symbols (class and property names) to the forbidden list. During compilation any symbol defined in the header is compiled with a different identifier, the generated one.
+PPiOS-CG is licensed under the GNU GPL v2, but commercial support is also available from [PreEmptive Solutions](https://www.preemptive.com/contact/contactus) via a commercial support agreement. Please see LICENSE.txt for details.
 
-iOS Class Guard also provides support for obfuscating CocoaPods libraries. When you provide paths to Pods the project utility automatically goes through all listed targets and finds .xcconfig files and precompiled header paths to be modified. Then it adds the previously generated header to library .pch header and updates the header search path in .xcconfig file for a target.
 
-iOS Class Guard also generates symbol mapping in a JSON format. It's needed for reversing the process when e.g. you get a crash report. It is important to note that iOS Class Guard does not obfuscate system symbols, so if some of the methods/properties have the same name in a custom class they won't be obfuscated.
+How It Works
+------------
+PPiOS-CG is designed to be used in two phases of your build and release process. In the first phase, PPiOS-CG analyzes an unobfuscated compiled build of your app, to determine which symbols should be renamed and which should be excluded from renaming. In the second phase, PPiOS-CG applies those renaming rules to the **source code** of your app, so that the next build made from that source will be obfuscated. These two phases can be integrated into your build and release processes in a number of ways, including back-to-back.
 
-Example generated symbols header:
-``` C
-// Properties
-#ifndef _parentCell
-#define _parentCell _m5c
-#endif // _parentCell
-#ifndef parentCell
-#define parentCell m5c
-#endif // parentCell
-#ifndef setParentCell
-#define setParentCell setM5c
-#endif // setParentCell
-#ifndef _buttonIndex
-#define _buttonIndex _f8q
-```
+### Phase 1: Analyze
+`ios-class-guard --analyze <Mach-O binary> [-m symbols.json]`
+
+In this phase, PPiOS-CG analyzes the unobfuscated compiled build of your app to determine which symbols should be renamed. It parses all classes, properties, methods and i-vars defined in that file adding all symbols to a "rename list". Then it builds up an "excludes list" with standard reserved words, symbols from dependent frameworks, symbols in Core Data (xcdatamodel) files, and any symbols that have been explicitly excluded via command-line arguments. It them combines those lists to generate a final list of symbols that will be renamed.
+
+For each such symbol, it generates a random identifier, and writes a "map file" (`symbols.json`, by default) with the original names mapped to the new random names. That map file is the final output of the Analyze phase, and is a required input for the next phase, Obfuscate Sources.
+
+> Note: Usually at this point, you should archive the `symbols.json` file. You will need it to be able to un-obfuscate any stack traces generated by builds that were obfuscated based on it.
+
+### Phase 2: Obfuscate Sources
+`ios-class-guard --obfuscate-sources [-m <symbols.json>]`
+
+In this phase, PPiOS-CG reads in the map file and generates a header file (`symbols.h`, by default) that has `#define`s for each symbol to be renamed. It then finds the appropriate Precompiled Header (`.pch`) files in your source code and adds a `#include` with the path to the header file. Finally, it finds all XIBs/Storyboards in your source tree and directly updates the names inside those files.
+
+Now, with the source modifications in place, you can build your app as usual. It will be compiled with the obfuscated symbols. (And any open-source CocoaPods will also have their symbols obfuscated.)
+
+> Note: The Obfuscate Sources phase modifies the **source code** of your app, but you should not check in the changes it makes, because it will cause errors the next time you need to perform the Analyze phase, and will cause issues with Storyboards in the IDE. Because of this, we recommend only using the second phase as part of your release (or automated) build process, and you should always clean/reset your source tree after the build, before doing any further development.
+
+
+Supported Platforms
+-------------------
+PPiOS-CG supports apps developed for:
+
+* iOS 9
+* iPhone, iPod Touch, and iPad
+* ARM 32-bit, 64-bit, and x86 simulator
+
+Using:
+
+* Xcode 7
+* OSX El Capitan
+* Objective-C
+
 
 Installation
------------
-Execute this simple bash script in Terminal. When asked for the password, enter your account. It's needed, because the utility is installed in /usr/local/bin.
+------------
+We suggest downloading one of the binary releases from the Releases page. The archive contains a standalone binary that you can copy to an appropriate place on your system, e.g. `/usr/local/bin`, and we suggest ensuring that the location is on your PATH. The release archive also includes other files such as this README, a changelog, and our license.
 
-``` sh
-brew install ios-class-guard
-```
 
-To install bleeding edge version:
-``` sh
-brew install --HEAD ios-class-guard
-```
-
-How to use it?
------------
+Project Setup
+-------------
 The basic process is:
 
-    build the program
-    analyze the program
-    obfuscate the sources
-    build the program again
+1. Build the program
+2. Analyze the program
+3. Obfuscate the sources
+4. Build the program again
 
-The second step can be accomplished with the following, adjusting the specifics for the project and system:
+For your first time using PPiOS-CG, the following script (adjusted for your project) will perform the Analyze step:
 
     SDK=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk
     PROGRAM=/Users/jsmith/Library/Developer/Xcode/DerivedData/your-app-crgbyxabagbmvieqdqcyikjibigv/Build/Products/Debug-iphonesimulator/your-app.app/your-app
 
     ios-class-guard --analyze --sdk-root "${SDK}" "${PROGRAM}"
 
-Where SDK is the path to the iPhoneSimulator SDK, and PROGRAM is the path to the executable binary.  The analyze process generates symbols.json, the file containing a symbol mapping that can be used to decode stack traces in the event of a crash.  The symbols file created during a build that is released should always be archived for subsequent use.
+Where `SDK` is the path to the iPhoneSimulator SDK, and `PROGRAM` is the path to the executable binary. The analyze process generates `symbols.json`, the file containing a symbol mapping that can be used to decode stack traces in the event of a crash. The symbols file created during a build that is released should always be archived for subsequent use.
 
-The third step can be accomplished with the following:
+Then the Obfuscate Sources step can be accomplished with the following:
 
     ios-class-guard --obfuscate-sources
 
-Note that the obfuscation process cannot be rerun on the sources to "choose different renames".  Thus, once obfuscated, the sources should not be checked in.
+> Note: The Obfuscate Sources phase modifies the **source code** of your app, but you should not check in the changes it makes, because it will cause errors the next time you need to perform the Analyze phase, and will cause issues with Storyboards in the IDE. Because of this, we recommend only using the second phase as part of your release (or automated) build process, and you should always clean/reset your source tree after the build, before doing any further development.
 
-
-Another alternative is to integrate the analyze and obfuscation steps into an Xcode project directly.  This can be set up with the following process:
+Once you are comfortable using PPiOS-CG, it can be easier to use if you integrate it into your Xcode project as part of the build process. This can be set up with the following process:
 
 1. Open the project in Xcode.
 
@@ -129,14 +138,14 @@ Another alternative is to integrate the analyze and obfuscation steps into an Xc
 
 18. Edit the scheme (or add one) for this new target, renaming the scheme to "Obfuscate Sources".
 
-19. These changes should be committed at this point, since building the Obfuscate Sources target will change the sources in ways that shouldn't generally be committed.
+19. These changes should be committed to source control at this point, since building the Obfuscate Sources target will change the sources in ways that shouldn't generally be committed.
 
 
 When ready to start testing an obfuscated build:
 
-1. Build using the Build and Analyze scheme, producing the symbols file, symbols.json.
+1. Build using the Build and Analyze scheme, producing the symbols file, `symbols.json`.
 
-2. Commit or otherwise preserve the symbols.json file.
+2. Commit or otherwise preserve the `symbols.json` file.
 
 3. Build using the Obfuscate Sources scheme, which applies the renaming to the sources.
 
@@ -144,99 +153,71 @@ When ready to start testing an obfuscated build:
 
 5. Revert changes to the sources before continuing development.
 
-Once the sources are obfuscated, the process of building and testing for different destinations can be repeated using the original scheme.
+Once the sources are obfuscated, the process of building and testing for different destinations can be repeated using the original scheme (step #4), as long as you haven't reverted the sources yet (step #5).
 
-If the original build target or scheme is changed, be sure to delete and then recreate the Build and Analyze target as above.  Under certain conditions, the Obfuscate Sources target and scheme will need to be recreated as well.
-
-
-Pre compiled header file
------------
-After obfuscation, iOS-Class-Guard will try to add generated symbols header (`symbols.h`) to your project's `*.pch` file. However, projects created in Xcode 6 and above don't contain `*.pch` file by default. In case your project doesnt have any `*.pch` file, you have to add it manually **before obfuscation**. 
-
-To add `*.pch` file to your project follow the steps below:
-
-1. Create `PCH` file in your project's root directory. In Xcode go to `File -> New -> File -> iOS -> Other -> PCH File`.
-To ensure backward compatibility iOS-Class-Guard will be looking for a file matching the `*-Prefix.pch` mask, as an example `MyProject-Prefix.pch`
+If you modify the original build target or scheme, be sure to delete and recreate the Build and Analyze target as above. Under certain conditions, the Obfuscate Sources target and scheme will need to be recreated as well.
 
 
-2. At the target's *Build Settings*, in *Apple LLVM - Language* section, set **Prefix Header** to your PCH file name.
+Using PPiOS-CG with PPiOS
+-------------------------
+The "renaming" obfuscation provided by PreEmptive Protection for iOS - Class Guard (PPiOS-CG) is the first, most-common type of obfuscation typically applied to applications to help protect them from reverse engineering, intellectual property theft, software piracy, tampering, and data loss. There are numerous additional obfuscation techniques, however, that are critically important for serious protection of apps. [PreEmptive Solutions](https://www.preemptive.com/) offers another product, simply named [PreEmptive Protection for iOS](https://www.preemptive.com/products/ppios) that includes multiple additional obfuscation transforms. PPiOS-CG is meant to work alongside PPiOS; together they provide much better protection than either one alone can provide.
 
-3. At the target's *Build Settings*, in *Apple LLVM - Language* section, set **Precompile Prefix Header** to `YES`.
+If you have both PPiOS-CG and PPiOS, no special instructions are required for using them together. Set each one up according to its documentation, and they will each perform their obfuscation without affecting the other.
+
+Troubleshooting
+---------------
+
+### Missing `.pch` file
+During the Obfuscate Sources phase, you may get an error:
+
+    Error: could not find any *-Prefix.pch files under .
+
+This is because `ios-class-guard` is attempting to add an `#include` to a Precompiled Header file, and it can't find a suitable file to add it to. This is typically because projects created in Xcode 6 and above don't contain a `.pch` file by default.
+
+To fix this, add a `.pch` file as follows:
+
+1. In Xcode go to `File -> New -> File -> iOS -> Other -> PCH File`.
+
+2. Name the file e.g. `MyProject-Prefix.pch`. PPiOS-CG looks for a file matching `*-Prefix.pch`.
+
+3. At the target's *Build Settings*, in *Apple LLVM - Language* section, set **Prefix Header** to your PCH file name.
+
+4. At the target's *Build Settings*, in *Apple LLVM - Language* section, set **Precompile Prefix Header** to `YES`.
 
 
-For more details please refer to [this](http://stackoverflow.com/a/24524692/1219382) Stack Overflow question.
+### Undefined symbols / exclusions
 
-Example
------------
-You can take a look what changes are required and how it works in some example projects.
+During the build, after the Obfuscate Source phase, you may see errors like this:
 
-``` sh
-git clone https://github.com/Polidea/ios-class-guard-example ios-class-guard-example
-cd ios-class-guard-example
-make compile
-```
+    Undefined symbols for architecture i386:
+      "_OBJC_CLASS_$_n9z", referenced from:
+          objc-class-ref in GRAppDelegate.o
 
-Here is *class-dump* for non-obfuscated sources: 
-https://github.com/Polidea/ios-class-guard-example/tree/master/SWTableViewCell-no-obfuscated.xcarchive/Headers
+You might also see `unresolved external` linker errors, e.g. if you used a C function and named an Objective-C method using the same name. It will lead to a linker error (*unresolved external*).
 
-What it will look like when you use *iOS Class Guard*:
-https://github.com/Polidea/ios-class-guard-example/tree/master/SWTableViewCell-obfuscated.xcarchive/Headers
+These errors usually mean that PPiOS-CG obfuscated a symbol that needs to be excluded for some reason. You can find the symbol by searching `symbols.json` or `symbols.h` for the referenced symbol (`n9z`, in this example) to see what the original name was. Then you can exclude the symbol via command-line arguments to the Analyze phase, via one of the two mechanisms below.
 
-Command Line Options
------------
-```
-ios-class-guard 0.8 (64 bit)
-Usage: ios-class-guard [options] <mach-o-file>
+In this example, if `n9z` had mapped to `PSSomeClass`, you would simply add `-F '!PSSomeClass'` to your arguments when running `--analyze`.
 
-  where options are:
-        -F <class>     specify class filter for symbols obfuscator (also protocol))
-        -i <symbol>    ignore obfuscation of specific symbol)
-        --arch <arch>  choose a specific architecture from a universal binary (ppc, ppc64, i386, x86_64, armv6, armv7, armv7s, arm64)
-        --list-arches  list the arches in the file, then exit
-        --sdk-ios      specify iOS SDK version (will look for /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk
-                       or /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk)
-        --sdk-mac      specify Mac OS X version (will look for /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX<version>.sdk
-                       or /Developer/SDKs/MacOSX<version>.sdk)
-        --sdk-root     specify the full SDK root path (or use --sdk-ios/--sdk-mac for a shortcut)
-        -X <directory> base directory for XIB, storyboards (will be searched recursively)
-        -O <path>      path to file where obfuscated symbols are written
-        -m <path>      path to symbol file map (default value symbols.json)
-        -c <path>      path to symbolicated crash dump
-```
+#### Class / Protocol filter
+You can exclude an entire class or protocol by using the `-F` argument in the Analyze phase. For example:
 
-The utility requires you to get familiar with a few options.
+    -F '!APH*' -F '!MC*' -F '!F?Box'
 
-### Output header path
-iOS Class Guard requires you to provide path to generated symbols header.
+This will filter out any class in namespaces `APH` and `MC`. It will also filter out every class in namespaces that start with `F` and have a class name of `Box`.
 
-#### Example
-```
--O SWTableView/symbols.h
-```
+`?` matches any single character, while `*` matches any number of characters.
 
-### Class filter
-iOS Class Guard allows to filter out some of the classes that can't be obfuscated. For example, because you use it as a precompiled static library.
+#### Symbol filter
+You can exclude specific symbols by using the `-i` argument in the Analyze phase. For example:
 
-iOS Code Style assumes that every class is prefixed with a two-or-three-symbol identifier - namespace (ie. NS* for Foundation class). This allows you to filter in or filter out the whole namespace.
+    -i 'deflate' -i 'curl_*'
 
-#### Example
-```
--F '!APH*' -F '!MC*' -F '!F?Box'
-```
+This will filter out symbols named *deflate* and symbols that start with *curl_*.
 
-This will filter out any class in namespace `APH`, and `MC`. It will also filter out every class in the namespaces that start with `F` and has a class name of `Box`. The `?` matches any single character, while the `*` character matches any number of characters any number of times.
+`?` matches any single character, while `*` matches any number of characters.
 
-### Ignored symbols
-It may happen that some symbols get obfuscated even though they shouldn't, e.g. if you use C method and name Objective-C method using the same name. It will lead to a linker error (*unresolved external*). You have to find what symbol is it and add it to the list of ignored symbols.
-
-#### Example
-```
--i 'deflate' -i 'curl_*'
-```
-This will not obfuscate symbols named *deflate* and symbols that start with *curl_\**.
-
-### Exclusions
-
+#### Exclusion propagation
 When excluding items using either `-i` or `-F`, if the excluded item matches a class or protocol name, then this can lead to a cascade effect of exclusions. If a class is excluded, then it will also exclude all of the class's methods and properties. This can also include names of protocol methods/properties.
 
 For example, if a class name is excluded, then the following is also excluded: (assuming ClassName is the class name)
@@ -247,73 +228,13 @@ For example, if a class name is excluded, then the following is also excluded: (
 
 When excluding properties, the following names are also excluded: (assuming the propery name is `propertyName`)
 
-1. set_propertyName
-2. _propertyName
-3. setIsPropertyName
-4. setPropertyName
-5. set_isPropertyName
-6. isPropertyName
-7. _isPropertyName
-
-### CocoaPods
-If you're using CocoaPods in your project you can also obfuscate symbols inside external libraries. The only thing you need is to specify path to Pods PBX project file. It's located inside the .xcodeproj directory. Utility will modify configurations and precompiled headers so that they're also obfuscated.
-
-#### Example
-```
--P Pods/Pods.xcodeproj/project.pbxproj
-```
-
-### Other options
-
-#### Xib directory
-This is optional argument. By default utility searches for all XIB/Storyboard files recursively from directory of execution (in most cases root directory of the project). If you store those files in a different directory you can provide a path to the directory where they can be found.
-
-##### Example
-```
--X SWTableView/Xib
-```
-
-#### Symbol mapping file
-You can provide the path where utility will save symbol mapping. By default it is named symbols.json.
-
-#####
-```
--m release/symbols_1.0.0.json
-```
-
-#### Reversing obfuscation in crash dump
-iOS Class Guard lets you reverse the process of obfuscation. It might come in handy when you get a crash report from a user and you're trying to find the reason. You can provide a path to a file with crash dump or a file with the output of ```atos``` command. Symbols in the file which was provided will be replaced using the symbol mapping file. The result will be saved in the same file.
-
-##### Example
-```
--c crashdump -m symbols_1.0.0.json
-```
-
-#### Reversing obfuscation in dSYMs
-iOS Class Guard lets you reverse the process of obfuscation for automatic crash reporting tools such as Crashlytics, Fabric, BugSense/Splunk Mint, Crittercism or HockeyApp. With ```--dsym``` parameter, iOS Class Guard will exchange obfuscated symbols with original ones within provided dSYM file. We highly recommend you adding in the very beginnig of your Build Phases/Run script one line shown in the example below to automate dSYM translation process. Feature has been tested with the tools mentioned above.
-
-##### Build Phases/Run script example
-```
-if [ -f "$PROJECT_DIR/symbols.json" ]; then
-/usr/local/bin/ios-class-guard -m $PROJECT_DIR/symbols.json --dsym $DWARF_DSYM_FOLDER_PATH/$DWARF_DSYM_FILE_NAME --dsym-out $DWARF_DSYM_FOLDER_PATH/$DWARF_DSYM_FILE_NAME
-fi
-
-# Another invocations eg.: ./Crashlytics.framework/run <Crashlytics secret #1> <Crashlytics secret #2>
-```
-
-##### Manual usage example
-```
-ios-class-guard -m symbols.json --dsym MyProject_obfuscated.app.dSYM --dsym-out MyProject_unobfuscated.app.dSYM
-```
+1. _propertyName
+2. setPropertyName
+3. isPropertyName
 
 
-Limitations
------------
-
-Due to the way iOS Class Guard works you should be aware of two main limitations of that approach.
-
-### XIB and Storyboards
-*ios-class-guard* works pretty well with XIB and Storyboard files, but if you're using external libraries which provide their bundle with Interface Builder files be sure to ignore those symbols, as they won't work when you launch the app and try to use them. You can do that using *Class filter*.
+### XIB and Storyboards limitations
+If you're using external libraries which provide their bundle with Interface Builder files, be sure to ignore those symbols as they won't work when you launch the app and try to use them. You can do that using the `-F` argument to the Analyze phase.
 
 ### Key-Value Observing (KVO)
 It is possible that during obfuscation KVO will stop working. Most developers use hardcoded strings to specify *KeyPath*.
@@ -343,9 +264,9 @@ It is possible that during obfuscation KVO will stop working. Most developers us
 }
 ```
 
-This will simply not work. The property *isFinished* will get a new name and the hardcoded string will not reflect the change.
+This will not work. The property *isFinished* will get a new name and the hardcoded string will not reflect the change.
 
-Remove any *keyPath* and change it to ```NSStringFromSelector(@selector(keyPath))```.
+Remove any *keyPath* and change it to `NSStringFromSelector(@selector(keyPath))`.
 
 **The fixed code should look like this:**
 
@@ -375,41 +296,76 @@ Remove any *keyPath* and change it to ```NSStringFromSelector(@selector(keyPath)
 ```
 
 ### Serialization
-If you use classes that are saved to the disk or user defaults using `NSCoding` protocol you'll have to exclude them from obfuscation. If you don't, after generating symbols again your app will start crashing as it won't be able to read that class from serialized data.
+If you use serialization (e.g. `NSCoding` or `NSUserDefaults`), affected classes will have to be excluded from obfuscation. If you don't, then you won't be able to generate new symbols (i.e. the Analyze phase) without breaking deserialization of existing data.
 
-### Undefined symbols
-When using `iOS-Class-Guard` it is more than probable that you will encounter issues similar to this:
 
-```
-Undefined symbols for architecture i386:
-  "_OBJC_CLASS_$_n9z", referenced from:
-      objc-class-ref in GRAppDelegate.o
-```
+Advanced Topics
+---------------
 
-To fix it, copy `n9z` and search for it in `symbols.h`. Most probably it will be a class. You simply have to exclude it from obfuscation by specifying: `-F '!UnresolvedClassName'` and retest.
+### Verifying obfuscation
 
-Note
----
-iOS-Class-Guard works alongside LLVM Obfuscator: https://github.com/obfuscator-llvm/obfuscator. However, this has not been tested.
+To verify that your app has been obfuscated, use the `nm` utility, which is included in the Xcode Developer Tools. Simply run:
 
-Pro version
------------
+    nm path/to/your/binary | less
 
-Contact us at [ios-class-guard@polidea.com](mailto:ios-class-guard@polidea.com) if you need iOS Class Guard Pro with more features including:
-* Encryption of strings and constants
-* Tamper detection mechanism
-* Anti-debug mechanism
-* Methods inlining
-* Assets encryption
-* Control flow obfuscation
-* Code virtualization with encryption
-* API method execution hiding
+to see the symbols from your app. If you do this with an unobfuscated build, you will see the orginal symbols. If you do this with an obfuscated build, you will see obfuscated symbols.
 
-License
-----
 
-This product is licensed under the GNU GPL v2. Please see LICENSE.txt for details.
+#### Reversing obfuscation in crash dumps
+PPiOS-CG lets you reverse the process of obfuscation for crash dump files. This is important so you can find the original classes and methods involved in a crash. It does this by using the information from a map file (e.g. `symbols.json`) to modify the crash dump file, replacing the obfuscated symbols with the original names. For example:
 
-Commercial support for this product is available from PreEmptive Solutions, LLC,
-with a commercial support agreement. Please
-[contact us](https://www.preemptive.com/contact/contactus) for details.
+    ios-class-guard --translate-crashdump -m path/to/symbols_1.0.0.json path/to/crashdump
+
+> Note: **The crash dump file will be modified**
+
+#### Reversing obfuscation in dSYMs
+PPiOS-CG lets you reverse the process of obfuscation for automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.json`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
+
+    ios-class-guard --translate-dsym -m path/to/symbols_1.0.0.json --dsym-in path/to/input_dsym --dsym-out path/to/output_dsym
+
+The resulting dSYM file can be uploaded to e.g. HockeyApp.
+
+
+Command Line Argument Reference
+-------------------------------
+````
+ios-class-guard --analyze [options] ( --sdk-root <path> | --sdk-ios  <version> ) <mach-o-file>
+    Analyze a Mach-O binary and generate a symbol map
+
+    Options:
+        -m <path>             Path to symbol map file (default: symbols.json)
+        -F <name>             Specify filter for a class or protocol pattern
+        -i <symbol>           Ignore obfuscation of specific symbol
+        --arch <arch>         Choose specific architecture from universal binary:
+                              ppc|ppc64|i386|x86_64|armv6|armv7|armv7s|arm64
+        --sdk-root <path>     Specify full SDK root path (or one of the shortcuts)
+        --sdk-ios <version>   Specify iOS SDK by version, searching for:
+                              /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator<version>.sdk
+
+ios-class-guard --obfuscate-sources [options]
+    Alter source code (relative to current working directory), renaming based on the symbol map
+
+    Options:
+        -m <path>             Path to symbol map file (default: symbols.json)
+        -X <directory>        Path for XIBs and storyboards (searched recursively) (default: .)
+        -O <path>             Path of where to write obfuscated symbols header (default: symbols.h)
+
+ios-class-guard --translate-crashdump [options] <crash dump file>
+    Translate symbolicated crash dump
+
+    Options:
+        -m <path>             Path to symbol map file (default: symbols.json)
+
+ios-class-guard --translate-dsym [options] --dsym-in <input file> --dsym-out <output file>
+    Translates a dsym file with obfuscated symbols to a dsym with unobfuscated names
+
+    Options:
+        -m <path>             Path to symbol map file (default: symbols.json)
+
+ios-class-guard --list-arches <mach-o-file>
+    List architectures available in a fat binary
+
+ios-class-guard --version
+    Print out version information
+````
+
