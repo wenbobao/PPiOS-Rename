@@ -56,7 +56,7 @@ void print_usage(void)
             "  --sdk-ios <version>   Specify iOS SDK by version, searching for:\n"
             "                        " SDK_PATH_USAGE_STRING "\n"
             "  --list-excluded-symbols <path>\n"
-            "                        Emit the computed list of symbols to exclude from renaming\n"
+            "                        Emit computed list of symbols to exclude from renaming\n"
             "\n"
             "Obfuscate sources mode options:\n"
             "  -X <directory>        Path for XIBs and storyboards (searched recursively)\n"
