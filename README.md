@@ -1,17 +1,19 @@
 
 # TODO:
 ````
-Figure out the right product name
-Italicize the product name anywhere it is used
-Don't abbreviate the product name?
-Make sure we get the product and binary name right, everywhere
+Product name:
+    Figure out the right product name
+    Italicize the product name anywhere it is used
+    Don't abbreviate the product name?
+    Make sure we get the product and binary name right, everywhere
+
 Should we document the changes from Polidea's version, somewhere?
 ````
 
 
 PreEmptive Protection for iOS - Class Guard
 ===========================================
-PreEmptive Protection for iOS - Class Guard, or PPiOS-CG for short, is a command-line utility for obfuscating Objective-C class, protocol, property, and methods names, in iOS apps. It is based on [iOS-Class-Guard](https://github.com/Polidea/ios-class-guard) from [Polidea](https://www.polidea.com/), with extensive modifications and improvements.
+PreEmptive Protection for iOS - Class Guard, or PPiOS-CG for short, is a command-line utility for obfuscating Objective-C class, protocol, property, and methods names, in iOS apps. It is based on [iOS-Class-Guard](https://github.com/Polidea/ios-class-guard) from [Polidea](https://www.polidea.com/), with extensive improvements and modifications.
 
 PPiOS-CG can be used on its own or alongside [PreEmptive Protection for iOS](https://www.preemptive.com/products/ppios), [PreEmptive Solutions](https://www.preemptive.com/)' product for control-flow obfuscation of iOS apps.
 
@@ -19,7 +21,8 @@ PPiOS-CG works by generating a special set of `#define` statements that automati
 
 * Analyze a Mach-O binary to identify symbols to be renamed
 * Apply the renaming rules to the project source code
-* Translate an obfuscated stack track back to un-obfuscated names
+* Translate an obfuscated crash dump back to un-obfuscated names
+* Generate unobfuscated dSYM files for upload to analytics tools, for automatic stack trace mapping
 
 PPiOS-CG works with more than just your project's code. It also automatically finds symbols to exclude from renaming by looking at all external/dependent frameworks and in Core Data (xcdatamodel) files. The renamed symbols will also be applied to your XIB/Storyboard files, and to any open-source CocoaPods libraries in your project.
 
@@ -329,43 +332,47 @@ The resulting dSYM file can be uploaded to e.g. HockeyApp.
 Command Line Argument Reference
 -------------------------------
 ````
-ios-class-guard --analyze [options] ( --sdk-root <path> | --sdk-ios  <version> ) <mach-o-file>
-    Analyze a Mach-O binary and generate a symbol map
+ios-class-guard --analyze [options] <mach-o-file>
+  Analyze a Mach-O binary and generate a symbol map
 
-    Options:
-        -m <path>             Path to symbol map file (default: symbols.json)
-        -F <name>             Specify filter for a class or protocol pattern
-        -i <symbol>           Ignore obfuscation of specific symbol
-        --arch <arch>         Choose specific architecture from universal binary:
-                              ppc|ppc64|i386|x86_64|armv6|armv7|armv7s|arm64
-        --sdk-root <path>     Specify full SDK root path (or one of the shortcuts)
-        --sdk-ios <version>   Specify iOS SDK by version, searching for:
-                              /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator<version>.sdk
+  Options:
+    -m <path>                      Path to symbol map file (default: symbols.json)
+    -F <name>                      Specify filter for a class or protocol pattern
+    -i <symbol>                    Ignore obfuscation of specific symbol
+    --arch <arch>                  Choose specific architecture from universal binary:
+                                   ppc|ppc64|i386|x86_64|armv6|armv7|armv7s|arm64
+    --sdk-root <path>              Specify full SDK root path
+    --sdk-ios <version>            Specify iOS SDK by version, searching for:
+                                   /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator<version>.sdk
+    --list-excluded-symbols <file> Emit computed list of excluded symbols
 
 ios-class-guard --obfuscate-sources [options]
-    Alter source code (relative to current working directory), renaming based on the symbol map
+  Alter source code (relative to current working directory), renaming based on the symbol map
 
-    Options:
-        -m <path>             Path to symbol map file (default: symbols.json)
-        -X <directory>        Path for XIBs and storyboards (searched recursively) (default: .)
-        -O <path>             Path of where to write obfuscated symbols header (default: symbols.h)
+  Options:
+    -m <path>             Path to symbol map file (default: symbols.json)
+    -X <directory>        Path for XIBs and storyboards (searched recursively) (default: .)
+    -O <path>             Path of where to write obfuscated symbols header (default: symbols.h)
 
 ios-class-guard --translate-crashdump [options] <crash dump file>
-    Translate symbolicated crash dump
+  Translate symbolicated crash dump
 
-    Options:
-        -m <path>             Path to symbol map file (default: symbols.json)
+  Options:
+    -m <path>             Path to symbol map file (default: symbols.json)
 
-ios-class-guard --translate-dsym [options] --dsym-in <input file> --dsym-out <output file>
-    Translates a dsym file with obfuscated symbols to a dsym with unobfuscated names
+ios-class-guard --translate-dsym [options] <input file> <output file>
+  Translates a dsym file with obfuscated symbols to a dsym with unobfuscated names
 
-    Options:
-        -m <path>             Path to symbol map file (default: symbols.json)
+  Options:
+    -m <path>             Path to symbol map file (default: symbols.json)
 
 ios-class-guard --list-arches <mach-o-file>
-    List architectures available in a fat binary
+  List architectures available in a fat binary
 
 ios-class-guard --version
-    Print out version information
+  Print out version information
+
+ios-class-guard --help
+  Print out usage information
 ````
 
