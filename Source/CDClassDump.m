@@ -261,8 +261,9 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
     [visitor willBeginVisiting];
 
     NSEnumerator *objcProcessors;
-    objcProcessors = [self.objcProcessors objectEnumerator];
-    
+    objcProcessors = [self.objcProcessors reverseObjectEnumerator];
+
+
 
 
     for (CDObjectiveCProcessor *processor in objcProcessors) {
