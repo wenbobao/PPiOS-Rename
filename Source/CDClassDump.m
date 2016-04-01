@@ -69,19 +69,9 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 {
     CDSearchPathState *_searchPathState;
     
-    BOOL _shouldProcessRecursively;
-    BOOL _shouldSortClasses; // And categories, protocols
-    BOOL _shouldSortClassesByInheritance; // And categories, protocols
-    BOOL _shouldSortMethods;
-    
-    BOOL _shouldShowIvarOffsets;
-    BOOL _shouldShowMethodAddresses;
     BOOL _shouldShowHeader;
-    BOOL _shouldAnalyze;
-    BOOL _shouldObfuscate;
-    
-    NSRegularExpression *_regularExpression;
-    
+
+
     NSString *_sdkRoot;
     NSMutableArray *_machOFiles;
     NSMutableDictionary *_machOFilesByName;
@@ -273,6 +263,7 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
     NSEnumerator *objcProcessors;
     objcProcessors = [self.objcProcessors objectEnumerator];
     
+
 
     for (CDObjectiveCProcessor *processor in objcProcessors) {
         [processor recursivelyVisit:visitor];
