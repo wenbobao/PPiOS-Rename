@@ -94,6 +94,12 @@ void populateProgramName(char* argv0){
     programName = basename(argv0);
 }
 
+void checkSingleMode(BOOL hasMode){
+    if(hasMode){
+        reportError(2, "Only a single mode of operation is supported at a time");
+    }
+}
+
 int main(int argc, char *argv[])
 {
     @autoreleasepool {
@@ -148,8 +154,9 @@ int main(int argc, char *argv[])
         }
 
         CDClassDump *classDump = [[CDClassDump alloc] init];
-
+        BOOL hasMode = NO;
         while ( (ch = getopt_long(argc, argv, "F:i:tX:zy:O:m:h", longopts, NULL)) != -1) {
+
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -216,25 +223,31 @@ int main(int argc, char *argv[])
                 case PPIOS_OPT_ANALYZE:
                     //do analysis
                     shouldAnalyze = YES;
+                    checkSingleMode(hasMode);
                     break;
 
                 case PPIOS_OPT_OBFUSCATE:
                     shouldObfuscate = YES;
+                    checkSingleMode(hasMode);
                     break;
 
                 case CD_OPT_LIST_ARCHES:
                     shouldListArches = YES;
+                    checkSingleMode(hasMode);
                     break;
 
                 case CD_OPT_VERSION:
                     shouldPrintVersion = YES;
+                    checkSingleMode(hasMode);
                     break;
 
                 case CD_OPT_TRANSLATE_DSYM:
                     shouldTranslateDsym = YES;
+                    checkSingleMode(hasMode);
                     break;
                 case CD_OPT_TRANSLATE_CRASH:
                     shouldTranslateCrashDump = YES;
+                    checkSingleMode(hasMode);
                     break;
 
                 case 'h':
@@ -245,6 +258,9 @@ int main(int argc, char *argv[])
                     errorFlag = YES;
                     break;
             }
+
+            hasMode = shouldAnalyze | shouldListArches | shouldObfuscate | shouldPrintVersion |
+                    shouldTranslateCrashDump | shouldTranslateDsym;
         }
         if (errorFlag) {
             print_usage();
@@ -268,27 +284,16 @@ int main(int argc, char *argv[])
             secondArg = [NSString stringWithFileSystemRepresentation:argv[optind + 1]];
         }
 
-        BOOL hasMode = shouldAnalyze | shouldListArches | shouldObfuscate | shouldPrintVersion |
-                shouldTranslateCrashDump | shouldTranslateDsym;
 
         if(!hasMode){
             print_usage();
             exit(2);
         }
-        if((shouldAnalyze | shouldObfuscate) && (shouldListArches | shouldPrintVersion |
-                shouldTranslateCrashDump | shouldTranslateDsym)) {
-            //only shouldAnalyze and shouldObfuscate can be run together at the same time
-            reportError(2, "Only --analyze and --obfuscate-sources can be run at the same time");
-        }
 
 
         if (shouldPrintVersion) {
             printf("PreEmptive Protection for iOS - Class Guard, version %s\n", CLASS_DUMP_VERSION);
-            exit(0);
-        }
-
-
-        if (shouldListArches) {
+        } else if (shouldListArches) {
             if(firstArg == nil){
                 reportError(1, "Input file must be specified for --list-arches");
             }
@@ -307,9 +312,7 @@ int main(int argc, char *argv[])
                     printf("%s\n", [[[macho archNames] componentsJoinedByString:@" "] UTF8String]);
                 }
             }
-        }
-
-        if(shouldAnalyze){
+        }else if(shouldAnalyze){
             if(firstArg == nil){
                 reportError(1, "Input file must be specified for --analyze");
             }
@@ -369,9 +372,7 @@ int main(int argc, char *argv[])
             [classDump recursivelyVisit:visitor];
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
             [mapper writeSymbolsFromSymbolsVisitor:visitor toFile:symbolMappingPath];
-        }
-
-        if(shouldObfuscate){
+        } else if(shouldObfuscate){
             int result = [classDump obfuscateSourcesUsingMap:symbolMappingPath
                                            symbolsHeaderFile:symbolsPath
                                             workingDirectory:@"."
@@ -380,9 +381,7 @@ int main(int argc, char *argv[])
                 // errors already reported
                 exit(result);
             }
-        }
-
-        if(shouldTranslateCrashDump) {
+        } else if(shouldTranslateCrashDump) {
             if (!firstArg) {
                 reportError(4, "Crash dump file must be specified");
             }
@@ -400,9 +399,7 @@ int main(int argc, char *argv[])
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
             NSString *processedFile = [mapper processCrashDump:crashDump withSymbols:[NSJSONSerialization JSONObjectWithData:[symbolsData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil]];
             [processedFile writeToFile:crashDumpPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
-        }
-
-        if (shouldTranslateDsym){
+        } else if (shouldTranslateDsym){
             NSString *dSYMInPath = firstArg;
             NSString *dSYMOutPath = secondArg;
 
