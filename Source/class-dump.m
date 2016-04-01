@@ -274,6 +274,20 @@ int main(int argc, char *argv[])
             secondArg = [NSString stringWithFileSystemRepresentation:argv[optind + 1]];
         }
 
+        BOOL hasMode = shouldAnalyze | shouldListArches | shouldObfuscate | shouldPrintVersion |
+                shouldTranslateCrashDump | shouldTranslateDsym;
+
+        if(!hasMode){
+            print_usage();
+            exit(2);
+        }
+        if((shouldAnalyze | shouldObfuscate) && (shouldListArches | shouldPrintVersion |
+                shouldTranslateCrashDump | shouldTranslateDsym)) {
+            //only shouldAnalyze and shouldObfuscate can be run together at the same time
+            reportError(2, "Only --analyze and --obfuscate-sources can be run at the same time");
+        }
+
+
         if (shouldPrintVersion) {
             printf("PreEmptive Protection for iOS - Class Guard, version %s\n", CLASS_DUMP_VERSION);
             exit(0);
