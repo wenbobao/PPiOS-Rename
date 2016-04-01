@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
-        while ( (ch = getopt_long(argc, argv, "Fi:tX:zy:O:m:h", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "F:i:tX:zy:O:m:h", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
