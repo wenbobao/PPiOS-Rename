@@ -80,7 +80,7 @@ void print_usage(void)
 #define PPIOS_OPT_ANALYZE ((int)'z')
 #define PPIOS_OPT_OBFUSCATE ((int)'y')
 #define PPIOS_OPT_LIST_EXCLUDED_SYMBOLS ((int)'x')
-char* programName;
+static char* programName;
 
 void reportError(int exitCode, const char* format, ...){
     va_list  args;
