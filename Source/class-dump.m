@@ -33,8 +33,7 @@ void print_usage(void)
             "PreEmptive Protection for iOS - Class Guard, version %s\n"
             "\n"
             "Usage:\n"
-            "  ios-class-guard --analyze [options] \n"
-            "    ( --sdk-root <path> | --sdk-ios  <version> ) <Mach-O file>\n"
+            "  ios-class-guard --analyze [options] <Mach-O file>\n"
             "  ios-class-guard --obfuscate-sources [options]\n"
             "  ios-class-guard --list-arches <Mach-O file>\n"
             "  ios-class-guard --translate-crashdump [-m <file>] <crash dump file>\n"
@@ -80,6 +79,8 @@ void print_usage(void)
 #define PPIOS_OPT_LIST_EXCLUDED_SYMBOLS ((int)'x')
 static char* programName;
 
+void validateSDKPath(NSFileManager * fileManager, CDClassDump * classDump);
+
 void reportError(int exitCode, const char* format, ...){
     va_list  args;
     va_start(args, format);
@@ -96,8 +97,6 @@ void populateProgramName(char* argv0){
 int main(int argc, char *argv[])
 {
     @autoreleasepool {
-        NSString * const SDK_PATH_PATTERN
-                = [NSString stringWithUTF8String:SDK_PATH_BEFORE "%@" SDK_PATH_AFTER];
         NSFileManager * fileManager = [NSFileManager defaultManager];
         BOOL shouldAnalyze = NO;
         BOOL shouldObfuscate = NO;
@@ -165,15 +164,12 @@ int main(int argc, char *argv[])
                 }
 
                 case CD_OPT_SDK_IOS: {
-                    NSString * versionString = [NSString stringWithUTF8String:optarg];
-                    classDump.sdkRoot = [NSString stringWithFormat:SDK_PATH_PATTERN, versionString];
+                    classDump.sdkIOSVersion = [NSString stringWithUTF8String:optarg];
                     break;
                 }
 
                 case CD_OPT_SDK_ROOT: {
-                    NSString *root = [NSString stringWithUTF8String:optarg];
-                    classDump.sdkRoot = root;
-
+                    classDump.sdkRoot = [NSString stringWithUTF8String:optarg];
                     break;
                 }
 
@@ -324,9 +320,7 @@ int main(int argc, char *argv[])
             }
             classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
 
-            if (![fileManager fileExistsAtPath:classDump.sdkRoot]) {
-                reportError(1, "Specified SDK does not exist: %s", [classDump.sdkRoot UTF8String]);
-            }
+            validateSDKPath(fileManager, classDump);
 
             CDFile *file = [CDFile fileWithContentsOfFile:executablePath searchPathState:classDump.searchPathState];
             if (file == nil) {
@@ -353,9 +347,6 @@ int main(int argc, char *argv[])
             NSError *error;
             if (![classDump loadFile:file error:&error depth:0]) {
                 reportError(1, "Error: %s", [[error localizedFailureReason] UTF8String]);
-            }
-            if (![classDump.sdkRoot length]) {
-                reportError(3, "Please specify either --sdk-ios or --sdk-root");
             }
 
             [classDump processObjectiveCData];
@@ -448,5 +439,32 @@ int main(int argc, char *argv[])
             }
         }
         exit(0); // avoid costly autorelease pool drain, we’re exiting anyway
+    }
+}
+
+void validateSDKPath(NSFileManager * fileManager, CDClassDump * classDump) {
+    NSString * const SDK_PATH_PATTERN
+            = [NSString stringWithUTF8String:SDK_PATH_BEFORE "%@" SDK_PATH_AFTER];
+
+    if ((classDump.sdkRoot != nil) && (classDump.sdkIOSVersion != nil)) {
+        reportError(1, "Specify only one of --sdk-root or --sdk-ios");
+    }
+
+    BOOL specified = YES;
+    if (classDump.sdkRoot == nil) {
+        NSString * version = classDump.sdkIOSVersion;
+        if (version == nil) {
+            specified = NO;
+            version = @"";
+        }
+
+        classDump.sdkRoot = [NSString stringWithFormat:SDK_PATH_PATTERN, version];
+    }
+
+    if (![fileManager fileExistsAtPath:classDump.sdkRoot]) {
+        reportError(1,
+                "%s SDK does not exist: %s",
+                (specified ? "Specified" : "Default"),
+                [classDump.sdkRoot UTF8String]);
     }
 }
