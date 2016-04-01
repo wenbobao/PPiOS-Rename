@@ -318,7 +318,7 @@ The resulting dSYM file can be uploaded to e.g. HockeyApp.
 
 Command Line Argument Reference
 -------------------------------
-````
+```
 ios-class-guard --analyze [options] <mach-o-file>
   Analyze a Mach-O binary and generate a symbol map
 
@@ -361,5 +361,5 @@ ios-class-guard --version
 
 ios-class-guard --help
   Print out usage information
-````
+```
 
