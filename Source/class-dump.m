@@ -5,7 +5,6 @@
 
 #include <getopt.h>
 #include <libgen.h>
-#import <mach-o/dyld.h>
 
 #import "CDClassDump.h"
 #import "CDFindMethodVisitor.h"
@@ -79,7 +78,9 @@ void print_usage(void)
 #define PPIOS_OPT_LIST_EXCLUDED_SYMBOLS ((int)'x')
 static char* programName;
 
-void validateSDKPath(NSFileManager * fileManager, CDClassDump * classDump);
+static NSString * resolveSDKPath(NSFileManager * fileManager,
+                                 NSString * const sdkRootOption,
+                                 NSString * const sdkIOSOption);
 
 void reportError(int exitCode, const char* format, ...){
     va_list  args;
@@ -119,6 +120,8 @@ int main(int argc, char *argv[])
         NSString *xibBaseDirectory = nil;
         NSString *symbolsPath = nil;
         NSString *symbolMappingPath = nil;
+        NSString * sdkRootOption = nil;
+        NSString * sdkIOSOption = nil;
 
         int ch;
         BOOL errorFlag = NO;
@@ -171,12 +174,12 @@ int main(int argc, char *argv[])
                 }
 
                 case CD_OPT_SDK_IOS: {
-                    classDump.sdkIOSVersion = [NSString stringWithUTF8String:optarg];
+                    sdkIOSOption = [NSString stringWithUTF8String:optarg];
                     break;
                 }
 
                 case CD_OPT_SDK_ROOT: {
-                    classDump.sdkRoot = [NSString stringWithUTF8String:optarg];
+                    sdkRootOption = [NSString stringWithUTF8String:optarg];
                     break;
                 }
 
@@ -323,7 +326,7 @@ int main(int argc, char *argv[])
             }
             classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
 
-            validateSDKPath(fileManager, classDump);
+            classDump.sdkRoot = resolveSDKPath(fileManager, sdkRootOption, sdkIOSOption);
 
             CDFile *file = [CDFile fileWithContentsOfFile:executablePath searchPathState:classDump.searchPathState];
             if (file == nil) {
@@ -439,29 +442,37 @@ int main(int argc, char *argv[])
     }
 }
 
-void validateSDKPath(NSFileManager * fileManager, CDClassDump * classDump) {
+static NSString * resolveSDKPath(NSFileManager * fileManager,
+                                 NSString * const sdkRootOption,
+                                 NSString * const sdkIOSOption) {
+
     NSString * const SDK_PATH_PATTERN
             = [NSString stringWithUTF8String:SDK_PATH_BEFORE "%@" SDK_PATH_AFTER];
 
-    if ((classDump.sdkRoot != nil) && (classDump.sdkIOSVersion != nil)) {
+    if ((sdkRootOption != nil) && (sdkIOSOption != nil)) {
         reportError(1, "Specify only one of --sdk-root or --sdk-ios");
     }
 
     BOOL specified = YES;
-    if (classDump.sdkRoot == nil) {
-        NSString * version = classDump.sdkIOSVersion;
+    NSString * sdkPath;
+    if (sdkRootOption == nil) {
+        NSString * version = sdkIOSOption;
         if (version == nil) {
             specified = NO;
             version = @"";
         }
 
-        classDump.sdkRoot = [NSString stringWithFormat:SDK_PATH_PATTERN, version];
+        sdkPath = [NSString stringWithFormat:SDK_PATH_PATTERN, version];
+    } else {
+        sdkPath = sdkRootOption;
     }
 
-    if (![fileManager fileExistsAtPath:classDump.sdkRoot]) {
+    if (![fileManager fileExistsAtPath:sdkPath]) {
         reportError(1,
                 "%s SDK does not exist: %s",
                 (specified ? "Specified" : "Default"),
-                [classDump.sdkRoot UTF8String]);
+                [sdkPath UTF8String]);
     }
+
+    return sdkPath;
 }
