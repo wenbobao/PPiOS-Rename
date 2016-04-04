@@ -407,19 +407,24 @@ int main(int argc, char *argv[])
             NSString *dSYMOutPath = secondArg;
 
             if(!dSYMInPath) {
-                reportError(5, "No valid dSYM input file provided");
+                reportError(5, "No valid dSYM input path provided");
             }
             if(!dSYMOutPath) {
-                reportError(5, "No valid dSYM output file path provided");
+                reportError(5, "No valid dSYM output path provided");
             }
             NSString *symbolsData = [NSString stringWithContentsOfFile:symbolMappingPath encoding:NSUTF8StringEncoding error:nil];
             if (symbolsData.length == 0) {
                 reportError(5, "Symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
             }
 
-            NSRange dSYMPathRange = [dSYMInPath rangeOfString:@".dSYM"];
-            if (dSYMPathRange.location == NSNotFound) {
-                reportError(4, "No valid dSYM file provided %s", [dSYMOutPath fileSystemRepresentation]);
+            BOOL isDirectory = NO;
+            BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:dSYMInPath isDirectory:&isDirectory];
+            if(exists){
+                if(!isDirectory){
+                    reportError(5, "Input dSYM path provided is invalid %s", [dSYMInPath fileSystemRepresentation]);
+                }
+            }else{
+                reportError(5, "Input dSYM path provided does not exist %s", [dSYMInPath fileSystemRepresentation]);
             }
 
             CDdSYMProcessor *processor = [[CDdSYMProcessor alloc] init];
