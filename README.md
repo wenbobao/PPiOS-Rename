@@ -56,8 +56,8 @@ Using:
 
 Installation
 ------------
-We suggest downloading one of the binary releases from the Releases page. The archive contains a standalone binary that you can copy to an appropriate place on your system, e.g. `/usr/local/bin`, and we suggest ensuring that the location is on your PATH. The release archive also includes other files such as this README, a changelog, and our license.
 
+We suggest downloading one of the binary releases from the [Releases](https://github.com/preemptive/ios-class-guard/releases) page. The archive contains a standalone binary that you can copy to an appropriate place on your system, e.g. `/usr/local/bin`. We suggest ensuring that the location is on your PATH. The release archive also includes other files such as this README, a changelog, and our license.
 
 Project Setup
 -------------
@@ -70,12 +70,9 @@ The basic process is:
 
 For your first time using *PPiOS-CG,* the following script (adjusted for your project) will perform the Analyze step:
 
-    SDK=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk
-    PROGRAM=/Users/jsmith/Library/Developer/Xcode/DerivedData/your-app-crgbyxabagbmvieqdqcyikjibigv/Build/Products/Debug-iphonesimulator/your-app.app/your-app
+    ios-class-guard --analyze /path/to/program.app/program
 
-    ios-class-guard --analyze --sdk-root "${SDK}" "${PROGRAM}"
-
-Where `SDK` is the path to the iPhoneSimulator SDK, and `PROGRAM` is the path to the executable binary. The analyze process generates `symbols.json`, the file containing a symbol mapping that can be used to decode stack traces in the event of a crash. The symbols file created during a build that is released should always be archived for subsequent use.
+The analyze process generates `symbols.json`, the file containing a symbol mapping that can be used to decode stack traces in the event of a crash. The symbols file created during a build that is released should always be archived for subsequent use.
 
 Then the Obfuscate Sources step can be accomplished with the following:
 
@@ -298,7 +295,11 @@ To verify that your app has been obfuscated, use the `nm` utility, which is incl
 
     nm path/to/your/binary | less
 
-to see the symbols from your app. If you do this with an unobfuscated build, you will see the orginal symbols. If you do this with an obfuscated build, you will see obfuscated symbols.
+to see the symbols from your app. If you do this with an unobfuscated build, you will see the orginal symbols. If you do this with an obfuscated build, you will see obfuscated symbols. Note that nm will not work properly after stripping symbols from your binary. You can use the `otool` utility if you need to check for the Objective-C symbols after stripping. 
+
+`otool` will print out unneeded information, but it can be filtered using `grep` and `awk` to only print out symbols:
+
+    otool -o /path/to/your/binary | grep 'name 0x' | awk '{print $3}' | sort | uniq
 
 
 #### Reversing obfuscation in crash dumps
@@ -311,7 +312,7 @@ to see the symbols from your app. If you do this with an unobfuscated build, you
 #### Reversing obfuscation in dSYMs
 *PPiOS-CG* lets you reverse the process of obfuscation for automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.json`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
 
-    ios-class-guard --translate-dsym -m path/to/symbols_1.0.0.json --dsym-in path/to/input_dsym --dsym-out path/to/output_dsym
+    ios-class-guard --translate-dsym -m path/to/symbols_1.0.0.json path/to/input.dSYM path/to/output.dSYM
 
 The resulting dSYM file can be uploaded to e.g. HockeyApp.
 
