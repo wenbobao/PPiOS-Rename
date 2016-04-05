@@ -288,6 +288,12 @@ Remove any *keyPath* and change it to `NSStringFromSelector(@selector(keyPath))`
 ### Serialization
 If you use serialization (e.g. `NSCoding` or `NSUserDefaults`), affected classes will have to be excluded from obfuscation. If you don't, then you won't be able to generate new symbols (i.e. the Analyze phase) without breaking deserialization of existing data.
 
+### "Double obfuscation detected" error
+This error happens when `--obfuscate-sources` is used on the same source tree twice. This can result in your application not being obfuscated. Make sure that the source tree is always reset to an unmodified state before using `--obfuscate-sources`. 
+
+### "Analyzing an already obfuscated binary" error
+This error happens when `--analyze` is used on an already obfuscated binary. This can result in your application not being obfuscated. Make sure that your program is always rebuilt from clean and non-obfuscated source code before attempting to run the analysis process. 
+
 
 Advanced Topics
 ---------------

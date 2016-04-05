@@ -303,11 +303,11 @@ static NSString *const lettersSet[maxLettersSet] = {
 - (NSString *)generateRandomStringWithLength:(NSInteger)length andPrefix:(NSString *)prefix {
     if(!_hasIncludedGuard){
         //fairly expensive to check over everything, so only do this once
-        NSString *guard = @"PPIOS_DOUBLE_OBFUSCATION_GUARD";
+        NSString *guard = @"X__PPIOS_DOUBLE_OBFUSCATION_GUARD__";
         fprintf(stderr, "mmm============\n");
         if([self checkForExistingSymbol:guard]) {
             //contains guard string.. (in case it's a name like setGuardName.. )
-            fprintf(stderr, "Double obfuscation detected. This will result in an unobfuscated binary. Please see the documentation for details.\n");
+            fprintf(stderr, "Error: Analyzing an already obfuscated binary. This will result in an unobfuscated binary. Please see the documentation for details.\n");
             exit(9);
         }
         _hasIncludedGuard=YES;
