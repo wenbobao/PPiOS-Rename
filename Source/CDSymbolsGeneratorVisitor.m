@@ -34,6 +34,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     NSInteger _symbolLength;
     BOOL _external;
     BOOL _ignored;
+    BOOL _hasIncludedGuard;
 }
 
 - (void)addKnownForbiddenSymbols {
@@ -155,6 +156,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     _symbolLength = 3;
     _external = NO;
     _ignored = NO;
+    _hasIncludedGuard = NO;
     [self addKnownForbiddenSymbols];
 }
 
@@ -264,7 +266,54 @@ static NSString *const lettersSet[maxLettersSet] = {
     NSLog(@"Done writing symbols file.");
 }
 
+- (BOOL)checkForExistingSymbol:(NSString*) symbol {
+    for (NSString *name in _propertyNames) {
+        if ([name rangeOfString:symbol].location != NSNotFound) {
+            return true;
+        }
+    }
+    for (NSString *name in _protocolNames) {
+        if ([name rangeOfString:symbol].location != NSNotFound) {
+            return true;
+        }
+    }
+    for (NSString *name in _classNames) {
+        if ([name rangeOfString:symbol].location != NSNotFound) {
+            return true;
+        }
+    }
+    for (NSString *name in _categoryNames) {
+        if ([name rangeOfString:symbol].location != NSNotFound) {
+            return true;
+        }
+    }
+    for (NSString *name in _methodNames) {
+        if ([name rangeOfString:symbol].location != NSNotFound) {
+            return true;
+        }
+    }
+    for (NSString *name in _ivarNames) {
+        if ([name rangeOfString:symbol].location != NSNotFound) {
+            return true;
+        }
+    }
+    return false;
+}
+
 - (NSString *)generateRandomStringWithLength:(NSInteger)length andPrefix:(NSString *)prefix {
+    if(!_hasIncludedGuard){
+        //fairly expensive to check over everything, so only do this once
+        NSString *guard = @"PPIOS_DOUBLE_OBFUSCATION_GUARD";
+        fprintf(stderr, "mmm============\n");
+        if([self checkForExistingSymbol:guard]) {
+            //contains guard string.. (in case it's a name like setGuardName.. )
+            fprintf(stderr, "Double obfuscation detected. This will result in an unobfuscated binary. Please see the documentation for details.\n");
+            exit(9);
+        }
+        _hasIncludedGuard=YES;
+        return guard;
+
+    }
     while (true) {
         NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
         if (prefix) {
