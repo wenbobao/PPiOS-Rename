@@ -18,7 +18,7 @@
 #import "CDSystemProtocolsProcessor.h"
 #import "CDdSYMProcessor.h"
 
-NSString *defaultSymbolMappingPath = @"symbols.json";
+NSString *defaultSymbolMappingPath = @"symbols.map";
 
 #define SDK_PATH_BEFORE \
         "/Applications/Xcode.app/Contents/Developer" \
@@ -41,7 +41,7 @@ void print_usage(void)
             "  ios-class-guard --help\n"
             "\n"
             "Common options:\n"
-            "  -m <file>             Path to symbol map file (default: symbols.json)\n"
+            "  --symbols-mode <file>  Path to symbol map file (default: symbols.json)\n"
             "\n"
             "Analyze mode options:\n"
             "  -F <name>             Specify filter for a class or protocol pattern\n"
@@ -55,8 +55,9 @@ void print_usage(void)
             "                        Emit list of symbols found in SDK\n"
             "\n"
             "Obfuscate sources mode options:\n"
-            "  -X <path>             Path for XIBs and storyboards (searched recursively)\n"
-            "  -O <path>             Path of where to write obfuscated symbols header\n"
+            "  --storyboards <path>  Path for XIBs and storyboards (searched recursively)\n"
+            "  --symbols-header <path>\n"
+            "                        Path of where to write obfuscated symbols header\n"
             "                        (default: symbols.h)\n"
             "\n"
             ,
@@ -129,20 +130,20 @@ int main(int argc, char *argv[])
         struct option longopts[] = {
                 { "filter-class",            no_argument,       NULL, 'F' },
                 { "exclude-symbols",         required_argument, NULL, 'x' },
-                { "xib-directory",           required_argument, NULL, 'X' },
-                { "symbols-file",            required_argument, NULL, 'O' },
+                { "storyboards",             required_argument, NULL, 'X' },
+                { "symbols-header",          required_argument, NULL, 'O' },
                 { "symbols-map",             required_argument, NULL, 'm' },
                 { "crash-dump",              required_argument, NULL, 'c' },
                 { "arch",                    required_argument, NULL, CD_OPT_ARCH }, //needed?
                 { "list-arches",             no_argument,       NULL, CD_OPT_LIST_ARCHES },
-                { "emit-sdk-symbols",        required_argument, NULL, PPIOS_OPT_EMIT_SDK_SYMBOLS }, //'x'
+                { "emit-sdk-symbols",        required_argument, NULL, PPIOS_OPT_EMIT_SDK_SYMBOLS },
                 { "suppress-header",         no_argument,       NULL, 't' },
                 { "version",                 no_argument,       NULL, CD_OPT_VERSION },
                 { "sdk-ios",                 required_argument, NULL, CD_OPT_SDK_IOS },
                 { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
                 { "hide",                    required_argument, NULL, CD_OPT_HIDE },
-                { "analyze",                 no_argument,       NULL, PPIOS_OPT_ANALYZE }, //'z'
-                { "obfuscate-sources",       no_argument,       NULL, PPIOS_OPT_OBFUSCATE }, //'y'
+                { "analyze",                 no_argument,       NULL, PPIOS_OPT_ANALYZE },
+                { "obfuscate-sources",       no_argument,       NULL, PPIOS_OPT_OBFUSCATE },
                 { "translate-crashdump",     no_argument,       NULL, CD_OPT_TRANSLATE_CRASH},
                 { "translate-dsym",          no_argument,       NULL, CD_OPT_TRANSLATE_DSYM},
                 { "help",                    no_argument,       NULL, 'h'},
@@ -158,7 +159,7 @@ int main(int argc, char *argv[])
 
         CDClassDump *classDump = [[CDClassDump alloc] init];
         BOOL hasMode = NO;
-        while ( (ch = getopt_long(argc, argv, "F:i:tX:zy:O:m:h", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "F:x:th", longopts, NULL)) != -1) {
 
             switch (ch) {
                 case CD_OPT_ARCH: {
