@@ -345,7 +345,7 @@ ios-class-guard --analyze [options] <mach-o-file>
     --sdk-root <path>              Specify full SDK root path
     --sdk-ios <version>            Specify iOS SDK by version, searching for:
                                    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator<version>.sdk
-    --list-excluded-symbols <file> Emit computed list of excluded symbols
+    --emit-sdk-symbols <file>      Emit list of symbols found in SDK
 
 ios-class-guard --obfuscate-sources [options]
   Alter source code (relative to current working directory), renaming based on the symbol map

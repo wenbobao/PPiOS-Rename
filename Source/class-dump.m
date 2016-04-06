@@ -51,8 +51,8 @@ void print_usage(void)
             "  --sdk-root <path>     Specify full SDK root path (or one of the shortcuts)\n"
             "  --sdk-ios <version>   Specify iOS SDK by version, searching for:\n"
             "                        " SDK_PATH_USAGE_STRING "\n"
-            "  --list-excluded-symbols <file>\n"
-            "                        Emit computed list of symbols to exclude from renaming\n"
+            "  --emit-sdk-symbols <file>\n"
+            "                        Emit list of symbols found in SDK\n"
             "\n"
             "Obfuscate sources mode options:\n"
             "  -X <path>             Path for XIBs and storyboards (searched recursively)\n"
@@ -75,7 +75,7 @@ void print_usage(void)
 
 #define PPIOS_OPT_ANALYZE ((int)'z')
 #define PPIOS_OPT_OBFUSCATE ((int)'y')
-#define PPIOS_OPT_LIST_EXCLUDED_SYMBOLS ((int)'x')
+#define PPIOS_OPT_EMIT_SDK_SYMBOLS ((int)'x')
 static char* programName;
 
 static NSString * resolveSDKPath(NSFileManager * fileManager,
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
                 { "crash-dump",              required_argument, NULL, 'c' },
                 { "arch",                    required_argument, NULL, CD_OPT_ARCH }, //needed?
                 { "list-arches",             no_argument,       NULL, CD_OPT_LIST_ARCHES },
-                { "list-excluded-symbols",   required_argument, NULL, PPIOS_OPT_LIST_EXCLUDED_SYMBOLS }, //'x'
+                { "emit-sdk-symbols",        required_argument, NULL, PPIOS_OPT_EMIT_SDK_SYMBOLS }, //'x'
                 { "suppress-header",         no_argument,       NULL, 't' },
                 { "version",                 no_argument,       NULL, CD_OPT_VERSION },
                 { "sdk-ios",                 required_argument, NULL, CD_OPT_SDK_IOS },
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
                     classDump.shouldShowHeader = NO;
                     break;
 
-                case PPIOS_OPT_LIST_EXCLUDED_SYMBOLS:
+                case PPIOS_OPT_EMIT_SDK_SYMBOLS:
                     classDump.excludedSymbolsListFilename = [NSString stringWithUTF8String:optarg];
                     break;
 
