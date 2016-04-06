@@ -45,7 +45,7 @@ void print_usage(void)
             "\n"
             "Analyze mode options:\n"
             "  -F <name>             Specify filter for a class or protocol pattern\n"
-            "  -i <symbol>           Ignore obfuscation of specific symbol\n"
+            "  -x <symbol>           Exclude a symbol from being obfuscated\n"
             "  --arch <arch>         Choose specific architecture from universal binary:\n"
             "                        ppc|ppc64|i386|x86_64|armv6|armv7|armv7s|arm64\n"
             "  --sdk-root <path>     Specify full SDK root path (or one of the shortcuts)\n"
@@ -73,9 +73,9 @@ void print_usage(void)
 #define CD_OPT_TRANSLATE_CRASH 10
 #define CD_OPT_TRANSLATE_DSYM 11
 
-#define PPIOS_OPT_ANALYZE ((int)'z')
-#define PPIOS_OPT_OBFUSCATE ((int)'y')
-#define PPIOS_OPT_EMIT_SDK_SYMBOLS ((int)'x')
+#define PPIOS_OPT_ANALYZE 12
+#define PPIOS_OPT_OBFUSCATE 13
+#define PPIOS_OPT_EMIT_SDK_SYMBOLS 14
 static char* programName;
 
 static NSString * resolveSDKPath(NSFileManager * fileManager,
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 
         struct option longopts[] = {
                 { "filter-class",            no_argument,       NULL, 'F' },
-                { "ignore-symbols",          required_argument, NULL, 'i' },
+                { "exclude-symbols",         required_argument, NULL, 'x' },
                 { "xib-directory",           required_argument, NULL, 'X' },
                 { "symbols-file",            required_argument, NULL, 'O' },
                 { "symbols-map",             required_argument, NULL, 'm' },
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
                     symbolMappingPath = [NSString stringWithUTF8String:optarg];
                     break;
 
-                case 'i':
+                case 'x':
                     [ignoreSymbols addObject:[NSString stringWithUTF8String:optarg]];
                     break;
 

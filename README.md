@@ -199,16 +199,16 @@ This will filter out any class in namespaces `APH` and `MC`. It will also filter
 `?` matches any single character, while `*` matches any number of characters.
 
 #### Symbol filter
-You can exclude specific symbols by using the `-i` argument in the Analyze phase. For example:
+You can exclude specific symbols by using the `-x` argument in the Analyze phase. For example:
 
-    -i 'deflate' -i 'curl_*'
+    -c 'deflate' -x 'curl_*'
 
 This will filter out symbols named *deflate* and symbols that start with *curl_*.
 
 `?` matches any single character, while `*` matches any number of characters.
 
 #### Exclusion propagation
-When excluding items using either `-i` or `-F`, if the excluded item matches a class or protocol name, then this can lead to a cascade effect of exclusions. If a class is excluded, then it will also exclude all of the class's methods and properties. This can extend to names of protocol methods/properties.
+When excluding items using either `-x` or `-F`, if the excluded item matches a class or protocol name, then this can lead to a cascade effect of exclusions. If a class is excluded, then it will also exclude all of the class's methods and properties. This can extend to names of protocol methods/properties.
 
 For example, if a class name is excluded, then the following is also excluded (assuming ClassName is the class name):
 
@@ -339,7 +339,7 @@ ios-class-guard --analyze [options] <mach-o-file>
   Options:
     -m <symbols.json>              Path to symbol map file
     -F <pattern>                   Specify filter for a class or protocol
-    -i <pattern>                   Ignore obfuscation of specific symbol
+    -x <pattern>                   Exclude a symbol from being obfuscated
     --arch <arch>                  Choose specific architecture from universal binary:
                                    ppc|ppc64|i386|x86_64|armv6|armv7|armv7s|arm64
     --sdk-root <path>              Specify full SDK root path
