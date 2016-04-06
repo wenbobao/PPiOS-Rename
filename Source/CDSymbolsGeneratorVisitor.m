@@ -429,6 +429,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     } else {
         NSString *newSymbolName = [self generateRandomStringWithLength:symbolName.length andName:symbolName];
         [self addGenerated:newSymbolName forSymbol:getterName];
+        // Why is this being added?
         [self addGenerated:[@"set" stringByAppendingString:[newSymbolName capitalizeFirstCharacter]] forSymbol:setterName];
     }
 }
@@ -583,7 +584,9 @@ static NSString *const lettersSet[maxLettersSet] = {
 }
 
 - (BOOL)shouldClassBeObfuscated:(NSString *)className {
-    for (NSString *filter in self.classFilter) {
+    // Since this algorithm terminates when it first find a match, try matching from the most
+    // specific to most general.
+    for (NSString *filter in [self.classFilter reverseObjectEnumerator]) {
         if ([filter hasPrefix:@"!"]) {
             // negative filter - prefixed with !
             if ([className isLike:[filter substringFromIndex:1]]) {
@@ -730,6 +733,8 @@ static NSString *const lettersSet[maxLettersSet] = {
 
 - (void)visitType:(CDType *)type {
     if (_ignored) {
+        // Add protocols and the type name describing the type, these are exposed through
+        // property_getAttributes() in objc/runtime.h.
         for (NSString *protocol in type.protocols) {
             [self addForbiddenSymbol:protocol];
         }

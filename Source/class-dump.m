@@ -75,13 +75,26 @@ static NSString * resolveSDKPath(NSFileManager * fileManager,
                                  NSString * const sdkRootOption,
                                  NSString * const sdkIOSOption);
 
+void printWithFormat(FILE * restrict stream, const char * restrict format, va_list args) {
+    fprintf(stream, "%s: ", programName);
+    vfprintf(stream, format, args);
+    fprintf(stream, "\n");
+}
+
 void reportError(int exitCode, const char* format, ...){
-    va_list  args;
+    va_list args;
     va_start(args, format);
-    fprintf(stderr, "%s: ", programName);
-    vfprintf(stderr, format, args);
-    fprintf(stderr, "\n");
+    printWithFormat(stderr, format, args);
+    va_end(args);
+
     exit(exitCode);
+}
+
+void reportWarning(const char * restrict format, ...) {
+    va_list args;
+    va_start(args, format);
+    printWithFormat(stderr, format, args);
+    va_end(args);
 }
 
 void populateProgramName(char* argv0){
@@ -115,7 +128,7 @@ int main(int argc, char *argv[])
         BOOL shouldShowUsage = NO;
         CDArch targetArch;
         BOOL hasSpecifiedArch = NO;
-        NSMutableArray *classFilter = [NSMutableArray new];
+        NSMutableArray * commandLineClassFilters = [NSMutableArray new];
         NSMutableArray *ignoreSymbols = [NSMutableArray new];
         NSString *xibBaseDirectory = nil;
         NSString *symbolsPath = nil;
@@ -153,7 +166,6 @@ int main(int argc, char *argv[])
         }
 
         //exclude __* from both classes and symbols
-        [classFilter addObject:@"__*"];
         [ignoreSymbols addObject:@"__*"];
 
         CDClassDump *classDump = [[CDClassDump alloc] init];
@@ -216,10 +228,15 @@ int main(int argc, char *argv[])
                     break;
                 }
 
-                case 'F':
+                case 'F': {
                     checkOnlyAnalyzeMode("-F", shouldAnalyze);
-                    [classFilter addObject:[NSString stringWithUTF8String:optarg]];
+                    NSString * value = [NSString stringWithUTF8String:optarg];
+                    if ((commandLineClassFilters.count == 0) && ![value hasPrefix:@"!"]) {
+                        reportWarning("Warning: include filters without a preceding exclude filter have no effect");
+                    }
+                    [commandLineClassFilters addObject:value];
                     break;
+                }
 
                 case 'X':
                     checkOnlyObfuscateMode("--storyboards", shouldObfuscate);
@@ -373,15 +390,18 @@ int main(int argc, char *argv[])
             [classDump registerTypes];
 
             CDCoreDataModelProcessor *coreDataModelProcessor = [[CDCoreDataModelProcessor alloc] init];
-            [classFilter addObjectsFromArray:[coreDataModelProcessor coreDataModelSymbolsToExclude]];
+            NSMutableArray * classFilters = [NSMutableArray new];
+            [classFilters addObject:@"__*"];
 
+            [classFilters addObjectsFromArray:[coreDataModelProcessor coreDataModelSymbolsToExclude]];
+            [classFilters addObjectsFromArray:commandLineClassFilters];
 
             CDSystemProtocolsProcessor *systemProtocolsProcessor = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.sdkRoot];
             [ignoreSymbols addObjectsFromArray:[systemProtocolsProcessor systemProtocolsSymbolsToExclude]];
 
             CDSymbolsGeneratorVisitor *visitor = [CDSymbolsGeneratorVisitor new];
             visitor.classDump = classDump;
-            visitor.classFilter = classFilter;
+            visitor.classFilter = classFilters;
             visitor.ignoreSymbols = ignoreSymbols;
             visitor.symbolsFilePath = symbolsPath;
             visitor.excludedSymbolsListFilename = classDump.excludedSymbolsListFilename;
