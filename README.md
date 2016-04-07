@@ -341,7 +341,7 @@ ios-class-guard --analyze [options] <mach-o-file>
     --arch <arch>                 Specify architecture from universal binary
     --sdk-root <path>             Specify full SDK root path
     --sdk-ios <version>           Specify iOS SDK by version
-    --emit-sdk-symbols <file>     Emit computed list of excluded symbols
+    --emit-excludes <file>        Emit computed list of excluded symbols
 
 ios-class-guard --obfuscate-sources [options]
   Alter source code (relative to current working directory), renaming based on the symbol map
