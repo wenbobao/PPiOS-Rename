@@ -201,7 +201,7 @@ This will filter out any class in namespaces `APH` and `MC`. It will also filter
 #### Symbol filter
 You can exclude specific symbols by using the `-x` argument in the Analyze phase. For example:
 
-    -c 'deflate' -x 'curl_*'
+    -x 'deflate' -x 'curl_*'
 
 This will filter out symbols named *deflate* and symbols that start with *curl_*.
 
