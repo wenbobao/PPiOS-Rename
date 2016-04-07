@@ -267,9 +267,9 @@ static NSString *const lettersSet[maxLettersSet] = {
 }
 
 - (BOOL)checkForExistingSymbols:(NSSet*) symbols {
-    for(NSMutableSet* set in @[_propertyNames, _protocolNames, _classNames, _categoryNames, _methodNames, _ivarNames]){
-        for(NSString* name in set){
-            if ([symbols containsObject:name]) {
+    for(NSMutableSet* nameSet in @[_propertyNames, _protocolNames, _classNames, _categoryNames, _methodNames, _ivarNames]){
+        for(NSString* symbol in symbols){
+            if ([nameSet containsObject:symbol]) {
                 return true;
             }
         }
