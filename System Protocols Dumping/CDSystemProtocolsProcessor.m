@@ -35,7 +35,19 @@
     
     if (data.length) {
         NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        return [output componentsSeparatedByString:@"\n"];
+        NSMutableSet * set = [NSMutableSet setWithArray:[output componentsSeparatedByString:@"\n"]];
+
+        // It is possible that this approach to finding the protocols may result in the empty string
+        // being spuriously included in the list.  Remove it.
+        [set removeObject:@""];
+
+        // Add NSObject protocol from /usr/include/objc/NSObject.h
+        [set addObject:@"NSObject"];
+
+        // In /usr/include/os/object.h there is a #define macro for creating @protocol declarations.
+        // Resolving what protocols are declared in system headers in this way is outside of scope.
+
+        return [set allObjects];
     }
 
     return nil;

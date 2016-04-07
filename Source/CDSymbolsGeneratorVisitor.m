@@ -162,12 +162,14 @@ static NSString *const lettersSet[maxLettersSet] = {
 
 - (void)didEndVisiting {
     NSLog(@"Generating symbol table...");
-    NSLog(@"Protocols = %zd", _protocolNames.count);
-    NSLog(@"Classes = %zd", _classNames.count);
-    NSLog(@"Categories = %zd", _categoryNames.count);
-    NSLog(@"Methods = %zd", _methodNames.count);
-    NSLog(@"I-vars = %zd", _ivarNames.count);
-    NSLog(@"Forbidden keywords = %zd", _forbiddenNames.count);
+    NSLog(@"Protocols = %ld", _protocolNames.count);
+    NSLog(@"Classes = %ld", _classNames.count);
+    NSLog(@"Categories = %ld", _categoryNames.count);
+    NSLog(@"Methods = %ld", _methodNames.count);
+    NSLog(@"I-vars = %ld", _ivarNames.count);
+    NSLog(@"Filters = %ld", _classFilters.count);
+    NSLog(@"Ignore symbol patterns = %ld", _ignoreSymbols.count);
+    NSLog(@"Forbidden keywords = %ld", _forbiddenNames.count);
 
     [self writeExcludesIfRequested];
 
@@ -204,32 +206,42 @@ static NSString *const lettersSet[maxLettersSet] = {
     }
 
     NSLog(@"Done generating symbol table.");
-    NSLog(@"Generated unique symbols = %zd", _uniqueSymbols.count);
+    NSLog(@"Generated unique symbols = %ld", _uniqueSymbols.count);
 }
 
 - (void)writeExcludesIfRequested {
-    if (_excludedSymbolsListFilename) {
-        NSMutableArray<NSString *> * list
-                = [NSMutableArray arrayWithArray:[_forbiddenNames allObjects]];
-        [list sortUsingSelector:@selector(compare:)];
+    [[self class] writeListToFileIfRequested:[_excludedSymbolsListFilename stringByAppendingString:@"-forbiddenNames.list"]
+                                     theList:[_forbiddenNames allObjects]];
+    [[self class] writeListToFileIfRequested:[_excludedSymbolsListFilename stringByAppendingString:@"-ignoredSymbols.list"]
+                                     theList:_ignoreSymbols];
+    [[self class] writeListToFileIfRequested:[_excludedSymbolsListFilename stringByAppendingString:@"-classFilters.list"]
+                                     theList:_classFilters];
+}
 
-        NSMutableString * stringBuilder = [NSMutableString new];
-        for (NSString * symbol in list) {
-            [stringBuilder appendFormat:@"%@\n", symbol];
-        }
++ (void)writeListToFileIfRequested:(NSString *)filename
+                           theList:(NSArray *)originalList {
+    if (!filename)
+        return;
 
-        NSError * error = nil;
-        [stringBuilder writeToFile:_excludedSymbolsListFilename
-                        atomically:TRUE
-                          encoding:NSUTF8StringEncoding
-                             error:&error];
+    NSMutableArray<NSString *> * list = [NSMutableArray arrayWithArray:originalList];
+    [list sortUsingSelector:@selector(compare:)];
 
-        if (error) {
-            NSLog(@"Error: class-guard: unable to write list: %@ reason: %@",
-                    _excludedSymbolsListFilename,
-                    [error localizedFailureReason]);
-            exit(1);
-        }
+    NSMutableString * stringBuilder = [NSMutableString new];
+    for (NSString * symbol in list) {
+        [stringBuilder appendFormat:@"%@\n", symbol];
+    }
+
+    NSError * error = nil;
+    [stringBuilder writeToFile:filename
+                    atomically:TRUE
+                      encoding:NSUTF8StringEncoding
+                         error:&error];
+
+    if (error) {
+        NSLog(@"Error: class-guard: unable to write list: %@ reason: %@",
+                filename,
+                [error localizedFailureReason]);
+        exit(1);
     }
 }
 
@@ -244,7 +256,7 @@ static NSString *const lettersSet[maxLettersSet] = {
 + (void)writeSymbols:(NSDictionary<NSString *, NSString *> *)symbols
    symbolsHeaderFile:(NSString *)symbolsHeaderFile {
 
-    NSLog(@"Writing symbols file %zd ...", [symbols count]);
+    NSLog(@"Writing symbols file %ld ...", symbols.count);
     NSMutableString * stringBuilder = [NSMutableString new];
 
     // add guard to include the content of the file once
@@ -586,7 +598,7 @@ static NSString *const lettersSet[maxLettersSet] = {
 - (BOOL)shouldClassBeObfuscated:(NSString *)className {
     // Since this algorithm terminates when it first find a match, try matching from the most
     // specific to most general.
-    for (NSString *filter in [self.classFilter reverseObjectEnumerator]) {
+    for (NSString *filter in [self.classFilters reverseObjectEnumerator]) {
         if ([filter hasPrefix:@"!"]) {
             // negative filter - prefixed with !
             if ([className isLike:[filter substringFromIndex:1]]) {
@@ -600,7 +612,7 @@ static NSString *const lettersSet[maxLettersSet] = {
         }
     }
 
-    return ![self shouldSymbolsBeIgnored:className];
+    return YES;
 }
 
 - (BOOL)shouldSymbolsBeIgnored:(NSString *)symbolName {

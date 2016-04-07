@@ -394,14 +394,22 @@ int main(int argc, char *argv[])
             [classFilters addObject:@"__*"];
 
             [classFilters addObjectsFromArray:[coreDataModelProcessor coreDataModelSymbolsToExclude]];
-            [classFilters addObjectsFromArray:commandLineClassFilters];
 
-            CDSystemProtocolsProcessor *systemProtocolsProcessor = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.sdkRoot];
-            [ignoreSymbols addObjectsFromArray:[systemProtocolsProcessor systemProtocolsSymbolsToExclude]];
+            CDSystemProtocolsProcessor *systemProtocolsProcessor
+                    = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.sdkRoot];
+            for (NSString * protocol in [systemProtocolsProcessor systemProtocolsSymbolsToExclude]) {
+                [classFilters addObject:[@"!" stringByAppendingString:protocol]];
+            }
+
+            // Filter out system classes, including auto-generated entities like
+            // __ARCLiteKeyedSubscripting__ and __ARCLiteIndexedSubscripting__.
+            [classFilters addObject:@"!__*"];
+
+            [classFilters addObjectsFromArray:commandLineClassFilters];
 
             CDSymbolsGeneratorVisitor *visitor = [CDSymbolsGeneratorVisitor new];
             visitor.classDump = classDump;
-            visitor.classFilter = classFilters;
+            visitor.classFilters = classFilters;
             visitor.ignoreSymbols = ignoreSymbols;
             visitor.symbolsFilePath = symbolsPath;
             visitor.excludedSymbolsListFilename = classDump.excludedSymbolsListFilename;
