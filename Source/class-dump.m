@@ -69,7 +69,7 @@ void print_usage(void)
 
 #define PPIOS_OPT_ANALYZE 12
 #define PPIOS_OPT_OBFUSCATE 13
-#define PPIOS_OPT_EMIT_SDK_SYMBOLS 14
+#define PPIOS_OPT_EMIT_EXCLUDES 14
 static char* programName;
 
 static NSString * resolveSDKPath(NSFileManager * fileManager,
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
                 { "crash-dump",              required_argument, NULL, 'c' },
                 { "arch",                    required_argument, NULL, CD_OPT_ARCH }, //needed?
                 { "list-arches",             no_argument,       NULL, CD_OPT_LIST_ARCHES },
-                { "emit-sdk-symbols",        required_argument, NULL, PPIOS_OPT_EMIT_SDK_SYMBOLS },
+                { "emit-excludes",           required_argument, NULL, PPIOS_OPT_EMIT_EXCLUDES },
                 { "suppress-header",         no_argument,       NULL, 't' },
                 { "version",                 no_argument,       NULL, CD_OPT_VERSION },
                 { "sdk-ios",                 required_argument, NULL, CD_OPT_SDK_IOS },
@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
                     classDump.shouldShowHeader = NO;
                     break;
 
-                case PPIOS_OPT_EMIT_SDK_SYMBOLS:
+                case PPIOS_OPT_EMIT_EXCLUDES:
                     classDump.excludedSymbolsListFilename = [NSString stringWithUTF8String:optarg];
                     break;
 
