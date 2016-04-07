@@ -266,35 +266,12 @@ static NSString *const lettersSet[maxLettersSet] = {
     NSLog(@"Done writing symbols file.");
 }
 
-- (BOOL)checkForExistingSymbol:(NSString*) symbol {
-    for (NSString *name in _propertyNames) {
-        if ([name rangeOfString:symbol].location != NSNotFound) {
-            return true;
-        }
-    }
-    for (NSString *name in _protocolNames) {
-        if ([name rangeOfString:symbol].location != NSNotFound) {
-            return true;
-        }
-    }
-    for (NSString *name in _classNames) {
-        if ([name rangeOfString:symbol].location != NSNotFound) {
-            return true;
-        }
-    }
-    for (NSString *name in _categoryNames) {
-        if ([name rangeOfString:symbol].location != NSNotFound) {
-            return true;
-        }
-    }
-    for (NSString *name in _methodNames) {
-        if ([name rangeOfString:symbol].location != NSNotFound) {
-            return true;
-        }
-    }
-    for (NSString *name in _ivarNames) {
-        if ([name rangeOfString:symbol].location != NSNotFound) {
-            return true;
+- (BOOL)checkForExistingSymbols:(NSSet*) symbols {
+    for(NSMutableSet* set in @[_propertyNames, _protocolNames, _classNames, _categoryNames, _methodNames, _ivarNames]){
+        for(NSString* name in set){
+            if ([symbols containsObject:name]) {
+                return true;
+            }
         }
     }
     return false;
@@ -304,7 +281,10 @@ static NSString *const lettersSet[maxLettersSet] = {
     if(!_hasIncludedGuard){
         //fairly expensive to check over everything, so only do this once
         NSString *guard = @"X__PPIOS_DOUBLE_OBFUSCATION_GUARD__";
-        if([self checkForExistingSymbol:guard]) {
+        //exclude all symbols in case what was obfuscated was a property
+        NSSet* symbols = [NSSet setWithObjects:guard, [@"_" stringByAppendingString:guard], [@"set" stringByAppendingString:guard], nil];
+
+        if([self checkForExistingSymbols:symbols]) {
             //contains guard string.. (in case it's a name like setGuardName.. )
             fprintf(stderr, "Error: Analyzing an already obfuscated binary. This will result in an unobfuscated binary. Please see the documentation for details.\n");
             exit(9);
