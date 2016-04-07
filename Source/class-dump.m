@@ -29,40 +29,33 @@ NSString *defaultSymbolMappingPath = @"symbols.map";
 void print_usage(void)
 {
     fprintf(stderr,
-            "PreEmptive Protection for iOS - Class Guard, version %s\n"
+            "PreEmptive Protection for iOS - Class Guard, version " CLASS_DUMP_VERSION "\n"
             "\n"
             "Usage:\n"
             "  ios-class-guard --analyze [options] <Mach-O file>\n"
             "  ios-class-guard --obfuscate-sources [options]\n"
+            "  ios-class-guard --translate-crashdump [options] <input file> <output file>\n"
+            "  ios-class-guard --translate-dsym [options] <input dSYM> <output dSYM>\n"
             "  ios-class-guard --list-arches <Mach-O file>\n"
-            "  ios-class-guard --translate-crashdump [-m <file>] <crash dump file>\n"
-            "  ios-class-guard --translate-dsym [-m <file>] <input dSYM path> <output dSYM path>\n"
             "  ios-class-guard --version\n"
             "  ios-class-guard --help\n"
             "\n"
             "Common options:\n"
-            "  --symbols-mode <file>  Path to symbol map file (default: symbols.json)\n"
+            "  --symbols-map <symbols.map>  Path to symbol map file\n"
             "\n"
-            "Analyze mode options:\n"
-            "  -F <name>             Specify filter for a class or protocol pattern\n"
-            "  -x <symbol>           Exclude a symbol from being obfuscated\n"
-            "  --arch <arch>         Choose specific architecture from universal binary:\n"
-            "                        ppc|ppc64|i386|x86_64|armv6|armv7|armv7s|arm64\n"
-            "  --sdk-root <path>     Specify full SDK root path (or one of the shortcuts)\n"
-            "  --sdk-ios <version>   Specify iOS SDK by version, searching for:\n"
-            "                        " SDK_PATH_USAGE_STRING "\n"
-            "  --emit-sdk-symbols <file>\n"
-            "                        Emit list of symbols found in SDK\n"
+            "Additional options for --analyze:\n"
+            "  -F <pattern>                 Filter classes/protocols\n"
+            "  -x <pattern>                 Exclude arbitrary symbols\n"
+            "  --arch <arch>                Specify architecture from universal binary\n"
+            "  --sdk-root <path>            Specify full SDK root path\n"
+            "  --sdk-ios <version>          Specify iOS SDK by version\n"
+            "  --emit-excludes <file>       Emit computed list of excluded symbols\n"
             "\n"
-            "Obfuscate sources mode options:\n"
-            "  --storyboards <path>  Path for XIBs and storyboards (searched recursively)\n"
-            "  --symbols-header <path>\n"
-            "                        Path of where to write obfuscated symbols header\n"
-            "                        (default: symbols.h)\n"
+            "Additional options for --obfuscate-sources:\n"
+            "  --storyboards <path>         Alternate path for XIBs and storyboards\n"
+            "  --symbols-header <symbols.h> Path to obfuscated symbol header file\n"
             "\n"
-            ,
-            CLASS_DUMP_VERSION
-    );
+            );
 }
 
 #define CD_OPT_ARCH        1
