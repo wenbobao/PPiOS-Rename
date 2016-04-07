@@ -335,13 +335,13 @@ ios-class-guard --analyze [options] <mach-o-file>
   Analyze a Mach-O binary and generate a symbol map
 
   Options:
-    --symbols-map <symbols.map>    Path to symbol map file
-    -F <pattern>                   Filter classes/protocols
-    -x <pattern>                   Exclude arbitrary symbols
-    --arch <arch>                  Specify architecture from universal binary
-    --sdk-root <path>              Specify full SDK root path
-    --sdk-ios <version>            Specify iOS SDK by version
-    --emit-sdk-symbols <file>      Emit computed list of excluded symbols
+    --symbols-map <symbols.map>   Path to symbol map file
+    -F <pattern>                  Filter classes/protocols
+    -x <pattern>                  Exclude arbitrary symbols
+    --arch <arch>                 Specify architecture from universal binary
+    --sdk-root <path>             Specify full SDK root path
+    --sdk-ios <version>           Specify iOS SDK by version
+    --emit-sdk-symbols <file>     Emit computed list of excluded symbols
 
 ios-class-guard --obfuscate-sources [options]
   Alter source code (relative to current working directory), renaming based on the symbol map
@@ -355,13 +355,13 @@ ios-class-guard --translate-crashdump [options] <input crash dump file> <output 
   Translate symbolicated crash dump
 
   Options:
-    --symbols-map <symbols.map>     Path to symbol map file
+    --symbols-map <symbols.map>   Path to symbol map file
 
 ios-class-guard --translate-dsym [options] <input dir> <output dir>
   Translates dsym with obfuscated symbols to dsym with unobfuscated symbols
 
   Options:
-    --symbols-map <symbols.map>     Path to symbol map file
+    --symbols-map <symbols.map>   Path to symbol map file
 
 ios-class-guard --list-arches <mach-o-file>
   List architectures available in a fat binary
