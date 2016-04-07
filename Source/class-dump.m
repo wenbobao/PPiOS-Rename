@@ -380,9 +380,13 @@ int main(int argc, char *argv[])
             }
         } else if(shouldTranslateCrashDump) {
             if (!firstArg) {
-                reportError(4, "Crash dump file must be specified");
+                reportError(4, "No valid input crash dump file provided");
+            }
+            if(!secondArg) {
+                reportError(4, "No valid output crash dump file provided");
             }
             NSString* crashDumpPath = firstArg;
+            NSString* outputCrashDump = secondArg;
             NSString *crashDump = [NSString stringWithContentsOfFile:crashDumpPath encoding:NSUTF8StringEncoding error:nil];
             if (crashDump.length == 0) {
                 reportError(4, "Crash dump file does not exist or is empty %s", [crashDumpPath fileSystemRepresentation]);
@@ -395,7 +399,11 @@ int main(int argc, char *argv[])
 
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
             NSString *processedFile = [mapper processCrashDump:crashDump withSymbols:[NSJSONSerialization JSONObjectWithData:[symbolsData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil]];
-            [processedFile writeToFile:crashDumpPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+            NSError *error;
+            [processedFile writeToFile:outputCrashDump atomically:YES encoding:NSUTF8StringEncoding error:&error];
+            if(error){
+                reportError(4, "Error writing crash dump file: %s", [[error localizedFailureReason] UTF8String]);
+            }
         } else if (shouldTranslateDsym){
             NSString *dSYMInPath = firstArg;
             NSString *dSYMOutPath = secondArg;
