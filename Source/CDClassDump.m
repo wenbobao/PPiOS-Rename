@@ -424,7 +424,7 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
           injectingImportFor:(NSString *)symbolsHeaderFileName
 {
     NSString * textToInsert
-            = [NSString stringWithFormat:@"#import \"%@\"\n", symbolsHeaderFileName];
+            = [NSString stringWithFormat:@"#include \"%@\"\n", symbolsHeaderFileName];
 
     NSFileManager * fileManager = [NSFileManager new];
     NSDirectoryEnumerator * enumerator = [fileManager enumeratorAtPath:prefixPCHDirectory];
