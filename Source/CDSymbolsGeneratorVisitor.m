@@ -9,6 +9,7 @@
 #import "CDObjectiveCProcessor.h"
 #import "CDMachOFile.h"
 #import "CDType.h"
+#import "class-dump.h"
 
 #define DOUBLE_GUARD_NAME "DOUBLE_OBFUSCATION_GUARD_PPIOS"
 
@@ -286,8 +287,7 @@ static NSString *const lettersSet[maxLettersSet] = {
 
         if([self checkForExistingSymbols:symbols]) {
             //contains guard string.. (in case it's a name like setGuardName.. )
-            fprintf(stderr, "Error: Analyzing an already obfuscated binary. This will result in an unobfuscated binary. Please see the documentation for details.\n");
-            exit(9);
+            reportError(9, "Analyzing an already obfuscated binary. This will result in an unobfuscated binary. Please see the documentation for details.\n");
         }
         _hasIncludedGuard=YES;
         return guard;
