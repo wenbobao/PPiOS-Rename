@@ -63,7 +63,6 @@ void print_usage(void)
 #define CD_OPT_VERSION     3
 #define CD_OPT_SDK_IOS     4
 #define CD_OPT_SDK_ROOT    6
-#define CD_OPT_HIDE        7
 #define CD_OPT_TRANSLATE_CRASH 10
 #define CD_OPT_TRANSLATE_DSYM 11
 
@@ -108,7 +107,6 @@ int main(int argc, char *argv[])
         BOOL shouldShowUsage = NO;
         CDArch targetArch;
         BOOL hasSpecifiedArch = NO;
-        NSMutableSet *hiddenSections = [NSMutableSet set];
         NSMutableArray *classFilter = [NSMutableArray new];
         NSMutableArray *ignoreSymbols = [NSMutableArray new];
         NSString *xibBaseDirectory = nil;
@@ -134,7 +132,6 @@ int main(int argc, char *argv[])
                 { "version",                 no_argument,       NULL, CD_OPT_VERSION },
                 { "sdk-ios",                 required_argument, NULL, CD_OPT_SDK_IOS },
                 { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
-                { "hide",                    required_argument, NULL, CD_OPT_HIDE },
                 { "analyze",                 no_argument,       NULL, PPIOS_OPT_ANALYZE },
                 { "obfuscate-sources",       no_argument,       NULL, PPIOS_OPT_OBFUSCATE },
                 { "translate-crashdump",     no_argument,       NULL, CD_OPT_TRANSLATE_CRASH},
@@ -174,17 +171,6 @@ int main(int argc, char *argv[])
 
                 case CD_OPT_SDK_ROOT: {
                     sdkRootOption = [NSString stringWithUTF8String:optarg];
-                    break;
-                }
-
-                case CD_OPT_HIDE: {
-                    NSString *str = [NSString stringWithUTF8String:optarg];
-                    if ([str isEqualToString:@"all"]) {
-                        [hiddenSections addObject:@"structures"];
-                        [hiddenSections addObject:@"protocols"];
-                    } else {
-                        [hiddenSections addObject:str];
-                    }
                     break;
                 }
 
