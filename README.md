@@ -32,7 +32,7 @@ For each such symbol, it generates a random identifier, and writes a "map file" 
 ### Phase 2: Obfuscate Sources
 `ios-class-guard --obfuscate-sources [--symbols-map symbols.map]`
 
-In this phase, *PPiOS-CG* reads in the map file and generates a header file (`symbols.h`, by default) that has `#define`s for each symbol to be renamed. It then finds the appropriate Precompiled Header (`.pch`) files in your source code and adds a `#import` with the path to the header file. Finally, it finds all XIBs/Storyboards in your source tree and directly updates the names inside those files.
+In this phase, *PPiOS-CG* reads in the map file and generates a header file (`symbols.h`, by default) that has `#define`s for each symbol to be renamed. It then finds the appropriate Precompiled Header (`.pch`) files in your source code and adds a `#include` with the path to the header file. Finally, it finds all XIBs/Storyboards in your source tree and directly updates the names inside those files.
 
 Now, with the source modifications in place, you can build your app as usual. It will be compiled with the obfuscated symbols. (And any open-source CocoaPods will also have their symbols obfuscated.)
 
@@ -162,7 +162,7 @@ During the Obfuscate Sources phase, you may get an error:
 
     Error: could not find any *-Prefix.pch files under .
 
-This is because *PPiOS-CG* is attempting to add an `#import` to a Precompiled Header file, and it can't find a suitable file to add it to. This is typically because projects created in Xcode 6 and above don't contain a `.pch` file by default.
+This is because *PPiOS-CG* is attempting to add an `#include` to a Precompiled Header file, and it can't find a suitable file to add it to. This is typically because projects created in Xcode 6 and above don't contain a `.pch` file by default.
 
 To fix this, add a `.pch` file as follows:
 
