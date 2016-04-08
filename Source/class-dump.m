@@ -147,6 +147,10 @@ int main(int argc, char *argv[])
             exit(0);
         }
 
+        //exclude __* from both classes and symbols
+        [classFilter addObject:@"__*"];
+        [ignoreSymbols addObject:@"__*"];
+
         CDClassDump *classDump = [[CDClassDump alloc] init];
         BOOL hasMode = NO;
         while ( (ch = getopt_long(argc, argv, "F:x:th", longopts, NULL)) != -1) {
