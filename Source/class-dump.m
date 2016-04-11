@@ -225,12 +225,12 @@ int main(int argc, char *argv[])
                     break;
 
                 case 'X':
-                    checkOnlyObfuscateMode("-X", shouldObfuscate);
+                    checkOnlyObfuscateMode("--storyboards", shouldObfuscate);
                     xibBaseDirectory = [NSString stringWithUTF8String:optarg];
                     break;
 
                 case 'O':
-                    checkOnlyObfuscateMode("-O", shouldObfuscate);
+                    checkOnlyObfuscateMode("--symbols-header", shouldObfuscate);
                     symbolsPath = [NSString stringWithUTF8String:optarg];
                     break;
 
@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
 
         NSString *firstArg = nil;
         if (optind < argc) {
-            if(!(shouldObfuscate | shouldPrintVersion)){
+            if(shouldObfuscate | shouldPrintVersion){
                 reportError(1, "Unrecognized additional argument: %s", argv[optind]);
             }
             firstArg = [NSString stringWithFileSystemRepresentation:argv[optind]];
