@@ -686,6 +686,10 @@ static NSString *const lettersSet[maxLettersSet] = {
 - (void)willVisitCategory:(CDOCCategory *)category {
     if (_external) {
         _ignored = YES;
+    } else if (![self shouldClassBeObfuscated:category.name]) {
+        NSLog(@"Ignoring @category %@+%@", category.className, category.name);
+        [self addForbiddenSymbol:category.name];
+        _ignored = YES;
     } else {
         NSLog(@"Adding @category %@+%@", category.className, category.name);
         [_categoryNames addObject:category.name];
