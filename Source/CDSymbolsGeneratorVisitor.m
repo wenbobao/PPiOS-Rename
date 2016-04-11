@@ -744,7 +744,8 @@ static NSString *const lettersSet[maxLettersSet] = {
 }
 
 - (void)visitType:(CDType *)type {
-    if (_ignored) {
+    // Exclusions should not propagate to ivars or properties for internal classes.
+    if (_ignored && _external) {
         // Add protocols and the type name describing the type, these are exposed through
         // property_getAttributes() in objc/runtime.h.
         for (NSString *protocol in type.protocols) {
