@@ -1,7 +1,7 @@
 # Copyright 2016 PreEmptive Solutions, LLC
-PROJECT_NAME=PPiOS-ClassGuard
+PROJECT_NAME=PPiOS-Rename
 VERSION=v1.0.0
-PROGRAM_NAME=ios-class-guard
+PROGRAM_NAME=ppios-rename
 
 BUILD_DIR=build
 PROGRAM=$(BUILD_DIR)/Build/Products/Release/$(PROGRAM_NAME)
@@ -16,8 +16,8 @@ ARCHIVE_DIR=$(FULL_VERSION)
 DIST_PACKAGE=$(ARCHIVE_DIR)/$(PROJECT_NAME)-$(FULL_VERSION).tgz
 
 XCODEBUILD_OPTIONS=\
-	-workspace ios-class-guard.xcworkspace \
-	-scheme ios-class-guard \
+	-workspace ppios-rename.xcworkspace \
+	-scheme ppios-rename \
 	-configuration Release \
 	-derivedDataPath $(BUILD_DIR) \
 	-reporter plain \

@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "01EB825E13A590D9003EDE60"
-               BuildableName = "ios-class-guard"
-               BlueprintName = "ios-class-guard"
-               ReferencedContainer = "container:ios-class-guard.xcodeproj">
+               BuildableName = "ppios-rename"
+               BlueprintName = "ppios-rename"
+               ReferencedContainer = "container:ppios-rename.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +35,7 @@
                BlueprintIdentifier = "0165B8B01827137D00CC647F"
                BuildableName = "UnitTests.xctest"
                BlueprintName = "UnitTests"
-               ReferencedContainer = "container:ios-class-guard.xcodeproj">
+               ReferencedContainer = "container:ppios-rename.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -43,9 +43,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "01EB825E13A590D9003EDE60"
-            BuildableName = "ios-class-guard"
-            BlueprintName = "ios-class-guard"
-            ReferencedContainer = "container:ios-class-guard.xcodeproj">
+            BuildableName = "ppios-rename"
+            BlueprintName = "ppios-rename"
+            ReferencedContainer = "container:ppios-rename.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -67,9 +67,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "01EB825E13A590D9003EDE60"
-            BuildableName = "ios-class-guard"
-            BlueprintName = "ios-class-guard"
-            ReferencedContainer = "container:ios-class-guard.xcodeproj">
+            BuildableName = "ppios-rename"
+            BlueprintName = "ppios-rename"
+            ReferencedContainer = "container:ppios-rename.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -86,9 +86,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "01EB825E13A590D9003EDE60"
-            BuildableName = "ios-class-guard"
-            BlueprintName = "ios-class-guard"
-            ReferencedContainer = "container:ios-class-guard.xcodeproj">
+            BuildableName = "ppios-rename"
+            BlueprintName = "ppios-rename"
+            ReferencedContainer = "container:ppios-rename.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

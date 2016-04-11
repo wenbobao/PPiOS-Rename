@@ -201,7 +201,7 @@
 		0194945B1673F8F200A29005 /* CDProtocolUniquer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDProtocolUniquer.m; path = Source/CDProtocolUniquer.m; sourceTree = "<group>"; };
 		01B02D1B13A5B2A40047BC53 /* ppios-rename-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ppios-rename-Prefix.pch"; sourceTree = "<group>"; };
 		01B02D4913A5B9090047BC53 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
-		01EB825F13A590D9003EDE60 /* ios-class-guard */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "ios-class-guard"; sourceTree = BUILT_PRODUCTS_DIR; };
+		01EB825F13A590D9003EDE60 /* ppios-rename */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "ppios-rename"; sourceTree = BUILT_PRODUCTS_DIR; };
 		01EB826313A590D9003EDE60 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		01EB828713A591A5003EDE60 /* NSArray-CDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSArray-CDExtensions.h"; path = "Source/NSArray-CDExtensions.h"; sourceTree = SOURCE_ROOT; };
 		01EB828813A591A5003EDE60 /* NSArray-CDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSArray-CDExtensions.m"; path = "Source/NSArray-CDExtensions.m"; sourceTree = SOURCE_ROOT; };
@@ -543,7 +543,7 @@
 				0165B8B41827137D00CC647F /* UnitTests */,
 				01EB826213A590D9003EDE60 /* Frameworks */,
 				01EB826013A590D9003EDE60 /* Products */,
-				38653105C3AD1ECFFF532A50 /* ios-class-guard Spec */,
+				38653105C3AD1ECFFF532A50 /* ppios-rename Spec */,
 				38653F0A1888F8B2CC4309CE /* Symbol mapping */,
 				364BE06F241D1A1CA1EA4917 /* System Protocols Dumping */,
 				CCD5A5BACBC317C94D8CFF5B /* Pods */,
@@ -554,7 +554,7 @@
 		01EB826013A590D9003EDE60 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				01EB825F13A590D9003EDE60 /* ios-class-guard */,
+				01EB825F13A590D9003EDE60 /* ppios-rename */,
 				013D1F1113A5AE5A00BF0A67 /* libMachObjC.a */,
 				0165B8B11827137D00CC647F /* UnitTests.xctest */,
 			);
@@ -583,7 +583,7 @@
 			children = (
 				95E3D8AD1C89F37800CF28E2 /* class-dump.m */,
 				67404E1E1987AA3800457550 /* Parser */,
-				01B02D1B13A5B2A40047BC53 /* ios-class-guard-Prefix.pch */,
+				01B02D1B13A5B2A40047BC53 /* ppios-rename-Prefix.pch */,
 				01B02D4913A5B9090047BC53 /* Info.plist */,
 				01EB829913A591D7003EDE60 /* CDClassDump.h */,
 				01EB829A13A591D7003EDE60 /* CDClassDump.m */,
@@ -812,7 +812,7 @@
 			path = "dSYM deobfuscating";
 			sourceTree = "<group>";
 		};
-		38653105C3AD1ECFFF532A50 /* ios-class-guard Spec */ = {
+		38653105C3AD1ECFFF532A50 /* ppios-rename Spec */ = {
 			isa = PBXGroup;
 			children = (
 				3865353F3CA1A51ACE6B2854 /* CDSymoblsGeneratorVisitorSpec.m */,
@@ -826,7 +826,7 @@
 				364BE69F3A3ADC92AFDA50DA /* CDSystemProtocolsProcessorSpec.m */,
 				364BE4CC20B4DB8ABBBF7606 /* CDdSYMProcessorSpec.m */,
 			);
-			path = "ios-class-guard Spec";
+			path = "ppios-rename Spec";
 			sourceTree = "<group>";
 		};
 		38653F0A1888F8B2CC4309CE /* Symbol mapping */ = {
@@ -957,9 +957,9 @@
 			productReference = 0165B8B11827137D00CC647F /* UnitTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		01EB825E13A590D9003EDE60 /* ios-class-guard */ = {
+		01EB825E13A590D9003EDE60 /* ppios-rename */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 01EB826E13A590D9003EDE60 /* Build configuration list for PBXNativeTarget "ios-class-guard" */;
+			buildConfigurationList = 01EB826E13A590D9003EDE60 /* Build configuration list for PBXNativeTarget "ppios-rename" */;
 			buildPhases = (
 				01EB825B13A590D9003EDE60 /* Sources */,
 				01EB825C13A590D9003EDE60 /* Frameworks */,
@@ -970,9 +970,9 @@
 			dependencies = (
 				0158A8161412DED0003FEB91 /* PBXTargetDependency */,
 			);
-			name = "ios-class-guard";
+			name = "ppios-rename";
 			productName = "class-dump";
-			productReference = 01EB825F13A590D9003EDE60 /* ios-class-guard */;
+			productReference = 01EB825F13A590D9003EDE60 /* ppios-rename */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -988,7 +988,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 01EB825913A590D9003EDE60 /* Build configuration list for PBXProject "ios-class-guard" */;
+			buildConfigurationList = 01EB825913A590D9003EDE60 /* Build configuration list for PBXProject "ppios-rename" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -1001,7 +1001,7 @@
 			projectRoot = "";
 			targets = (
 				013D1F1013A5AE5A00BF0A67 /* MachObjC */,
-				01EB825E13A590D9003EDE60 /* ios-class-guard */,
+				01EB825E13A590D9003EDE60 /* ppios-rename */,
 				0165B8B01827137D00CC647F /* UnitTests */,
 			);
 		};
@@ -1434,13 +1434,13 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "ios-class-guard-Prefix.pch";
+				GCC_PREFIX_HEADER = "ppios-rename-Prefix.pch";
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",
 					"-lxml2",
 				);
-				PRODUCT_NAME = "ios-class-guard";
+				PRODUCT_NAME = "ppios-rename";
 				WARNING_CFLAGS = (
 					"-fdiagnostics-show-option",
 					"-Wno-semicolon-before-method-body",
@@ -1459,7 +1459,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "ios-class-guard-Prefix.pch";
+				GCC_PREFIX_HEADER = "ppios-rename-Prefix.pch";
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",
@@ -1469,7 +1469,7 @@
 					Info.plist,
 					"-lxml2",
 				);
-				PRODUCT_NAME = "ios-class-guard";
+				PRODUCT_NAME = "ppios-rename";
 				WARNING_CFLAGS = (
 					"-fdiagnostics-show-option",
 					"-Wno-semicolon-before-method-body",
@@ -1504,7 +1504,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		01EB825913A590D9003EDE60 /* Build configuration list for PBXProject "ios-class-guard" */ = {
+		01EB825913A590D9003EDE60 /* Build configuration list for PBXProject "ppios-rename" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				01EB826C13A590D9003EDE60 /* Debug */,
@@ -1513,7 +1513,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		01EB826E13A590D9003EDE60 /* Build configuration list for PBXNativeTarget "ios-class-guard" */ = {
+		01EB826E13A590D9003EDE60 /* Build configuration list for PBXNativeTarget "ppios-rename" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				01EB826F13A590D9003EDE60 /* Debug */,

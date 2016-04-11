@@ -28,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 The source for this project can be obtained by contacting us, or by
 download at:
 
-    https://github.com/preemptive/ios-class-guard
+    https://github.com/preemptive/ppios-rename
 
 We can be contacted by electronically at:
 
