@@ -598,7 +598,7 @@ static NSString *const lettersSet[maxLettersSet] = {
 - (BOOL)shouldClassBeObfuscated:(NSString *)className {
     // Since this algorithm terminates when it first find a match, try matching from the most
     // specific to most general.
-    for (NSString *filter in [self.classFilters reverseObjectEnumerator]) {
+    for (NSString * filter in self.classFilters) {
         if ([filter hasPrefix:@"!"]) {
             // negative filter - prefixed with !
             if ([className isLike:[filter substringFromIndex:1]]) {
@@ -616,10 +616,6 @@ static NSString *const lettersSet[maxLettersSet] = {
 }
 
 - (BOOL)shouldSymbolsBeIgnored:(NSString *)symbolName {
-    if ([symbolName hasPrefix:@"."]) { // .cxx_destruct
-        return YES;
-    }
-
     if ([_forbiddenNames containsObject:symbolName]) {
         return YES;
     }

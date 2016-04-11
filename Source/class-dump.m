@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
         CDArch targetArch;
         BOOL hasSpecifiedArch = NO;
         NSMutableArray * commandLineClassFilters = [NSMutableArray new];
-        NSMutableArray *ignoreSymbols = [NSMutableArray new];
+        NSMutableArray * commandLineIgnoreSymbols = [NSMutableArray new];
         NSString *xibBaseDirectory = nil;
         NSString *symbolsPath = nil;
         NSString *symbolMappingPath = nil;
@@ -162,9 +162,6 @@ int main(int argc, char *argv[])
             print_usage();
             exit(0);
         }
-
-        //exclude __* from both classes and symbols
-        [ignoreSymbols addObject:@"__*"];
 
         CDClassDump *classDump = [[CDClassDump alloc] init];
         BOOL hasMode = NO;
@@ -256,7 +253,7 @@ int main(int argc, char *argv[])
 
                 case 'x':
                     checkOnlyAnalyzeMode("-x", shouldAnalyze);
-                    [ignoreSymbols addObject:[NSString stringWithUTF8String:optarg]];
+                    [commandLineIgnoreSymbols addObject:[NSString stringWithUTF8String:optarg]];
                     break;
 
                 case 't':
@@ -388,23 +385,42 @@ int main(int argc, char *argv[])
             [classDump processObjectiveCData];
             [classDump registerTypes];
 
-            CDCoreDataModelProcessor *coreDataModelProcessor = [[CDCoreDataModelProcessor alloc] init];
-            NSMutableArray * classFilters = [NSMutableArray new];
-            [classFilters addObject:@"__*"];
+            // process CoreData schema
+            CDCoreDataModelProcessor * coreDataModelProcessor = [CDCoreDataModelProcessor new];
+            NSArray * coreDataClasses = [coreDataModelProcessor coreDataModelSymbolsToExclude];
 
-            [classFilters addObjectsFromArray:[coreDataModelProcessor coreDataModelSymbolsToExclude]];
-
+            // scan for system protocols
             CDSystemProtocolsProcessor *systemProtocolsProcessor
                     = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.sdkRoot];
-            for (NSString * protocol in [systemProtocolsProcessor systemProtocolsSymbolsToExclude]) {
-                [classFilters addObject:[@"!" stringByAppendingString:protocol]];
-            }
+            NSArray<NSString *> * systemProtocols
+                    = [systemProtocolsProcessor systemProtocolsSymbolsToExclude];
+
+            // assemble the class filters
+            NSMutableArray * classFilters = [NSMutableArray new];
 
             // Filter out system classes, including auto-generated entities like
             // __ARCLiteKeyedSubscripting__ and __ARCLiteIndexedSubscripting__.
             [classFilters addObject:@"!__*"];
 
-            [classFilters addObjectsFromArray:commandLineClassFilters];
+
+            [classFilters addObjectsFromArray:coreDataClasses];
+
+            // Reversing here the class filters passed on the command-line, means that the more
+            // specific rules should be passed last: -F !PP* -F PPPublicThing*
+            [classFilters addObjectsFromArray:[commandLineClassFilters reversedArray]];
+
+            // assemble the ignore list
+            NSMutableArray * ignoreSymbols = [NSMutableArray new];
+
+            // Explicitly exclude system symbols like: .cxx_destruct
+            [ignoreSymbols addObject:@".*"];
+
+            // Explicitly exclude symbols that should be reserved for the compiler/system.
+            [ignoreSymbols addObject:@"__*"];
+
+            [ignoreSymbols addObjectsFromArray:systemProtocols];
+
+            [ignoreSymbols addObjectsFromArray:commandLineIgnoreSymbols];
 
             CDSymbolsGeneratorVisitor *visitor = [CDSymbolsGeneratorVisitor new];
             visitor.classDump = classDump;
