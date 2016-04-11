@@ -394,6 +394,11 @@ int main(int argc, char *argv[])
                     = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.sdkRoot];
             NSArray<NSString *> * systemProtocols
                     = [systemProtocolsProcessor systemProtocolsSymbolsToExclude];
+            if (systemProtocols == nil) {
+                reportError(1,
+                        "Unable to process system headers from SDK: %s",
+                        [classDump.sdkRoot UTF8String]);
+            }
 
             // assemble the class filters
             NSMutableArray * classFilters = [NSMutableArray new];
