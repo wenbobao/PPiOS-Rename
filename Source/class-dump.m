@@ -127,12 +127,9 @@ int main(int argc, char *argv[])
         BOOL errorFlag = NO;
 
         struct option longopts[] = {
-                { "filter-class",            no_argument,       NULL, 'F' },
-                { "exclude-symbols",         required_argument, NULL, 'x' },
                 { "storyboards",             required_argument, NULL, 'X' },
                 { "symbols-header",          required_argument, NULL, 'O' },
                 { "symbols-map",             required_argument, NULL, 'm' },
-                { "crash-dump",              required_argument, NULL, 'c' },
                 { "arch",                    required_argument, NULL, CD_OPT_ARCH }, //needed?
                 { "list-arches",             no_argument,       NULL, CD_OPT_LIST_ARCHES },
                 { "emit-excludes",           required_argument, NULL, PPIOS_OPT_EMIT_EXCLUDES },
