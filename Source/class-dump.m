@@ -402,6 +402,11 @@ int main(int argc, char *argv[])
             // __ARCLiteKeyedSubscripting__ and __ARCLiteIndexedSubscripting__.
             [classFilters addObject:@"!__*"];
 
+            // Exclude the system protocols as class filters, so that they are noted with "Ignoring"
+            // on the command-line output.
+            for (NSString * protocolName in systemProtocols) {
+                [classFilters addObject:[@"!" stringByAppendingString:protocolName]];
+            }
 
             [classFilters addObjectsFromArray:coreDataClasses];
 
@@ -417,8 +422,6 @@ int main(int argc, char *argv[])
 
             // Explicitly exclude symbols that should be reserved for the compiler/system.
             [ignoreSymbols addObject:@"__*"];
-
-            [ignoreSymbols addObjectsFromArray:systemProtocols];
 
             [ignoreSymbols addObjectsFromArray:commandLineIgnoreSymbols];
 
