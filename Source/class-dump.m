@@ -20,11 +20,9 @@
 
 NSString *defaultSymbolMappingPath = @"symbols.map";
 
-#define SDK_PATH_BEFORE \
-        "/Applications/Xcode.app/Contents/Developer" \
-            "/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator"
-#define SDK_PATH_AFTER ".sdk"
-#define SDK_PATH_USAGE_STRING SDK_PATH_BEFORE "<version>" SDK_PATH_AFTER
+static NSString * const SDK_PATH_PATTERN
+        = @"/Applications/Xcode.app/Contents/Developer"
+                @"/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%@.sdk";
 
 void print_usage(void)
 {
@@ -232,7 +230,8 @@ int main(int argc, char *argv[])
                     checkOnlyAnalyzeMode("-F", shouldAnalyze);
                     NSString * value = [NSString stringWithUTF8String:optarg];
                     if ((commandLineClassFilters.count == 0) && ![value hasPrefix:@"!"]) {
-                        reportWarning("Warning: include filters without a preceding exclude filter have no effect");
+                        reportWarning("Warning: include filters without a preceding exclude filter "
+                                "have no effect");
                     }
                     [commandLineClassFilters addObject:value];
                     break;
@@ -500,9 +499,6 @@ int main(int argc, char *argv[])
 static NSString * resolveSDKPath(NSFileManager * fileManager,
                                  NSString * const sdkRootOption,
                                  NSString * const sdkIOSOption) {
-
-    NSString * const SDK_PATH_PATTERN
-            = [NSString stringWithUTF8String:SDK_PATH_BEFORE "%@" SDK_PATH_AFTER];
 
     if ((sdkRootOption != nil) && (sdkIOSOption != nil)) {
         reportError(1, "Specify only one of --sdk-root or --sdk-ios");
