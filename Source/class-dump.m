@@ -88,9 +88,17 @@ void populateProgramName(char* argv0){
     programName = basename(argv0);
 }
 
-void checkSingleMode(BOOL hasMode){
-    if(hasMode){
-        reportError(2, "Only a single mode of operation is supported at a time");
+void reportSingleModeError(){
+    reportError(2, "Only a single mode of operation is supported at a time");
+}
+void checkOnlyAnalyzeMode(char* flag, BOOL analyze){
+    if(!analyze){
+        reportError(1, "Argument %s is only valid when using --analyze", flag);
+    }
+}
+void checkOnlyObfuscateMode(char* flag, BOOL obfuscate){
+    if(!obfuscate){
+        reportError(1, "Argument %s is only valid when using --obfuscate-sources", flag);
     }
 }
 
@@ -153,10 +161,43 @@ int main(int argc, char *argv[])
 
         CDClassDump *classDump = [[CDClassDump alloc] init];
         BOOL hasMode = NO;
+
         while ( (ch = getopt_long(argc, argv, "F:x:th", longopts, NULL)) != -1) {
+
+            if(!hasMode) {
+                //should only run on first iteration
+                switch (ch) {
+                    case PPIOS_OPT_ANALYZE:
+                        shouldAnalyze = YES;
+                        break;
+                    case PPIOS_OPT_OBFUSCATE:
+                        shouldObfuscate = YES;
+                        break;
+                    case CD_OPT_LIST_ARCHES:
+                        shouldListArches = YES;
+                        break;
+                    case CD_OPT_VERSION:
+                        shouldPrintVersion = YES;
+                        break;
+                    case CD_OPT_TRANSLATE_DSYM:
+                        shouldTranslateDsym = YES;
+                        break;
+                    case CD_OPT_TRANSLATE_CRASH:
+                        shouldTranslateCrashDump = YES;
+                        break;
+                    case 'h':
+                        shouldShowUsage = YES;
+                        break;
+                    default:
+                        reportError(1, "You must specify the mode of operation as the first argument");
+                }
+                hasMode = YES;
+                continue; //skip this iteration..
+            }
 
             switch (ch) {
                 case CD_OPT_ARCH: {
+                    checkOnlyAnalyzeMode("--arch", shouldAnalyze);
                     NSString *name = [NSString stringWithUTF8String:optarg];
                     targetArch = CDArchFromName(name);
                     if (targetArch.cputype != CPU_TYPE_ANY)
@@ -167,91 +208,75 @@ int main(int argc, char *argv[])
                     }
                     break;
                 }
-
                 case CD_OPT_SDK_IOS: {
+                    checkOnlyAnalyzeMode("--sdk-ios", shouldAnalyze);
                     sdkIOSOption = [NSString stringWithUTF8String:optarg];
                     break;
                 }
-
                 case CD_OPT_SDK_ROOT: {
+                    checkOnlyAnalyzeMode("--sdk-root", shouldAnalyze);
                     sdkRootOption = [NSString stringWithUTF8String:optarg];
                     break;
                 }
 
                 case 'F':
+                    checkOnlyAnalyzeMode("-F", shouldAnalyze);
                     [classFilter addObject:[NSString stringWithUTF8String:optarg]];
                     break;
 
                 case 'X':
+                    checkOnlyObfuscateMode("-X", shouldObfuscate);
                     xibBaseDirectory = [NSString stringWithUTF8String:optarg];
                     break;
 
                 case 'O':
+                    checkOnlyObfuscateMode("-O", shouldObfuscate);
                     symbolsPath = [NSString stringWithUTF8String:optarg];
                     break;
 
                 case 'm':
+                    if(shouldListArches || shouldPrintVersion || shouldShowUsage){
+                        reportError(1, "Argument -m is not valid in this context");
+                    }
                     symbolMappingPath = [NSString stringWithUTF8String:optarg];
                     break;
 
                 case 'x':
+                    checkOnlyAnalyzeMode("-x", shouldAnalyze);
                     [ignoreSymbols addObject:[NSString stringWithUTF8String:optarg]];
                     break;
 
                 case 't':
+                    checkOnlyObfuscateMode("-t", shouldObfuscate);
                     classDump.shouldShowHeader = NO;
                     break;
 
                 case PPIOS_OPT_EMIT_EXCLUDES:
+                    checkOnlyAnalyzeMode("-emit-excludes", shouldAnalyze);
                     classDump.excludedSymbolsListFilename = [NSString stringWithUTF8String:optarg];
                     break;
 
-                //modes..
                 case PPIOS_OPT_ANALYZE:
-                    //do analysis
-                    shouldAnalyze = YES;
-                    checkSingleMode(hasMode);
-                    break;
-
                 case PPIOS_OPT_OBFUSCATE:
-                    shouldObfuscate = YES;
-                    checkSingleMode(hasMode);
-                    break;
-
                 case CD_OPT_LIST_ARCHES:
-                    shouldListArches = YES;
-                    checkSingleMode(hasMode);
-                    break;
-
                 case CD_OPT_VERSION:
-                    shouldPrintVersion = YES;
-                    checkSingleMode(hasMode);
-                    break;
-
                 case CD_OPT_TRANSLATE_DSYM:
-                    shouldTranslateDsym = YES;
-                    checkSingleMode(hasMode);
-                    break;
                 case CD_OPT_TRANSLATE_CRASH:
-                    shouldTranslateCrashDump = YES;
-                    checkSingleMode(hasMode);
-                    break;
-
                 case 'h':
-                    shouldShowUsage = YES;
+                    reportSingleModeError();
                     break;
-
                 default:
                     errorFlag = YES;
                     break;
             }
 
-            hasMode = shouldAnalyze | shouldListArches | shouldObfuscate | shouldPrintVersion |
-                    shouldTranslateCrashDump | shouldTranslateDsym;
         }
         if (errorFlag) {
             print_usage();
             exit(2);
+        }
+        if(!hasMode){
+            print_usage();
         }
         if(shouldShowUsage){
             print_usage();
@@ -264,13 +289,21 @@ int main(int argc, char *argv[])
 
         NSString *firstArg = nil;
         if (optind < argc) {
+            if(!(shouldObfuscate | shouldPrintVersion)){
+                reportError(1, "Unrecognized additional argument: %s", argv[optind]);
+            }
             firstArg = [NSString stringWithFileSystemRepresentation:argv[optind]];
         }
         NSString *secondArg = nil;
         if(optind + 1 < argc ){
+            if(!(shouldTranslateCrashDump | shouldTranslateDsym)){
+                reportError(1, "Unrecognized additional argument: %s", argv[optind + 1]);
+            }
             secondArg = [NSString stringWithFileSystemRepresentation:argv[optind + 1]];
         }
-
+        if(argc > optind + 2){
+            reportError(1, "Unrecognized additional argument: %s", argv[optind + 2]);
+        }
 
         if(!hasMode){
             print_usage();
