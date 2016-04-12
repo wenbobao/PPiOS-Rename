@@ -85,7 +85,7 @@ void printWithFormat(FILE * restrict stream, const char * restrict format, va_li
     fprintf(stream, "\n");
 }
 
-void reportError(int exitCode, const char* format, ...){
+void terminateWithError(int exitCode, const char *format, ...){
     va_list args;
     va_start(args, format);
     printWithFormat(stderr, format, args);
@@ -106,16 +106,16 @@ void populateProgramName(char* argv0){
 }
 
 void reportSingleModeError(){
-    reportError(2, "Only a single mode of operation is supported at a time");
+    terminateWithError(2, "Only a single mode of operation is supported at a time");
 }
 void checkOnlyAnalyzeMode(char* flag, BOOL analyze){
     if(!analyze){
-        reportError(1, "Argument %s is only valid when using --analyze", flag);
+        terminateWithError(1, "Argument %s is only valid when using --analyze", flag);
     }
 }
 void checkOnlyObfuscateMode(char* flag, BOOL obfuscate){
     if(!obfuscate){
-        reportError(1, "Argument %s is only valid when using --obfuscate-sources", flag);
+        terminateWithError(1, "Argument %s is only valid when using --obfuscate-sources", flag);
     }
 }
 
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
                         shouldShowUsage = YES;
                         break;
                     default:
-                        reportError(1, "You must specify the mode of operation as the first argument");
+                        terminateWithError(1, "You must specify the mode of operation as the first argument");
                 }
                 hasMode = YES;
                 continue; //skip this iteration..
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
 
                 case 'm':
                     if(shouldListArches || shouldPrintVersion || shouldShowUsage){
-                        reportError(1, "Argument -m is not valid in this context");
+                        terminateWithError(1, "Argument -m is not valid in this context");
                     }
                     symbolMappingPath = [NSString stringWithUTF8String:optarg];
                     break;
@@ -302,19 +302,19 @@ int main(int argc, char *argv[])
         NSString *firstArg = nil;
         if (optind < argc) {
             if(shouldObfuscate | shouldPrintVersion){
-                reportError(1, "Unrecognized additional argument: %s", argv[optind]);
+                terminateWithError(1, "Unrecognized additional argument: %s", argv[optind]);
             }
             firstArg = [NSString stringWithFileSystemRepresentation:argv[optind]];
         }
         NSString *secondArg = nil;
         if(optind + 1 < argc ){
             if(!(shouldTranslateCrashDump | shouldTranslateDsym)){
-                reportError(1, "Unrecognized additional argument: %s", argv[optind + 1]);
+                terminateWithError(1, "Unrecognized additional argument: %s", argv[optind + 1]);
             }
             secondArg = [NSString stringWithFileSystemRepresentation:argv[optind + 1]];
         }
         if(argc > optind + 2){
-            reportError(1, "Unrecognized additional argument: %s", argv[optind + 2]);
+            terminateWithError(1, "Unrecognized additional argument: %s", argv[optind + 2]);
         }
 
         if(!hasMode){
@@ -327,12 +327,12 @@ int main(int argc, char *argv[])
             printf("PreEmptive Protection for iOS - Rename, version %s\n", CLASS_DUMP_VERSION);
         } else if (shouldListArches) {
             if(firstArg == nil){
-                reportError(1, "Input file must be specified for --list-arches");
+                terminateWithError(1, "Input file must be specified for --list-arches");
             }
             NSString *executablePath = nil;
             executablePath = [firstArg executablePathForFilename];
             if (executablePath == nil) {
-                reportError(1, "Input file (%s) doesn't contain an executable.", [firstArg fileSystemRepresentation]);
+                terminateWithError(1, "Input file (%s) doesn't contain an executable.", [firstArg fileSystemRepresentation]);
             }
             CDSearchPathState *searchPathState = [[CDSearchPathState alloc] init];
             searchPathState.executablePath = executablePath;
@@ -346,12 +346,12 @@ int main(int argc, char *argv[])
             }
         }else if(shouldAnalyze){
             if(firstArg == nil){
-                reportError(1, "Input file must be specified for --analyze");
+                terminateWithError(1, "Input file must be specified for --analyze");
             }
             NSString *executablePath = nil;
             executablePath = [firstArg executablePathForFilename];
             if (executablePath == nil) {
-                reportError(1, "Input file (%s) doesn't contain an executable.", [firstArg fileSystemRepresentation]);
+                terminateWithError(1, "Input file (%s) doesn't contain an executable.", [firstArg fileSystemRepresentation]);
             }
             classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
 
@@ -361,18 +361,18 @@ int main(int argc, char *argv[])
             if (file == nil) {
                 if ([fileManager fileExistsAtPath:executablePath]) {
                     if ([fileManager isReadableFileAtPath:executablePath]) {
-                        reportError(1, "Input file (%s) is neither a Mach-O file nor a fat archive.", [executablePath UTF8String]);
+                        terminateWithError(1, "Input file (%s) is neither a Mach-O file nor a fat archive.", [executablePath UTF8String]);
                     } else {
-                        reportError(1, "Input file (%s) is not readable (check read permissions).", [executablePath UTF8String]);
+                        terminateWithError(1, "Input file (%s) is not readable (check read permissions).", [executablePath UTF8String]);
                     }
                 } else {
-                    reportError(1, "Input file (%s) does not exist.", [executablePath UTF8String]);
+                    terminateWithError(1, "Input file (%s) does not exist.", [executablePath UTF8String]);
                 }
             }
 
             if (hasSpecifiedArch == NO) {
                 if ([file bestMatchForLocalArch:&targetArch] == NO) {
-                    reportError(1, "Error: Couldn't get local architecture");
+                    terminateWithError(1, "Error: Couldn't get local architecture");
                 }
             }
 
@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
 
             NSError *error;
             if (![classDump loadFile:file error:&error depth:0]) {
-                reportError(1, "Error: %s", [[error localizedFailureReason] UTF8String]);
+                terminateWithError(1, "Error: %s", [[error localizedFailureReason] UTF8String]);
             }
 
             [classDump processObjectiveCData];
@@ -411,21 +411,21 @@ int main(int argc, char *argv[])
             }
         } else if(shouldTranslateCrashDump) {
             if (!firstArg) {
-                reportError(4, "No valid input crash dump file provided");
+                terminateWithError(4, "No valid input crash dump file provided");
             }
             if(!secondArg) {
-                reportError(4, "No valid output crash dump file provided");
+                terminateWithError(4, "No valid output crash dump file provided");
             }
             NSString* crashDumpPath = firstArg;
             NSString* outputCrashDump = secondArg;
             NSString *crashDump = [NSString stringWithContentsOfFile:crashDumpPath encoding:NSUTF8StringEncoding error:nil];
             if (crashDump.length == 0) {
-                reportError(4, "Crash dump file does not exist or is empty %s", [crashDumpPath fileSystemRepresentation]);
+                terminateWithError(4, "Crash dump file does not exist or is empty %s", [crashDumpPath fileSystemRepresentation]);
             }
 
             NSString *symbolsData = [NSString stringWithContentsOfFile:symbolMappingPath encoding:NSUTF8StringEncoding error:nil];
             if (symbolsData.length == 0) {
-                reportError(5, "Symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
+                terminateWithError(5, "Symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
             }
 
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
@@ -433,31 +433,31 @@ int main(int argc, char *argv[])
             NSError *error;
             [processedFile writeToFile:outputCrashDump atomically:YES encoding:NSUTF8StringEncoding error:&error];
             if(error){
-                reportError(4, "Error writing crash dump file: %s", [[error localizedFailureReason] UTF8String]);
+                terminateWithError(4, "Error writing crash dump file: %s", [[error localizedFailureReason] UTF8String]);
             }
         } else if (shouldTranslateDsym){
             NSString *dSYMInPath = firstArg;
             NSString *dSYMOutPath = secondArg;
 
             if(!dSYMInPath) {
-                reportError(5, "No valid dSYM input path provided");
+                terminateWithError(5, "No valid dSYM input path provided");
             }
             if(!dSYMOutPath) {
-                reportError(5, "No valid dSYM output path provided");
+                terminateWithError(5, "No valid dSYM output path provided");
             }
             NSString *symbolsData = [NSString stringWithContentsOfFile:symbolMappingPath encoding:NSUTF8StringEncoding error:nil];
             if (symbolsData.length == 0) {
-                reportError(5, "Symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
+                terminateWithError(5, "Symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
             }
 
             BOOL isDirectory = NO;
             BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:dSYMInPath isDirectory:&isDirectory];
             if(exists){
                 if(!isDirectory){
-                    reportError(5, "Input dSYM path provided is invalid %s", [dSYMInPath fileSystemRepresentation]);
+                    terminateWithError(5, "Input dSYM path provided is invalid %s", [dSYMInPath fileSystemRepresentation]);
                 }
             }else{
-                reportError(5, "Input dSYM path provided does not exist %s", [dSYMInPath fileSystemRepresentation]);
+                terminateWithError(5, "Input dSYM path provided does not exist %s", [dSYMInPath fileSystemRepresentation]);
             }
 
             CDdSYMProcessor *processor = [[CDdSYMProcessor alloc] init];
@@ -466,7 +466,7 @@ int main(int argc, char *argv[])
             for (NSString *dwarfFilePath in dwarfFilesPaths) {
                 NSData *dwarfdumpData = [NSData dataWithContentsOfFile:dwarfFilePath];
                 if (dwarfdumpData.length == 0) {
-                    reportError(4, "DWARF file does not exist or is empty %s", [dwarfFilePath fileSystemRepresentation]);
+                    terminateWithError(4, "DWARF file does not exist or is empty %s", [dwarfFilePath fileSystemRepresentation]);
                 }
 
                 NSData *processedFileContent = [processor processDwarfdump:dwarfdumpData
@@ -494,7 +494,7 @@ static NSArray<NSString *> * assembleClassFilters(
     NSArray<NSString *> * systemProtocols
             = [systemProtocolsProcessor systemProtocolsSymbolsToExclude];
     if (systemProtocols == nil) {
-        reportError(1,
+        terminateWithError(1,
                 "Unable to process system headers from SDK: %s",
                 [classDump.sdkRoot UTF8String]);
     }
@@ -542,7 +542,7 @@ static NSString * resolveSDKPath(NSFileManager * fileManager,
                                  NSString * const sdkIOSOption) {
 
     if ((sdkRootOption != nil) && (sdkIOSOption != nil)) {
-        reportError(1, "Specify only one of --sdk-root or --sdk-ios");
+        terminateWithError(1, "Specify only one of --sdk-root or --sdk-ios");
     }
 
     BOOL specified = YES;
@@ -560,7 +560,7 @@ static NSString * resolveSDKPath(NSFileManager * fileManager,
     }
 
     if (![fileManager fileExistsAtPath:sdkPath]) {
-        reportError(1,
+        terminateWithError(1,
                 "%s SDK does not exist: %s",
                 (specified ? "Specified" : "Default"),
                 [sdkPath UTF8String]);
