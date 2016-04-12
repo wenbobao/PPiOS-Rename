@@ -151,7 +151,6 @@ int main(int argc, char *argv[])
                 { "arch",                    required_argument, NULL, CD_OPT_ARCH }, //needed?
                 { "list-arches",             no_argument,       NULL, CD_OPT_LIST_ARCHES },
                 { "emit-excludes",           required_argument, NULL, PPIOS_OPT_EMIT_EXCLUDES },
-                { "suppress-header",         no_argument,       NULL, 't' },
                 { "version",                 no_argument,       NULL, CD_OPT_VERSION },
                 { "sdk-ios",                 required_argument, NULL, CD_OPT_SDK_IOS },
                 { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
@@ -173,7 +172,7 @@ int main(int argc, char *argv[])
         CDClassDump *classDump = [[CDClassDump alloc] init];
         BOOL hasMode = NO;
 
-        while ( (ch = getopt_long(argc, argv, "F:x:th", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "F:x:h", longopts, NULL)) != -1) {
 
             if(!hasMode) {
                 //should only run on first iteration
@@ -261,11 +260,6 @@ int main(int argc, char *argv[])
                 case 'x':
                     checkOnlyAnalyzeMode("-x", shouldAnalyze);
                     [commandLineExclusionPatterns addObject:[NSString stringWithUTF8String:optarg]];
-                    break;
-
-                case 't':
-                    checkOnlyObfuscateMode("-t", shouldObfuscate);
-                    classDump.shouldShowHeader = NO;
                     break;
 
                 case PPIOS_OPT_EMIT_EXCLUDES:

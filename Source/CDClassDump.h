@@ -15,7 +15,6 @@
 @interface CDClassDump : NSObject
 
 @property (readonly) CDSearchPathState *searchPathState;
-@property (assign) BOOL shouldShowHeader;
 @property (copy, nonatomic) NSArray *forceRecursiveAnalyze;
 
 @property (strong) NSString *sdkRoot;
