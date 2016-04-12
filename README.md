@@ -121,7 +121,7 @@ Once you are comfortable using *PPiOS-Rename,* it can be easier to use if you in
 
 17. Paste the following script, again adjusting for the correct path:
 
-        Path="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.0"
+        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.0"
         ppios-rename --obfuscate-sources
 
 18. Edit the scheme (or add one) for this new target, renaming the scheme to "Obfuscate Sources".

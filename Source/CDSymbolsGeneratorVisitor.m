@@ -235,7 +235,7 @@ static NSString *const lettersSet[maxLettersSet] = {
                          error:&error];
 
     if (error) {
-        NSLog(@"Error: class-guard: unable to write list: %@ reason: %@",
+        NSLog(@"ppios-rename: error: unable to write list: %@ reason: %@",
                 filename,
                 [error localizedFailureReason]);
         exit(1);
