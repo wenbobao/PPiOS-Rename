@@ -336,8 +336,8 @@ ppios-rename --analyze [options] <mach-o-file>
 
   Options:
     --symbols-map <symbols.map>   Path to symbol map file
-    -F <pattern>                  Filter classes/protocols
-    -x <pattern>                  Exclude arbitrary symbols
+    -F '[!]<pattern>'             Filter classes/protocols/categories
+    -x '<pattern>'                Exclude arbitrary symbols
     --arch <arch>                 Specify architecture from universal binary
     --sdk-root <path>             Specify full SDK root path
     --sdk-ios <version>           Specify iOS SDK by version
