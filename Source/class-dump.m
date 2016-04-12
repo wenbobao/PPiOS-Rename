@@ -47,7 +47,6 @@ void print_usage(void)
             "  --arch <arch>                Specify architecture from universal binary\n"
             "  --sdk-root <path>            Specify full SDK root path\n"
             "  --sdk-ios <version>          Specify iOS SDK by version\n"
-            "  --emit-excludes <file>       Emit computed list of excluded symbols\n"
             "\n"
             "Additional options for --obfuscate-sources:\n"
             "  --storyboards <path>         Alternate path for XIBs and storyboards\n"
@@ -140,6 +139,7 @@ int main(int argc, char *argv[])
         NSString *symbolMappingPath = nil;
         NSString * sdkRootOption = nil;
         NSString * sdkIOSOption = nil;
+        NSString * diagnosticFilesPrefix;
 
         int ch;
         BOOL errorFlag = NO;
@@ -269,8 +269,9 @@ int main(int argc, char *argv[])
                     break;
 
                 case PPIOS_OPT_EMIT_EXCLUDES:
-                    checkOnlyAnalyzeMode("-emit-excludes", shouldAnalyze);
-                    classDump.excludedSymbolsListFilename = [NSString stringWithUTF8String:optarg];
+                    // This option is for testing and diagnosis of behavior.
+                    checkOnlyAnalyzeMode("--emit-excludes", shouldAnalyze);
+                    diagnosticFilesPrefix = [NSString stringWithUTF8String:optarg];
                     break;
 
                 case PPIOS_OPT_ANALYZE:
@@ -400,7 +401,7 @@ int main(int argc, char *argv[])
             visitor.classDump = classDump;
             visitor.classFilters = classFilters;
             visitor.exclusionPatterns = exclusionPatterns;
-            visitor.excludedSymbolsListFilename = classDump.excludedSymbolsListFilename;
+            visitor.diagnosticFilesPrefix = diagnosticFilesPrefix;
 
             [classDump recursivelyVisit:visitor];
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];

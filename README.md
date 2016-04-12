@@ -341,7 +341,6 @@ ppios-rename --analyze [options] <mach-o-file>
     --arch <arch>                 Specify architecture from universal binary
     --sdk-root <path>             Specify full SDK root path
     --sdk-ios <version>           Specify iOS SDK by version
-    --emit-excludes <file>        Emit computed list of excluded symbols
 
 ppios-rename --obfuscate-sources [options]
   Alter source code (relative to current working directory), renaming based on the symbol map

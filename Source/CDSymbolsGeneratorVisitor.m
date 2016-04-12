@@ -210,21 +210,18 @@ static NSString *const lettersSet[maxLettersSet] = {
 }
 
 - (void)writeExcludesIfRequested {
-    [[self class] writeListToFileIfRequested:[_excludedSymbolsListFilename stringByAppendingString:@"-forbiddenNames.list"]
-                                     theList:[_forbiddenNames allObjects]];
-    [[self class] writeListToFileIfRequested:[_excludedSymbolsListFilename stringByAppendingString:@"-ignoredSymbols.list"]
-                                     theList:_exclusionPatterns];
-    [[self class] writeListToFileIfRequested:[_excludedSymbolsListFilename stringByAppendingString:@"-classFilters.list"]
-                                     theList:_classFilters];
+    if (!_diagnosticFilesPrefix) {
+        return;
+    }
+
+    [self writeListToFile:@"-classFilters.list" theList:_classFilters];
+    [self writeListToFile:@"-exclusionPatterns.list" theList:_exclusionPatterns];
+    [self writeSetToFile:@"-forbiddenNames.list" theSet:_forbiddenNames];
 }
 
-+ (void)writeListToFileIfRequested:(NSString *)filename
-                           theList:(NSArray *)originalList {
-    if (!filename)
-        return;
+- (void)writeListToFile:(NSString *)suffix theList:(NSArray<NSString *> *)list {
 
-    NSMutableArray<NSString *> * list = [NSMutableArray arrayWithArray:originalList];
-    [list sortUsingSelector:@selector(compare:)];
+    NSString * filename = [_diagnosticFilesPrefix stringByAppendingString:suffix];
 
     NSMutableString * stringBuilder = [NSMutableString new];
     for (NSString * symbol in list) {
@@ -243,6 +240,14 @@ static NSString *const lettersSet[maxLettersSet] = {
                 [error localizedFailureReason]);
         exit(1);
     }
+}
+
+- (void)writeSetToFile:(NSString *)suffix theSet:(NSSet<NSString *> *)set {
+
+    NSMutableArray<NSString *> * list = [NSMutableArray arrayWithArray:[set allObjects]];
+    [list sortUsingSelector:@selector(compare:)];
+
+    [self writeListToFile:suffix theList:list];
 }
 
 + (void)appendDefineTo:(NSMutableString *)stringBuilder
