@@ -29,7 +29,7 @@ NSString *defaultSymbolMappingPath = @"symbols.map";
 void print_usage(void)
 {
     fprintf(stderr,
-            "PreEmptive Protection for iOS - Class Guard, version " CLASS_DUMP_VERSION "\n"
+            "PreEmptive Protection for iOS - Rename, version " CLASS_DUMP_VERSION "\n"
             "\n"
             "Usage:\n"
             "  ppios-rename --analyze [options] <Mach-O file>\n"
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
 
 
         if (shouldPrintVersion) {
-            printf("PreEmptive Protection for iOS - Class Guard, version %s\n", CLASS_DUMP_VERSION);
+            printf("PreEmptive Protection for iOS - Rename, version %s\n", CLASS_DUMP_VERSION);
         } else if (shouldListArches) {
             if(firstArg == nil){
                 reportError(1, "Input file must be specified for --list-arches");

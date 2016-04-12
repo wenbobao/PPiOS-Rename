@@ -1,38 +1,38 @@
-PreEmptive Protection for iOS - Class Guard
+PreEmptive Protection for iOS - Rename
 ===========================================
-*PreEmptive Protection for iOS - Class Guard*, or *PPiOS-CG* for short, is a command-line utility for obfuscating Objective-C class, protocol, property, and methods names, in iOS apps. It is based on [iOS-Class-Guard](https://github.com/Polidea/ios-class-guard) from [Polidea](https://www.polidea.com/), with extensive improvements and modifications.
+*PreEmptive Protection for iOS - Rename*, or *PPiOS-Rename* for short, is a command-line utility for obfuscating Objective-C class, protocol, property, and methods names, in iOS apps. It is based on [iOS-Class-Guard](https://github.com/Polidea/ios-class-guard) from [Polidea](https://www.polidea.com/), with extensive improvements and modifications.
 
-*PPiOS-CG* can be used on its own or alongside [PreEmptive Protection for iOS](https://www.preemptive.com/products/ppios), [PreEmptive Solutions](https://www.preemptive.com/)' product for control-flow obfuscation of iOS apps.
+*PPiOS-Rename* can be used on its own or alongside [PreEmptive Protection for iOS - Control Flow](https://www.preemptive.com/products/ppios), [PreEmptive Solutions](https://www.preemptive.com/)' product for control-flow obfuscation of iOS apps.
 
-*PPiOS-CG* works by generating a special set of `#define` statements (e.g. `#define createArray y09FYzLXv7T`) that automatically rename symbols during compilation. It includes a number of features:
+*PPiOS-Rename* works by generating a special set of `#define` statements (e.g. `#define createArray y09FYzLXv7T`) that automatically rename symbols during compilation. It includes a number of features:
 
 * Analyze a Mach-O binary to identify symbols to be renamed
 * Apply the renaming rules to the project source code
 * Translate an obfuscated crash dump back to un-obfuscated names
 * Generate unobfuscated dSYM files for upload to analytics tools, for automatic stack trace mapping
 
-*PPiOS-CG* works with more than just your project's code. It also automatically finds symbols to exclude from renaming by looking at all external/dependent frameworks and in Core Data (xcdatamodel) files. The renamed symbols will also be applied to your XIB/Storyboard files, and to any open-source CocoaPods libraries in your project.
+*PPiOS-Rename* works with more than just your project's code. It also automatically finds symbols to exclude from renaming by looking at all external/dependent frameworks and in Core Data (xcdatamodel) files. The renamed symbols will also be applied to your XIB/Storyboard files, and to any open-source CocoaPods libraries in your project.
 
-*PPiOS-CG* is licensed under the GNU GPL v2, but commercial support is also available from [PreEmptive Solutions](https://www.preemptive.com/contact/contactus) via a commercial support agreement. Please see LICENSE.txt for details.
+*PPiOS-Rename* is licensed under the GNU GPL v2, but commercial support is also available from [PreEmptive Solutions](https://www.preemptive.com/contact/contactus) via a commercial support agreement. Please see LICENSE.txt for details.
 
 
 How It Works
 ------------
-*PPiOS-CG* is designed to be used in two phases of your build and release process. In the first phase, *PPiOS-CG* analyzes an unobfuscated compiled build of your app, to determine which symbols should be renamed and which should be excluded from renaming. In the second phase, *PPiOS-CG* applies those renaming rules to the **source code** of your app, so that the next build made from that source will be obfuscated. These two phases can be integrated into your build and release processes in a number of ways, including back-to-back.
+*PPiOS-Rename* is designed to be used in two phases of your build and release process. In the first phase, *PPiOS-Rename* analyzes an unobfuscated compiled build of your app, to determine which symbols should be renamed and which should be excluded from renaming. In the second phase, *PPiOS-Rename* applies those renaming rules to the **source code** of your app, so that the next build made from that source will be obfuscated. These two phases can be integrated into your build and release processes in a number of ways, including back-to-back.
 
 ### Phase 1: Analyze
-`ios-class-guard --analyze [--symbols-map symbols.map] <Mach-O binary>`
+`ppios-rename --analyze [--symbols-map symbols.map] <Mach-O binary>`
 
-In this phase, *PPiOS-CG* analyzes the unobfuscated compiled build of your app to determine which symbols should be renamed. It parses all classes, properties, methods and i-vars defined in that file adding all symbols to a "rename list". Then it builds up an "excludes list" with standard reserved words, symbols from dependent frameworks, symbols in Core Data (xcdatamodel) files, and any symbols that have been explicitly excluded via command-line arguments. It them combines those lists to generate a final list of symbols that will be renamed.
+In this phase, *PPiOS-Rename* analyzes the unobfuscated compiled build of your app to determine which symbols should be renamed. It parses all classes, properties, methods and i-vars defined in that file adding all symbols to a "rename list". Then it builds up an "excludes list" with standard reserved words, symbols from dependent frameworks, symbols in Core Data (xcdatamodel) files, and any symbols that have been explicitly excluded via command-line arguments. It them combines those lists to generate a final list of symbols that will be renamed.
 
 For each such symbol, it generates a random identifier, and writes a "map file" (`symbols.map`, by default) with the original names mapped to the new random names. That map file is the final output of the Analyze phase, and is a required input for the next phase, Obfuscate Sources.
 
 > Note: Usually at this point, you should archive the `symbols.map` file. You will need it to be able to un-obfuscate any stack traces generated by builds that were obfuscated based on it.
 
 ### Phase 2: Obfuscate Sources
-`ios-class-guard --obfuscate-sources [--symbols-map symbols.map]`
+`ppios-rename --obfuscate-sources [--symbols-map symbols.map]`
 
-In this phase, *PPiOS-CG* reads in the map file and generates a header file (`symbols.h`, by default) that has `#define`s for each symbol to be renamed. It then finds the appropriate Precompiled Header (`.pch`) files in your source code and adds a `#include` with the path to the header file. Finally, it finds all XIBs/Storyboards in your source tree and directly updates the names inside those files.
+In this phase, *PPiOS-Rename* reads in the map file and generates a header file (`symbols.h`, by default) that has `#define`s for each symbol to be renamed. It then finds the appropriate Precompiled Header (`.pch`) files in your source code and adds a `#include` with the path to the header file. Finally, it finds all XIBs/Storyboards in your source tree and directly updates the names inside those files.
 
 Now, with the source modifications in place, you can build your app as usual. It will be compiled with the obfuscated symbols. (And any open-source CocoaPods will also have their symbols obfuscated.)
 
@@ -41,7 +41,7 @@ Now, with the source modifications in place, you can build your app as usual. It
 
 Supported Platforms
 -------------------
-*PPiOS-CG* supports apps developed for:
+*PPiOS-Rename* supports apps developed for:
 
 * iOS 9
 * iPhone, iPod Touch, and iPad
@@ -57,7 +57,7 @@ Using:
 Installation
 ------------
 
-We suggest downloading one of the binary releases from the [Releases](https://github.com/preemptive/ios-class-guard/releases) page. The archive contains a standalone binary that you can copy to an appropriate place on your system, e.g. `/usr/local/bin`. We suggest ensuring that the location is on your PATH. The release archive also includes other files such as this README, a changelog, and our license.
+We suggest downloading one of the binary releases from the [Releases](https://github.com/preemptive/ppios-rename/releases) page. The archive contains a standalone binary that you can copy to an appropriate place on your system, e.g. `/usr/local/bin`. We suggest ensuring that the location is on your PATH. The release archive also includes other files such as this README, a changelog, and our license.
 
 Project Setup
 -------------
@@ -69,19 +69,19 @@ The basic process is:
 4. Obfuscate the sources
 5. Build the program again
 
-For your first time using *PPiOS-CG,* the following script (adjusted for your project) will perform the Analyze step:
+For your first time using *PPiOS-Rename,* the following script (adjusted for your project) will perform the Analyze step:
 
-    ios-class-guard --analyze /path/to/program.app/program
+    ppios-rename --analyze /path/to/program.app/program
 
 The analyze process generates `symbols.map`, the file containing a symbol mapping that can be used to decode stack traces in the event of a crash. The symbols file created during a build that is released should always be archived for subsequent use.
 
 Then the Obfuscate Sources step can be accomplished with the following:
 
-    ios-class-guard --obfuscate-sources
+    ppios-rename --obfuscate-sources
 
 > Note: The Obfuscate Sources phase modifies the **source code** of your app, but you should not check in the changes it makes. If you do so, it will cause errors the next time you need to perform the Analyze phase, and will cause issues with Storyboards in the IDE. We recommend only using the Obfuscate Sources phase in your release (or automated) build process, and you should always clean/reset your source tree after the build, before doing any further development.
 
-Once you are comfortable using *PPiOS-CG,* it can be easier to use if you integrate it into your Xcode project as part of the build process. This can be set up with the following process:
+Once you are comfortable using *PPiOS-Rename,* it can be easier to use if you integrate it into your Xcode project as part of the build process. This can be set up with the following process:
 
 1. Open the project in Xcode.
 
@@ -101,9 +101,9 @@ Once you are comfortable using *PPiOS-CG,* it can be easier to use if you integr
 
 9. Where it says "Type a script or ...", paste the following script, adjusting for the correct path:
 
-        PATH="${PATH}:${HOME}/Downloads/PPiOS-ClassGuard-v1.0.0"
+        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.0"
         [[ "${SDKROOT}" == *iPhoneSimulator*.sdk* ]] && sdk="${SDKROOT}" || sdk="${CORRESPONDING_SIMULATOR_SDK_DIR}"
-        ios-class-guard --analyze --sdk-root "${sdk}" "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}"
+        ppios-rename --analyze --sdk-root "${sdk}" "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}"
 
 10. Go to Product | Scheme | Manage Schemes.
 
@@ -121,8 +121,8 @@ Once you are comfortable using *PPiOS-CG,* it can be easier to use if you integr
 
 17. Paste the following script, again adjusting for the correct path:
 
-        Path="${PATH}:${HOME}/Downloads/PPiOS-ClassGuard-v1.0.0"
-        ios-class-guard --obfuscate-sources
+        Path="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.0"
+        ppios-rename --obfuscate-sources
 
 18. Edit the scheme (or add one) for this new target, renaming the scheme to "Obfuscate Sources".
 
@@ -148,11 +148,11 @@ Once the sources are obfuscated, the process of building and testing for differe
 If you modify the original build target or scheme, be sure to delete and recreate the Build and Analyze target as above. Under certain conditions, the Obfuscate Sources target and scheme will need to be recreated as well.
 
 
-Using PPiOS-CG with PPiOS
+Using PPiOS-Rename with PPiOS-ControlFlow
 -------------------------
-*PreEmptive Protection for iOS - Class Guard* (*PPiOS-CG)* provides the "renaming" obfuscation, which is the most-common type of obfuscation typically applied to applications to help protect them from reverse engineering, intellectual property theft, software piracy, tampering, and data loss. There are additional obfuscation techniques, however, that are critically important for serious protection of apps. [PreEmptive Solutions](https://www.preemptive.com/) offers another product, simply named [PreEmptive Protection for iOS](https://www.preemptive.com/products/ppios), that includes multiple additional obfuscation transforms. *PPiOS-CG* is meant to work alongside *PPiOS*; together they provide much better protection than either one alone can provide.
+*PreEmptive Protection for iOS - Rename* (*PPiOS-Rename)* provides the "renaming" obfuscation, which is the most-common type of obfuscation typically applied to applications to help protect them from reverse engineering, intellectual property theft, software piracy, tampering, and data loss. There are additional obfuscation techniques, however, that are critically important for serious protection of apps. [PreEmptive Solutions](https://www.preemptive.com/) offers another product, named [PreEmptive Protection for iOS - Control Flow](https://www.preemptive.com/products/ppios), that includes multiple additional obfuscation transforms. *PPiOS-Rename* is meant to work alongside *PPiOS-ControlFlow*; together they provide much better protection than either one alone can provide.
 
-If you have both *PPiOS-CG* and *PPiOS*, no special instructions are required for using them together. Set each one up according to its documentation, and they will each perform their obfuscation without affecting the other.
+If you have both *PPiOS-rename* and *PPiOS-ControlFlow*, no special instructions are required for using them together. Set each one up according to its documentation, and they will each perform their obfuscation without affecting the other.
 
 Troubleshooting
 ---------------
@@ -162,13 +162,13 @@ During the Obfuscate Sources phase, you may get an error:
 
     Error: could not find any *-Prefix.pch files under .
 
-This is because *PPiOS-CG* is attempting to add an `#include` to a Precompiled Header file, and it can't find a suitable file to add it to. This is typically because projects created in Xcode 6 and above don't contain a `.pch` file by default.
+This is because *PPiOS-Rename* is attempting to add an `#include` to a Precompiled Header file, and it can't find a suitable file to add it to. This is typically because projects created in Xcode 6 and above don't contain a `.pch` file by default.
 
 To fix this, add a `.pch` file as follows:
 
 1. In Xcode go to *File -> New -> File -> iOS -> Other -> PCH File*.
 
-2. Name the file e.g. `MyProject-Prefix.pch`. *PPiOS-CG* looks for a file matching `*-Prefix.pch`.
+2. Name the file e.g. `MyProject-Prefix.pch`. *PPiOS-Rename* looks for a file matching `*-Prefix.pch`.
 
 3. At the target's *Build Settings*, in *Apple LLVM - Language* section, set **Prefix Header** to your PCH file name.
 
@@ -185,7 +185,7 @@ During the build, after the Obfuscate Source phase, you may see errors like this
 
 You might also see `unresolved external` linker errors, e.g. if you used a C function and named an Objective-C method using the same name.
 
-These errors usually mean that *PPiOS-CG* obfuscated a symbol that needs to be excluded for some reason. You can find the symbol by searching `symbols.map` or `symbols.h` for the referenced symbol (`n9z`, in this example) to see what the original name was. Then you can exclude the symbol via command-line arguments to the Analyze phase, via one of the two mechanisms below.
+These errors usually mean that *PPiOS-Rename* obfuscated a symbol that needs to be excluded for some reason. You can find the symbol by searching `symbols.map` or `symbols.h` for the referenced symbol (`n9z`, in this example) to see what the original name was. Then you can exclude the symbol via command-line arguments to the Analyze phase, via one of the two mechanisms below.
 
 In this example, if `n9z` had mapped to `PSSomeClass`, you would add `-F '!PSSomeClass'` to your arguments when running `--analyze`.
 
@@ -316,14 +316,14 @@ Note that nm will not work properly after stripping symbols from your binary. Yo
 
 
 #### Reversing obfuscation in crash dumps
-*PPiOS-CG* lets you reverse the process of obfuscation for crash dump files. This is important so you can find the original classes and methods involved in a crash. It does this by using the information from a map file (e.g. `symbols.map`) to modify the crash dump text, replacing the obfuscated symbols with the original names. For example:
+*PPiOS-Rename* lets you reverse the process of obfuscation for crash dump files. This is important so you can find the original classes and methods involved in a crash. It does this by using the information from a map file (e.g. `symbols.map`) to modify the crash dump text, replacing the obfuscated symbols with the original names. For example:
 
-    ios-class-guard --translate-crashdump --symbols-map path/to/symbols_1.0.0.map path/to/crashdump path/to/output
+    ppios-rename --translate-crashdump --symbols-map path/to/symbols_1.0.0.map path/to/crashdump path/to/output
 
 #### Reversing obfuscation in dSYMs
-*PPiOS-CG* lets you reverse the process of obfuscation for automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
+*PPiOS-Rename* lets you reverse the process of obfuscation for automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
 
-    ios-class-guard --translate-dsym --symbols-map path/to/symbols_1.0.0.map path/to/input.dSYM path/to/output.dSYM
+    ppios-rename --translate-dsym --symbols-map path/to/symbols_1.0.0.map path/to/input.dSYM path/to/output.dSYM
 
 The resulting dSYM file can be uploaded to e.g. HockeyApp.
 
@@ -331,7 +331,7 @@ The resulting dSYM file can be uploaded to e.g. HockeyApp.
 Command Line Argument Reference
 -------------------------------
 ```
-ios-class-guard --analyze [options] <mach-o-file>
+ppios-rename --analyze [options] <mach-o-file>
   Analyze a Mach-O binary and generate a symbol map
 
   Options:
@@ -343,7 +343,7 @@ ios-class-guard --analyze [options] <mach-o-file>
     --sdk-ios <version>           Specify iOS SDK by version
     --emit-excludes <file>        Emit computed list of excluded symbols
 
-ios-class-guard --obfuscate-sources [options]
+ppios-rename --obfuscate-sources [options]
   Alter source code (relative to current working directory), renaming based on the symbol map
 
   Options:
@@ -351,25 +351,25 @@ ios-class-guard --obfuscate-sources [options]
     --storyboards <path>          Alternate path for XIBs and storyboards
     --symbols-header <symbols.h>  Path to obfuscated symbol header file
 
-ios-class-guard --translate-crashdump [options] <input crash dump file> <output crash dump file>
+ppios-rename --translate-crashdump [options] <input crash dump file> <output crash dump file>
   Translate symbolicated crash dump
 
   Options:
     --symbols-map <symbols.map>   Path to symbol map file
 
-ios-class-guard --translate-dsym [options] <input dir> <output dir>
+ppios-rename --translate-dsym [options] <input dir> <output dir>
   Translates dsym with obfuscated symbols to dsym with unobfuscated symbols
 
   Options:
     --symbols-map <symbols.map>   Path to symbol map file
 
-ios-class-guard --list-arches <mach-o-file>
+ppios-rename --list-arches <mach-o-file>
   List architectures available in a fat binary
 
-ios-class-guard --version
+ppios-rename --version
   Print out version information
 
-ios-class-guard --help
+ppios-rename --help
   Print out usage information
 ```
 
