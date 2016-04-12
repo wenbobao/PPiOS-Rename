@@ -2,10 +2,9 @@
 
 
 @interface CDSymbolsGeneratorVisitor : CDVisitor
-@property (nonatomic, copy) NSArray *classFilters;
-@property (nonatomic, copy) NSArray *ignoreSymbols;
+@property (nonatomic, copy) NSArray<NSString *> * classFilters;
+@property (nonatomic, copy) NSArray<NSString *> * exclusionPatterns;
 @property (nonatomic, readonly) NSDictionary *symbols;
-@property(nonatomic, copy) NSString *symbolsFilePath;
 @property (nonatomic, copy) NSString * excludedSymbolsListFilename;
 - (void)addSymbolsPadding;
 

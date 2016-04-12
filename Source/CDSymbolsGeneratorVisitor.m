@@ -168,7 +168,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     NSLog(@"Methods = %ld", _methodNames.count);
     NSLog(@"I-vars = %ld", _ivarNames.count);
     NSLog(@"Filters = %ld", _classFilters.count);
-    NSLog(@"Ignore symbol patterns = %ld", _ignoreSymbols.count);
+    NSLog(@"Ignore symbol patterns = %ld", _exclusionPatterns.count);
     NSLog(@"Forbidden keywords = %ld", _forbiddenNames.count);
 
     [self writeExcludesIfRequested];
@@ -213,7 +213,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     [[self class] writeListToFileIfRequested:[_excludedSymbolsListFilename stringByAppendingString:@"-forbiddenNames.list"]
                                      theList:[_forbiddenNames allObjects]];
     [[self class] writeListToFileIfRequested:[_excludedSymbolsListFilename stringByAppendingString:@"-ignoredSymbols.list"]
-                                     theList:_ignoreSymbols];
+                                     theList:_exclusionPatterns];
     [[self class] writeListToFileIfRequested:[_excludedSymbolsListFilename stringByAppendingString:@"-classFilters.list"]
                                      theList:_classFilters];
 }
@@ -620,7 +620,7 @@ static NSString *const lettersSet[maxLettersSet] = {
         return YES;
     }
 
-    for (NSString *filter in self.ignoreSymbols) {
+    for (NSString *filter in self.exclusionPatterns) {
         if ([symbolName isLike:filter]) {
             return YES;
         }
