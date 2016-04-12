@@ -14,9 +14,10 @@ DIST_DIR=$(PROJECT_NAME)-$(VERSION)
 FULL_VERSION=$(VERSION)$(GIT_HASH)$(BUILD_NUMBER)
 ARCHIVE_DIR=$(FULL_VERSION)
 DIST_PACKAGE=$(ARCHIVE_DIR)/$(PROJECT_NAME)-$(FULL_VERSION).tgz
+WORKSPACE=ppios-rename.xcworkspace
 
 XCODEBUILD_OPTIONS=\
-	-workspace ppios-rename.xcworkspace \
+	-workspace $(WORKSPACE) \
 	-scheme ppios-rename \
 	-configuration Release \
 	-derivedDataPath $(BUILD_DIR) \
@@ -27,13 +28,13 @@ XCODEBUILD_OPTIONS=\
 default: all
 
 .PHONY: all
-all: Pods program
+all: Pods $(WORKSPACE) program
 
 # convenience target
 .PHONY: it
 it: clean all check
 
-Pods Podfile.lock: Podfile
+$(WORKSPACE) Pods Podfile.lock: Podfile
 	pod install
 
 .PHONY: program
