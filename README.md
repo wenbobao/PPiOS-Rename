@@ -17,7 +17,6 @@ PreEmptive Protection for iOS - Rename
 
 > DEVELOPER NOTE: This fork includes a substantial rewrite of the git history, to fix [a corrupted commit in the original class-dump repo](https://github.com/nygard/class-dump/commit/509591f78f37905913ba0cbd832e5e4f7b925a8a). More details are in [the changelog](CHANGELOG.md).
 
-
 How It Works
 ------------
 *PPiOS-Rename* is designed to be used in two phases of your build and release process. In the first phase, *PPiOS-Rename* analyzes an unobfuscated compiled build of your app, to determine which symbols should be renamed and which should be excluded from renaming. In the second phase, *PPiOS-Rename* applies those renaming rules to the **source code** of your app, so that the next build made from that source will be obfuscated. These two phases can be integrated into your build and release processes in a number of ways, including back-to-back.
@@ -187,38 +186,43 @@ During the build, after the Obfuscate Source phase, you may see errors like this
 
 You might also see `unresolved external` linker errors, e.g. if you used a C function and named an Objective-C method using the same name.
 
-These errors usually mean that *PPiOS-Rename* obfuscated a symbol that needs to be excluded for some reason. You can find the symbol by searching `symbols.map` or `symbols.h` for the referenced symbol (`n9z`, in this example) to see what the original name was. Then you can exclude the symbol via command-line arguments to the Analyze phase, via one of the two mechanisms below.
+These errors usually mean that *PPiOS-Rename* obfuscated a symbol that needs to be excluded for some reason. You can find the symbol by searching `symbols.map` or `symbols.h` for the referenced symbol (`n9z`, in this example) to see what the original name was. Then you can exclude the symbol via command-line arguments to the Analyze phase, via `-F` or `-x`, described below.
 
 In this example, if `n9z` had mapped to `PSSomeClass`, you would add `-F '!PSSomeClass'` to your arguments when running `--analyze`.
 
-#### Class / Protocol filter
-You can exclude an entire class or protocol by using the `-F` option in the Analyze phase. For example:
+#### Filter Classes, Protocols, and/or Categories
+The `-F` argument defines a filter against which class, protocol, and category names will be matched. The argument to `-F` is a glob pattern supporting `*` (any number of any character) and `?` (any single character). If the first character of the pattern is a `!` then the filter will _exclude_ any matching classes, protocols, and categories. If the first character is _not_ a `!`, then the filter will _include_ any matching classes, protocols, and categories.
 
-    -F '!APH*' -F '!MC*' -F '!F?Box'
+The default filter is equivalent to `-F '*'` and the system behaves as if it is always the first filter specified. Additional filters can be specified on the command line, and each one overrides the rules from the ones that came before. For example:
 
-This will filter out any class in namespaces `APH` and `MC`. It will also filter out every class in namespaces that start with `F` and have a class name of `Box`.
+    -F '!A?H*' -F 'ATH*'
 
-`?` matches any single character, while `*` matches any number of characters.
+This will filter out all classes, protocols, and categories that start with an A, have any next character, then have an H, **except** for classes, protocols, and categories that specifically start with "ATH". All other classes will be "filtered in" by the default rule.
+
+Filter patterns are case sensitive, so `-F ABC` will match differently than `-F abc`. There is basic support for character classes, so you can match either with e.g. `-F [Aa][Bb][Cc]`.
+
+#### Exclusion propagation
+When excluding items via `-F`, if the excluded item matches a class or protocol name, then additional exclusions may be applied based on that name.
+
+For example, if a class name is excluded, then the following will also be excluded (assuming ClassName is the class name):
+
+1. ClassNameProtocol
+2. ClassNameDelegate
+3. All of the methods and properties defined within the class
+
+Also see the section below about property name exclusions.
 
 #### Symbol filter
 You can exclude specific symbols by using the `-x` argument in the Analyze phase. For example:
 
     -x 'deflate' -x 'curl_*'
 
-This will filter out symbols named *deflate* and symbols that start with *curl_*.
+This will exclude symbols named *deflate* and symbols that start with *curl_*.
 
 `?` matches any single character, while `*` matches any number of characters.
 
-#### Exclusion propagation
-When excluding items using either `-x` or `-F`, if the excluded item matches a class or protocol name, then this can lead to a cascade effect of exclusions. If a class is excluded, then it will also exclude all of the class's methods and properties. This can extend to names of protocol methods/properties.
-
-For example, if a class name is excluded, then the following is also excluded (assuming ClassName is the class name):
-
-1. ClassNameProtocol
-2. ClassNameDelegate
-3. All of the methods and properties defined within the class
-
-When excluding properties, the following names are also excluded (assuming the propery name is `propertyName`):
+#### Property name exclusions
+When excluding properties (either via `-x` or via propagation from `-F`), the following names are also excluded (assuming the propery name is `propertyName`):
 
 1. _propertyName
 2. setPropertyName
