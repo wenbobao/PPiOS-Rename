@@ -15,6 +15,8 @@ PreEmptive Protection for iOS - Rename
 
 *PPiOS-Rename* is licensed under the GNU GPL v2, but commercial support is also available from [PreEmptive Solutions](https://www.preemptive.com/contact/contactus) via a commercial support agreement. Please see LICENSE.txt for details.
 
+> DEVELOPER NOTE: This fork includes a substantial rewrite of the git history, to fix [a corrupted commit in the original class-dump repo](https://github.com/nygard/class-dump/commit/509591f78f37905913ba0cbd832e5e4f7b925a8a). More details are in [the changelog](CHANGELOG.md).
+
 
 How It Works
 ------------
