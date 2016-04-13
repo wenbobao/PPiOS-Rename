@@ -53,6 +53,7 @@
 		D0CFE68D1CBD6F4E00E18918 /* BoxSimUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BoxSimUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0CFE6911CBD6F4E00E18918 /* BoxSimUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BoxSimUITests.m; sourceTree = "<group>"; };
 		D0CFE6931CBD6F4E00E18918 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D0DD05F51CBEBDE5008E03DC /* BoxSim-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BoxSim-Prefix.pch"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +84,7 @@
 		D0CFE65D1CBD6F4E00E18918 = {
 			isa = PBXGroup;
 			children = (
+				D0DD05F51CBEBDE5008E03DC /* BoxSim-Prefix.pch */,
 				D0CFE6681CBD6F4E00E18918 /* BoxSim */,
 				D0CFE6851CBD6F4E00E18918 /* BoxSimTests */,
 				D0CFE6901CBD6F4E00E18918 /* BoxSimUITests */,
@@ -357,6 +359,8 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BoxSim-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -399,6 +403,8 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BoxSim-Prefix.pch";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -502,6 +508,7 @@
 				D0CFE6981CBD6F4E00E18918 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D0CFE6991CBD6F4E00E18918 /* Build configuration list for PBXNativeTarget "BoxSimTests" */ = {
 			isa = XCConfigurationList;
@@ -510,6 +517,7 @@
 				D0CFE69B1CBD6F4E00E18918 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D0CFE69C1CBD6F4E00E18918 /* Build configuration list for PBXNativeTarget "BoxSimUITests" */ = {
 			isa = XCConfigurationList;
@@ -518,6 +526,7 @@
 				D0CFE69E1CBD6F4E00E18918 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
