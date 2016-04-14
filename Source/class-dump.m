@@ -28,6 +28,7 @@ void print_usage(void)
 {
     fprintf(stderr,
             "PreEmptive Protection for iOS - Rename, version " CLASS_DUMP_VERSION "\n"
+            "www.preemptive.com\n"
             "\n"
             "Usage:\n"
             "  ppios-rename --analyze [options] <Mach-O file>\n"
