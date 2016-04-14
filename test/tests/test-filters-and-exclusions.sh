@@ -285,4 +285,22 @@ toList symbols.map list
 verifyFails grep '^BSClassH$' list
 verify grep '^methodH$' list
 
+TEST "Excluding a property with -x removes all variants from symbols.map"
+run ppios-rename --analyze "${program}"
+toList symbols.map list
+verify grep '^isSquaredA$' list
+verify grep '^_squaredA$' list
+verify grep '^setIsSquaredA$' list
+verify grep '^_isSquaredA$' list
+verify grep '^setSquaredA$' list
+verify grep '^squaredA$' list
+run ppios-rename --analyze -x squaredA --emit-excludes excludes "${program}"
+toList symbols.map list
+verifyFails grep '^isSquaredA$' list
+verifyFails grep '^_squaredA$' list
+verifyFails grep '^setIsSquaredA$' list
+verifyFails grep '^_isSquaredA$' list
+verifyFails grep '^setSquaredA$' list
+verifyFails grep '^squaredA$' list
+
 report
