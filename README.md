@@ -191,20 +191,20 @@ These errors usually mean that *PPiOS-Rename* obfuscated a symbol that needs to 
 In this example, if `n9z` had mapped to `PSSomeClass`, you would add `-F '!PSSomeClass'` to your arguments when running `--analyze`.
 
 #### Filter Classes, Protocols, and/or Categories
-The `-F` argument defines a filter against which class, protocol, and category names will be matched. The argument to `-F` is a glob pattern supporting `*` (any number of any character) and `?` (any single character). If the first character of the pattern is a `!` then the filter will _exclude_ any matching classes, protocols, and categories. If the first character is _not_ a `!`, then the filter will _include_ any matching classes, protocols, and categories.
+The `-F` option defines a filter against which class, protocol, and category names will be matched. The argument to `-F` is a glob pattern supporting `*` (any number of any character) and `?` (any single character). If the first character of the pattern is a `!` then the filter will _exclude_ any matching classes, protocols, and categories. If the first character is _not_ a `!`, then the filter will _include_ any matching classes, protocols, and categories.
 
 The default filter is equivalent to `-F '*'` and the system behaves as if it is always the first filter specified. Additional filters can be specified on the command line, and each one overrides the rules from the ones that came before. For example:
 
     -F '!A?H*' -F 'ATH*'
 
-This will filter out all classes, protocols, and categories that start with an A, have any next character, then have an H, **except** for classes, protocols, and categories that specifically start with "ATH". All other classes will be "filtered in" by the default rule.
+This will filter out all classes, protocols, and categories that start with an "A", have any next character, then have an "H", **except** for classes, protocols, and categories that specifically start with "ATH". All other classes will be "filtered in" by the default rule.
 
-Filter patterns are case sensitive, so `-F ABC` will match differently than `-F abc`. There is basic support for character classes, so you can match either with e.g. `-F [Aa][Bb][Cc]`.
+Filter patterns are case sensitive, so `-F ABC` will match differently than `-F abc`. There is basic support for character classes, so you can match either with e.g. `-F '[Aa][Bb][Cc]'`.
 
 #### Exclusion propagation
-When excluding items via `-F`, if the excluded item matches a class or protocol name, then additional exclusions may be applied based on that name.
+When excluding items via `-F`, if the excluded item matches a class, protocol, or category name, then additional exclusions may be applied based on that name.
 
-For example, if a class name is excluded, then the following will also be excluded (assuming ClassName is the class name):
+For example, if a class name is excluded, then the following will also be excluded (assuming "ClassName" is the class name):
 
 1. ClassNameProtocol
 2. ClassNameDelegate
@@ -295,10 +295,10 @@ Remove any *keyPath* and change it to `NSStringFromSelector(@selector(keyPath))`
 If you use serialization (e.g. `NSCoding` or `NSUserDefaults`), affected classes will have to be excluded from obfuscation. If you don't, then you won't be able to generate new symbols (i.e. the Analyze phase) without breaking deserialization of existing data.
 
 ### "Double obfuscation detected" error
-This error happens when `--obfuscate-sources` is used on the same source tree twice. This can result in your application not being obfuscated. Make sure that the source tree is always reset to an unmodified state before using `--obfuscate-sources`. 
+This error happens when `--obfuscate-sources` is used on the same source tree twice. This can result in your application not being obfuscated. Make sure that the source tree is always reset to an unmodified state before using `--obfuscate-sources`.
 
 ### "Analyzing an already obfuscated binary" error
-This error happens when `--analyze` is used on an already obfuscated binary. This can result in your application not being obfuscated. Make sure that your program is always rebuilt from clean and non-obfuscated source code before attempting to run the analysis process. 
+This error happens when `--analyze` is used on an already obfuscated binary. This can result in your application not being obfuscated. Make sure that your program is always rebuilt from clean and non-obfuscated source code before attempting to run the analysis process.
 
 
 Advanced Topics
@@ -310,13 +310,11 @@ To verify that your app has been obfuscated, use the `nm` utility, which is incl
 
     nm path/to/your/binary | less
 
-to see the symbols from your app. If you do this with an unobfuscated build, you will see the orginal symbols. If you do this with an obfuscated build, you will see obfuscated symbols. Note that nm will not work properly after stripping symbols from your binary. You can use the `otool` utility if you need to check for the Objective-C symbols after stripping. 
+This will show the symbols from your app. If you do this with an unobfuscated build, you will see the orginal symbols. If you do this with an obfuscated build, you will see obfuscated symbols.
 
-`otool` will print out unneeded information, but it can be filtered using `grep` and `awk` to only print out symbols:
+Note that `nm` will not work properly after stripping symbols from your binary. You can use the `otool` utility if you need to check for the Objective-C symbols after stripping.
 
-    otool -o /path/to/your/binary | grep 'name 0x' | awk '{print $3}' | sort | uniq
-
-Note that nm will not work properly after stripping symbols from your binary. You can use the `otool` utility if you need to check for the Objective-C symbols after stripping. `otool` will print out unneeded information, but it can be filtered using `grep` and `awk` to only print out symbols:
+`otool` will show unneeded information, but it can be filtered using `grep` and `awk` to only show symbols:
 
     otool -o /path/to/your/binary | grep 'name 0x' | awk '{print $3}' | sort | uniq
 
