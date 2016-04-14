@@ -35,7 +35,7 @@
     
     if (data.length) {
         NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSMutableSet * set = [NSMutableSet setWithArray:[output componentsSeparatedByString:@"\n"]];
+        NSMutableSet *set = [NSMutableSet setWithArray:[output componentsSeparatedByString:@"\n"]];
 
         // It is possible that this approach to finding the protocols may result in the empty string
         // being spuriously included in the list.  Remove it.

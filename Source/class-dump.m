@@ -20,7 +20,7 @@
 
 NSString *defaultSymbolMappingPath = @"symbols.map";
 
-static NSString * const SDK_PATH_PATTERN
+static NSString *const SDK_PATH_PATTERN
         = @"/Applications/Xcode.app/Contents/Developer"
                 @"/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%@.sdk";
 
@@ -69,18 +69,17 @@ void print_usage(void)
 #define PPIOS_OPT_EMIT_EXCLUDES 14
 static char* programName;
 
-static NSString * resolveSDKPath(NSFileManager * fileManager,
-                                 NSString * const sdkRootOption,
-                                 NSString * const sdkIOSOption);
+static NSString *resolveSDKPath(NSFileManager *fileManager,
+                                NSString *const sdkRootOption,
+                                NSString *const sdkIOSOption);
 
-static NSArray<NSString *> * assembleClassFilters(
-        CDClassDump * classDump,
-        NSArray<NSString *> * commandLineClassFilters);
+static NSArray<NSString *> *assembleClassFilters(CDClassDump *classDump,
+                                                 NSArray<NSString *> *commandLineClassFilters);
 
-static NSArray<NSString *> * assembleExclusionPatterns(
-        NSArray<NSString *> * commandLineExclusionPatterns);
+static NSArray<NSString *> *assembleExclusionPatterns(
+        NSArray<NSString *> *commandLineExclusionPatterns);
 
-void printWithFormat(FILE * restrict stream, const char * restrict format, va_list args) {
+void printWithFormat(FILE *restrict stream, const char *restrict format, va_list args) {
     fprintf(stream, "%s: ", programName);
     vfprintf(stream, format, args);
     fprintf(stream, "\n");
@@ -95,7 +94,7 @@ void terminateWithError(int exitCode, const char *format, ...){
     exit(exitCode);
 }
 
-void reportWarning(const char * restrict format, ...) {
+void reportWarning(const char *restrict format, ...) {
     va_list args;
     va_start(args, format);
     printWithFormat(stderr, format, args);
@@ -123,7 +122,7 @@ void checkOnlyObfuscateMode(char* flag, BOOL obfuscate){
 int main(int argc, char *argv[])
 {
     @autoreleasepool {
-        NSFileManager * fileManager = [NSFileManager defaultManager];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
         BOOL shouldAnalyze = NO;
         BOOL shouldObfuscate = NO;
         BOOL shouldListArches = NO;
@@ -133,14 +132,14 @@ int main(int argc, char *argv[])
         BOOL shouldShowUsage = NO;
         CDArch targetArch;
         BOOL hasSpecifiedArch = NO;
-        NSMutableArray * commandLineClassFilters = [NSMutableArray new];
-        NSMutableArray * commandLineExclusionPatterns = [NSMutableArray new];
+        NSMutableArray *commandLineClassFilters = [NSMutableArray new];
+        NSMutableArray *commandLineExclusionPatterns = [NSMutableArray new];
         NSString *xibBaseDirectory = nil;
         NSString *symbolsPath = nil;
         NSString *symbolMappingPath = nil;
-        NSString * sdkRootOption = nil;
-        NSString * sdkIOSOption = nil;
-        NSString * diagnosticFilesPrefix;
+        NSString *sdkRootOption = nil;
+        NSString *sdkIOSOption = nil;
+        NSString *diagnosticFilesPrefix;
 
         int ch;
         BOOL errorFlag = NO;
@@ -232,7 +231,7 @@ int main(int argc, char *argv[])
 
                 case 'F': {
                     checkOnlyAnalyzeMode("-F", shouldAnalyze);
-                    NSString * value = [NSString stringWithUTF8String:optarg];
+                    NSString *value = [NSString stringWithUTF8String:optarg];
                     if ((commandLineClassFilters.count == 0) && ![value hasPrefix:@"!"]) {
                         reportWarning("Warning: include filters without a preceding exclude filter "
                                 "have no effect");
@@ -387,9 +386,9 @@ int main(int argc, char *argv[])
 
             [classDump processObjectiveCData];
             [classDump registerTypes];
-            NSArray<NSString *> * classFilters
+            NSArray<NSString *> *classFilters
                     = assembleClassFilters(classDump, commandLineClassFilters);
-            NSArray<NSString *> * exclusionPatterns
+            NSArray<NSString *> *exclusionPatterns
                     = assembleExclusionPatterns(commandLineExclusionPatterns);
 
             CDSymbolsGeneratorVisitor *visitor = [CDSymbolsGeneratorVisitor new];
@@ -481,18 +480,17 @@ int main(int argc, char *argv[])
     }
 }
 
-static NSArray<NSString *> * assembleClassFilters(
-        CDClassDump * classDump,
-        NSArray<NSString *> * commandLineClassFilters) {
+static NSArray<NSString *> *assembleClassFilters(CDClassDump *classDump,
+                                                 NSArray<NSString *> *commandLineClassFilters) {
 
     // process CoreData schema
-    CDCoreDataModelProcessor * coreDataModelProcessor = [CDCoreDataModelProcessor new];
-    NSArray<NSString *> * coreDataClasses = [coreDataModelProcessor coreDataModelSymbolsToExclude];
+    CDCoreDataModelProcessor *coreDataModelProcessor = [CDCoreDataModelProcessor new];
+    NSArray<NSString *> *coreDataClasses = [coreDataModelProcessor coreDataModelSymbolsToExclude];
 
     // scan for system protocols
-    CDSystemProtocolsProcessor * systemProtocolsProcessor
+    CDSystemProtocolsProcessor *systemProtocolsProcessor
             = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.sdkRoot];
-    NSArray<NSString *> * systemProtocols
+    NSArray<NSString *> *systemProtocols
             = [systemProtocolsProcessor systemProtocolsSymbolsToExclude];
     if (systemProtocols == nil) {
         terminateWithError(1,
@@ -501,7 +499,7 @@ static NSArray<NSString *> * assembleClassFilters(
     }
 
     // assemble the class filters
-    NSMutableArray<NSString *> * classFilters = [NSMutableArray new];
+    NSMutableArray<NSString *> *classFilters = [NSMutableArray new];
 
     // Filter out system classes, including auto-generated entities like
     // __ARCLiteKeyedSubscripting__ and __ARCLiteIndexedSubscripting__.
@@ -509,7 +507,7 @@ static NSArray<NSString *> * assembleClassFilters(
 
     // Exclude the system protocols as class filters, so that they are noted with "Ignoring"
     // on the command-line output.
-    for (NSString * protocolName in systemProtocols) {
+    for (NSString *protocolName in systemProtocols) {
         [classFilters addObject:[@"!" stringByAppendingString:protocolName]];
     }
 
@@ -522,10 +520,10 @@ static NSArray<NSString *> * assembleClassFilters(
     return classFilters;
 }
 
-static NSArray<NSString *> * assembleExclusionPatterns(
-        NSArray<NSString *> * commandLineExclusionPatterns) {
+static NSArray<NSString *> *assembleExclusionPatterns(
+        NSArray<NSString *> *commandLineExclusionPatterns) {
 
-    NSMutableArray<NSString *> * exclusionPatterns = [NSMutableArray new];
+    NSMutableArray<NSString *> *exclusionPatterns = [NSMutableArray new];
 
     // Explicitly exclude system symbols like: .cxx_destruct
     [exclusionPatterns addObject:@".*"];
@@ -538,18 +536,18 @@ static NSArray<NSString *> * assembleExclusionPatterns(
     return exclusionPatterns;
 }
 
-static NSString * resolveSDKPath(NSFileManager * fileManager,
-                                 NSString * const sdkRootOption,
-                                 NSString * const sdkIOSOption) {
+static NSString *resolveSDKPath(NSFileManager *fileManager,
+                                NSString *const sdkRootOption,
+                                NSString *const sdkIOSOption) {
 
     if ((sdkRootOption != nil) && (sdkIOSOption != nil)) {
         terminateWithError(1, "Specify only one of --sdk-root or --sdk-ios");
     }
 
     BOOL specified = YES;
-    NSString * sdkPath;
+    NSString *sdkPath;
     if (sdkRootOption == nil) {
-        NSString * version = sdkIOSOption;
+        NSString *version = sdkIOSOption;
         if (version == nil) {
             specified = NO;
             version = @"";

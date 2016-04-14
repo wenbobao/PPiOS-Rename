@@ -31,8 +31,8 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
         return self;
     }
 
-    NSString * currentDirectory = [[NSFileManager new] currentDirectoryPath];
-    NSString * filename = [NSString stringWithFormat:@"%@/%@", currentDirectory, self];
+    NSString *currentDirectory = [[NSFileManager new] currentDirectoryPath];
+    NSString *filename = [NSString stringWithFormat:@"%@/%@", currentDirectory, self];
     filename = [filename stringByStandardizingPath];
     return filename;
 }
@@ -79,7 +79,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     CDArch _targetArch;
 }
 
-static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
+static NSDictionary<NSValue *, NSArray<NSValue *> *> *supportedArches = nil;
 
 + (NSValue *)archFor:(NSString *)name
 {
@@ -90,7 +90,7 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
            forArch:(NSString *)arch
         candidates:(NSString *)first, ... // "candidates" not "alternatives", since it could be same
 {
-    NSMutableArray * candidateArray = [NSMutableArray new];
+    NSMutableArray *candidateArray = [NSMutableArray new];
     [candidateArray addObject:[self archFor:first]];
 
     id candidate;
@@ -107,7 +107,7 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
 + (NSDictionary<NSValue *, NSArray<NSValue *> *> *)getSupportedArches
 {
     if (supportedArches == nil) {
-        NSMutableDictionary<NSValue *, NSArray<NSValue *> *> * arches = [NSMutableDictionary new];
+        NSMutableDictionary<NSValue *, NSArray<NSValue *> *> *arches = [NSMutableDictionary new];
         [self addEntryTo:arches forArch:@"armv7" candidates:@"armv7", @"x86_64", @"i386", nil];
         [self addEntryTo:arches forArch:@"armv7s" candidates:@"armv7s", @"x86_64", @"i386", nil];
         [self addEntryTo:arches forArch:@"arm64" candidates:@"arm64", @"x86_64", @"i386", nil];
@@ -164,15 +164,15 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
 }
 
 - (BOOL)loadFile:(CDFile *)file error:(NSError **)error depth:(int)depth {
-    NSValue * archObject = [NSValue valueOf:_targetArch];
-    NSArray<NSValue *> * candidates = [[self class] getSupportedArches][archObject];
+    NSValue *archObject = [NSValue valueOf:_targetArch];
+    NSArray<NSValue *> *candidates = [[self class] getSupportedArches][archObject];
     if (candidates == nil) {
         // if no alternatives have been specified for the target architecture, only allow the target
         candidates = @[archObject];
     }
 
-    CDMachOFile * machOFile = nil;
-    for (NSValue * alternative in candidates) {
+    CDMachOFile *machOFile = nil;
+    for (NSValue *alternative in candidates) {
         machOFile = [file machOFileWithArch:alternative.arch];
         if (machOFile != nil)
             break;
@@ -304,7 +304,7 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
             NSLog(@"Warning: Unable to read file: %@", adjustedName);
         } else {
             // as a side-effect, this call can add items to _machOFilesByName
-            NSError * error = nil;
+            NSError *error = nil;
             BOOL loadedSuccessfully = [self loadFile:file error:&error depth:depth];
 
             // if recursive processing fails, it is possible to have loaded a library in the
@@ -369,14 +369,14 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
                workingDirectory:(NSString *)workingDirectory
                    xibDirectory:(NSString *)xibDirectory
 {
-    NSData * symbolsData = [NSData dataWithContentsOfFile:symbolsPath];
+    NSData *symbolsData = [NSData dataWithContentsOfFile:symbolsPath];
     if (symbolsData == nil) {
         NSLog(@"Error: Could not read from: %@", symbolsPath);
         return 1;
     }
 
-    NSError * error = nil;
-    NSDictionary * invertedSymbols = [NSJSONSerialization JSONObjectWithData:symbolsData
+    NSError *error = nil;
+    NSDictionary *invertedSymbols = [NSJSONSerialization JSONObjectWithData:symbolsData
                                                                      options:0
                                                                        error:&error];
     if (invertedSymbols == nil) {
@@ -384,8 +384,8 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
         return 1;
     }
 
-    NSMutableDictionary * symbols = [NSMutableDictionary dictionary];
-    for (NSString * key in invertedSymbols.allKeys) {
+    NSMutableDictionary *symbols = [NSMutableDictionary dictionary];
+    for (NSString *key in invertedSymbols.allKeys) {
         symbols[invertedSymbols[key]] = key;
     }
     
@@ -404,7 +404,7 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
     }
     
     // apply renaming to the xib and storyboard files
-    CDXibStoryBoardProcessor * processor = [CDXibStoryBoardProcessor new];
+    CDXibStoryBoardProcessor *processor = [CDXibStoryBoardProcessor new];
     processor.xibBaseDirectory = xibDirectory;
     [processor obfuscateFilesUsingSymbols:symbols];
     
@@ -414,14 +414,14 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
 - (int)alterPrefixPCHFilesIn:(NSString *)prefixPCHDirectory
           injectingImportFor:(NSString *)symbolsHeaderFileName
 {
-    NSString * textToInsert
+    NSString *textToInsert
             = [NSString stringWithFormat:@"#include \"%@\"\n", symbolsHeaderFileName];
 
-    NSFileManager * fileManager = [NSFileManager new];
-    NSDirectoryEnumerator * enumerator = [fileManager enumeratorAtPath:prefixPCHDirectory];
+    NSFileManager *fileManager = [NSFileManager new];
+    NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtPath:prefixPCHDirectory];
 
     BOOL foundPrefixPCH = FALSE;
-    NSString * filename;
+    NSString *filename;
     while (true) {
         filename = [enumerator nextObject];
         if (filename == nil) {
@@ -434,9 +434,9 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> * supportedArches = nil;
                     [symbolsHeaderFileName lastPathComponent],
                     filename);
 
-            NSError * error;
+            NSError *error;
             NSStringEncoding encoding;
-            NSMutableString * fileContents
+            NSMutableString *fileContents
                     = [[NSMutableString alloc] initWithContentsOfFile:filename
                                                          usedEncoding:&encoding
                                                                 error:&error];

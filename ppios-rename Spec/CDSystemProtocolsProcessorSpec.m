@@ -7,22 +7,22 @@ SPEC_BEGIN(CDSystemProtocolsProcessorSpec)
 
         beforeEach(^{
             // This is an integration test disguised as a unit test -- not everyone has Xcode at the default location.
-            NSPipe * pipe = [NSPipe pipe];
-            NSFileHandle * handle = pipe.fileHandleForReading;
+            NSPipe *pipe = [NSPipe pipe];
+            NSFileHandle *handle = pipe.fileHandleForReading;
             
-            NSTask * task = [NSTask new];
+            NSTask *task = [NSTask new];
             task.launchPath = @"/usr/bin/xcode-select";
             task.arguments = @[@"-p"];
             task.standardOutput = pipe;
             
             [task launch];
             
-            NSData * xcodePathData = [handle readDataToEndOfFile];
+            NSData *xcodePathData = [handle readDataToEndOfFile];
             [handle closeFile];
             
-            NSString * xcodePathRaw = [[NSString alloc] initWithData:xcodePathData encoding:NSUTF8StringEncoding];
-            NSString * xcodePath = [xcodePathRaw stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            NSArray * sdkRoots = @[[xcodePath stringByAppendingString:@"/Platforms/iPhoneOS.platform/Developer/SDKs/"],
+            NSString *xcodePathRaw = [[NSString alloc] initWithData:xcodePathData encoding:NSUTF8StringEncoding];
+            NSString *xcodePath = [xcodePathRaw stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            NSArray *sdkRoots = @[[xcodePath stringByAppendingString:@"/Platforms/iPhoneOS.platform/Developer/SDKs/"],
                                   @"/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/"];
 
             for (NSString *sdkRoot in sdkRoots) {
