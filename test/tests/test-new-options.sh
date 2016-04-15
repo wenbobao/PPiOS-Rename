@@ -14,7 +14,8 @@ test -e "${results}" || mkdir -p "${results}"
 
 original="${apps}/BoxSim"
 work="${sandbox}/BoxSim"
-lastRun="${results}/run.log"
+lastRun="${results}/last.log"
+lastResultFile="${results}/last.result"
 buildLog="${results}/build.log"
 testLog="${results}/test-suite.log"
 buildDir=build
@@ -107,8 +108,26 @@ run() {
     if test "${error}" = ""
     then
         echo "$@" >> "${testLog}"
-        "$@" 2>&1 | tee "${lastRun}" >> "${testLog}"
-        return ${PIPESTATUS[0]}
+
+        # time the execution, get the exit code, and record stdout and stderr
+        # subshell is necessary to get at the output
+        # the awk-bc part splits the output from time and produces a millisecond value
+        lastMS=$( (
+            time "$@" &> "${lastRun}"
+            echo $? > "${lastResultFile}"
+        ) 2>&1 \
+            | grep real \
+            | awk 'BEGIN { FS="[\tms.]" } { printf("(%d * 60 + %d) * 1000 + %d\n", $2, $3, $4); }' \
+            | bc)
+
+        lastResult="$(cat "${lastResultFile}")"
+
+        cat "${lastRun}" >> "${testLog}"
+        echo "exit code: ${lastResult}" >> "${testLog}"
+        echo "run time: ${lastMS} ms" >> "${testLog}"
+
+        # because of the subshell, the result cannot be passed directly in a variable
+        return "${lastResult}"
     else
         return 0
     fi
@@ -141,20 +160,32 @@ verifyFails() {
 }
 
 toList() {
-    if test $# -lt 2
+    if test "${error}" = ""
     then
-        echo "$(basename $0): toList <symbols.map> <original-symbols.list>" >&2
-        exit 1
+        if test $# -lt 2
+        then
+            echo "$(basename $0): toList <symbols.map> <original-symbols.list>" >&2
+            exit 1
+        fi
+
+        source="$1"
+        destination="$2"
+
+        echo "Writing ${destination}" >> "${testLog}"
+        cat "${source}" | sed 's|[",]||g' | awk '{ print $3; }' | sort | grep -v '^$' > "${destination}"
     fi
+}
 
-    source="$1"
-    destination="$2"
-
-    echo "Writing ${destination}" >> "${testLog}"
-    cat "${source}" | sed 's|[",]||g' | awk '{ print $3; }' | sort | grep -v '^$' > "${destination}"
+checkVersion() {
+    verify grep PreEmptive "${lastRun}"
+    verify grep -i version "${lastRun}"
+    verify grep 1.0.0 "${lastRun}"
 }
 
 checkUsage() {
+    checkVersion # usage has version information
+
+    verify grep "Usage:" "${lastRun}"
     # major modes
     verify grep -- --analyze "${lastRun}"
     verify grep -- --obfuscate-sources "${lastRun}"
@@ -186,10 +217,14 @@ toList symbols.map list
 verify grep '^methodA$' list
 verify test -f symbols.map
 
-TEST "Test usage"
-run ppios-rename
+TEST "Specifying just the .app works too"
+run ppios-rename --analyze "${targetApp}"
 verify test $? -eq 0
-checkUsage
+toList symbols.map list
+verify grep '^methodA$' list
+verify test -f symbols.map
+
+TEST "Test usage"
 run ppios-rename -h
 verify test $? -eq 0
 checkUsage
@@ -200,9 +235,8 @@ checkUsage
 TEST "Version works"
 run ppios-rename --version
 verify test $? -eq 0
-verify grep PreEmptive "${lastRun}"
-linesInOutput=$(cat "${lastRun}" | wc | awk '{ print $1 }')
-verify test $linesInOutput -le 3
+checkVersion
+verify test "$(cat "${lastRun}" | wc -l)" -le 3 # three or fewer lines
 
 TEST "Option -i replaced with -x"
 # try old option
@@ -268,5 +302,175 @@ run ppios-rename --obfuscate-sources --storyboards "${copiedStoryboards}"
 verify test $? -eq 0
 verify test "${originalSums}" = "$(checksumStoryboards "${originalStoryboards}")"
 verifyFails test "${originalSums}" = "$(checksumStoryboards "${copiedStoryboards}")"
+
+shortTimeout=100 # milliseconds
+
+assertSucceeds() {
+    verify test $? -eq 0
+}
+
+assertFails() {
+    verify test $? -ne 0
+}
+
+assertRunsQuickly() {
+    verify test "${lastMS}" -lt "${shortTimeout}"
+}
+
+assertHasInvalidOptionMessage() {
+    verify grep 'invalid option' "${lastRun}" # short option form
+}
+
+assertHasUnrecognizedOptionMessage() {
+    verify grep 'unrecognized option' "${lastRun}" # long option form
+}
+
+assertHasFirstArgumentMessage() {
+    verify grep 'You must specify the mode of operation as the first argument' "${lastRun}"
+}
+
+assertAnalyzeInputFileMessage() {
+    verify grep 'Input file must be specified for --analyze' "${lastRun}"
+}
+
+TEST "Error handling: no options"
+run ppios-rename
+assertSucceeds
+assertRunsQuickly
+checkUsage
+
+TEST "Error handling: bad short option"
+run ppios-rename -q
+assertFails
+assertRunsQuickly
+assertHasInvalidOptionMessage
+assertHasFirstArgumentMessage
+
+TEST "Error handling: bad long option"
+run ppios-rename --bad-long-option
+assertFails
+assertRunsQuickly
+assertHasUnrecognizedOptionMessage
+assertHasFirstArgumentMessage
+
+TEST "Error handling: analyze: not enough arguments"
+run ppios-rename --analyze
+assertFails
+assertRunsQuickly
+assertAnalyzeInputFileMessage
+
+TEST "Error handling: analyze: too many arguments"
+run ppios-rename --analyze a b
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: analyze: bad short option"
+run ppios-rename --analyze -q "${program}"
+assertFails
+assertRunsQuickly
+assertHasInvalidOptionMessage
+
+TEST "Error handling: analyze: bad long option"
+run ppios-rename --analyze --bad-long-option "${program}"
+assertFails
+assertRunsQuickly
+assertHasUnrecognizedOptionMessage
+
+TEST "Error handling: analyze: options out of order"
+run ppios-rename -F '!*' --analyze "${program}"
+assertFails
+assertRunsQuickly
+assertHasFirstArgumentMessage
+
+TEST "Error handling: analyze: check that app exists"
+run ppios-rename --analyze "does not exist"
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: --analyze: --symbols-map: argument missing"
+run ppios-rename --analyze --symbols-map "${program}"
+assertFails
+assertRunsQuickly
+# do not specify details of the output
+
+TEST "Error handling: --analyze: --symbols-map: argument empty"
+run ppios-rename --analyze --symbols-map '' "${program}"
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: --analyze: -F: argument missing"
+run ppios-rename --analyze -F "${program}"
+assertFails
+assertRunsQuickly
+# do not specify details of the output
+
+TEST "Error handling: --analyze: -F: argument empty"
+run ppios-rename --analyze -F '' "${program}"
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: --analyze: -F: argument malformed"
+run ppios-rename --analyze -F '!' "${program}"
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: --analyze: -x: argument missing"
+run ppios-rename --analyze -x "${program}"
+assertFails
+assertRunsQuickly
+# do not specify details of the output
+
+TEST "Error handling: --analyze: -x: argument empty"
+run ppios-rename --analyze -x '' "${program}"
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: --analyze: --arch: argument missing"
+run ppios-rename --analyze --arch "${program}"
+assertFails
+assertRunsQuickly
+# do not specify details of the output
+
+TEST "Error handling: --analyze: --arch: argument empty"
+run ppios-rename --analyze --arch '' "${program}"
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: --analyze: --arch: argument bogus"
+run ppios-rename --analyze --arch pdp11 "${program}"
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: --analyze: --sdk-root: argument missing"
+run ppios-rename --analyze --sdk-root "${program}"
+assertFails
+assertRunsQuickly
+# do not specify details of the output
+
+TEST "Error handling: --analyze: --sdk-root: argument empty"
+run ppios-rename --analyze --sdk-root '' "${program}"
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: --analyze: --sdk-root: argument bogus"
+run ppios-rename --analyze --sdk-root 'does not exist' "${program}"
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: --analyze: --sdk-ios: argument missing"
+run ppios-rename --analyze --sdk-ios "${program}"
+assertFails
+assertRunsQuickly
+# do not specify details of the output
+
+TEST "Error handling: --analyze: --sdk-ios: argument empty"
+run ppios-rename --analyze --sdk-ios '' "${program}"
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: --analyze: --sdk-ios: argument bogus"
+run ppios-rename --analyze --sdk-ios bogus "${program}" # expecting: digits ( dot digits ) *
+assertFails
+assertRunsQuickly
 
 report
