@@ -1,179 +1,44 @@
 #!/bin/bash
 
-testRoot="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")"
-sandbox="${testRoot}/sandbox"
-apps="${testRoot}/apps"
-results="${testRoot}/results"
+targetAppName=BoxSim
+thisDirectory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+testRoot="$(dirname "${thisDirectory}")"
+. "${testRoot}/tests/common.sh"
 
-#echo "testRoot=${testRoot}"
-#echo "sandbox=${sandbox}"
-#echo "apps=${apps}"
 
-test -e "${sandbox}" || mkdir -p "${sandbox}"
-test -e "${results}" || mkdir -p "${results}"
-
-original="${apps}/BoxSim"
-work="${sandbox}/BoxSim"
-lastRun="${results}/last.log"
-lastResultFile="${results}/last.result"
+original="${apps}/${targetAppName}"
+prepared="${sandbox}/${targetAppName}-pre"
+work="${sandbox}/${targetAppName}"
 buildLog="${results}/build.log"
-testLog="${results}/test-suite.log"
 buildDir=build
 
-testCount=0
-failureCount=0
-errorCount=0
-successCount=0
 
-testName=""
-error=""
-firstSetup=yes
+oneTimeSetUp() {
+    rsync -a --delete "${original}/" "${prepared}"
 
-TEST() {
-    if test "${firstSetup}" = "yes"
-    then
-        firstSetup=""
-        date > "${testLog}"
-        rsync -a --delete "${original}/" "${work}"
-    else
-        tearDown # between tests
-    fi
+    echo "Building ..."
+    ( cd "${prepared}" ; make build &> "${buildLog}" )
+    echo "Done."
+}
 
-    testName="$1"
-    testCount=$((testCount + 1))
+oneTimeTearDown() {
+    [[ "${prepared}" == */sandbox/* ]] && rm -r -- "${prepared}"
+    [[ "${work}" == */sandbox/* ]] && rm -r -- "${work}"
+}
 
-
-    echo "Setup:" >> "${testLog}"
-    rsync -a --delete --exclude=build "${original}/" "${work}"
-
-    cd "${work}"
-
-    if ! test -e "${buildDir}"
-    then
-        echo "Building ..."
-        make build &> "${buildLog}"
-        echo "Done."
-    fi
+setUp() {
+    rsync -a --delete "${prepared}/" "${work}"
 
     targetApp="$(ls -td $(find "${work}/${buildDir}" -name "*.app") | head -1)"
     targetAppName="$(echo "${targetApp}" | sed 's,.*/\([^/]*\)\.app,\1,')"
     program="$(ls -td $(find "${targetApp}" -type f -and -name "${targetAppName}") | head -1)"
 
-    #echo "targetApp=${targetApp}"
-    #echo "targetAppName=${targetAppName}"
-    #echo "program=${program}"
-
-    echo -n "Test: ${testName}: "
-    echo "Test: ${testName}: " >> "${testLog}"
+    pushd "${work}" > /dev/null
 }
 
 tearDown() {
-    if test "${testName}" != ""
-    then
-        if test "${error}" != ""
-        then
-            echo "FAIL"
-            echo "error: ${error}"
-            failureCount=$((failureCount + 1))
-        else
-            echo "PASS"
-            successCount=$((successCount + 1))
-        fi
-
-        testName=""
-        error=""
-    fi
-}
-
-report() {
-    tearDown
-
-    echo "Done."
-    echo "Tests run: ${testCount}, pass: ${successCount}, fail: ${failureCount}"
-
-    if test "${testCount}" -eq 0
-    then
-        echo "error: no tests were executed" >&2
-        exit 2
-    fi
-
-    if test "${successCount}" -lt "${testCount}" \
-            || test "${failureCount}" -gt 0
-    then
-        exit 1
-    fi
-}
-
-run() {
-    if test "${error}" = ""
-    then
-        echo "$@" >> "${testLog}"
-
-        # time the execution, get the exit code, and record stdout and stderr
-        # subshell is necessary to get at the output
-        # the awk-bc part splits the output from time and produces a millisecond value
-        lastMS=$( (
-            time "$@" &> "${lastRun}"
-            echo $? > "${lastResultFile}"
-        ) 2>&1 \
-            | grep real \
-            | awk 'BEGIN { FS="[\tms.]" } { printf("(%d * 60 + %d) * 1000 + %d\n", $2, $3, $4); }' \
-            | bc)
-
-        lastResult="$(cat "${lastResultFile}")"
-
-        cat "${lastRun}" >> "${testLog}"
-        echo "exit code: ${lastResult}" >> "${testLog}"
-        echo "run time: ${lastMS} ms" >> "${testLog}"
-
-        # because of the subshell, the result cannot be passed directly in a variable
-        return "${lastResult}"
-    else
-        return 0
-    fi
-}
-
-verify() {
-    echo "verify $@" >> "${testLog}"
-    if test "${error}" = ""
-    then
-        "$@" &> /dev/null
-        result=$?
-        if test "${result}" -ne 0
-        then
-            error="\"$@\" (return: ${result})"
-        fi
-    fi
-}
-
-verifyFails() {
-    echo "verifyFails $@" >> "${testLog}"
-    if test "${error}" = ""
-    then
-        "$@" &> /dev/null
-        result=$?
-        if test "${result}" -eq 0
-        then
-            error="\"$@\" (expected non-zero)"
-        fi
-    fi
-}
-
-toList() {
-    if test "${error}" = ""
-    then
-        if test $# -lt 2
-        then
-            echo "$(basename $0): toList <symbols.map> <original-symbols.list>" >&2
-            exit 1
-        fi
-
-        source="$1"
-        destination="$2"
-
-        echo "Writing ${destination}" >> "${testLog}"
-        cat "${source}" | sed 's|[",]||g' | awk '{ print $3; }' | sort | grep -v '^$' > "${destination}"
-    fi
+    popd > /dev/null
+    return 0
 }
 
 checkVersion() {
@@ -287,9 +152,9 @@ verify test -f symbols.map
 TEST "Option -X replaced with --storyboards"
 run ppios-rename --analyze "${program}"
 verify test $? -eq 0
-originalStoryboards=BoxSim/Base.lproj
+originalStoryboards="${targetAppName}/Base.lproj"
 originalSums="$(checksumStoryboards "${originalStoryboards}")"
-copiedStoryboards=BoxSim/Copied.lproj
+copiedStoryboards="${targetAppName}/Copied.lproj"
 cp -r "${originalStoryboards}" "${copiedStoryboards}"
 verify test "${originalSums}" = "$(checksumStoryboards "${copiedStoryboards}")"
 # try old option

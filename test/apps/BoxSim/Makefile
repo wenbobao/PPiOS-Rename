@@ -1,33 +1,32 @@
 # Copyright 2016 PreEmptive Solutions LLC
 buildDir=build
-targetApp="$$(ls -td $$(find "$(buildDir)" -name "*.app") | head -1)"
-targetAppName="$$(echo "$(targetApp)" | sed 's,.*/\([^/]*\)\.app,\1,')"
-program="$$(ls -td $$(find "$(targetApp)" -type f -and -name "$(targetAppName)") | head -1)"
+targetName=BoxSim
+configuration=Release
+targetAppName="$(buildDir)/Build/Products/$(configuration)-iphoneos/$(targetName).app"
 
 .PHONY: default
 default:
 	@echo "Usage: make <build|show|clean>"
 	@echo ""
 	@echo "  buildDir=$(buildDir)"
-	@echo "  targetApp=$(targetApp)"
+	@echo "  targetName=$(targetName)"
+	@echo "  configuration=$(configuration)"
 	@echo "  targetAppName=$(targetAppName)"
-	@echo "  program=$(program)"
 	@echo ""
 	@exit 1
 
 .PHONY: build
 build:
 	xcodebuild \
-		-project BoxSim.xcodeproj \
-		-scheme BoxSim \
-		-configuration Release \
+		-project "$(targetName).xcodeproj" \
+		-scheme "$(targetName)" \
+		-configuration "$(configuration)" \
 		-derivedDataPath $(buildDir) \
 		clean build
 
 .PHONY: show
 show:
-	otool -o -v "$(program)" | grep 'imp 0x' | grep '\[' | awk '{print $$3 " " $$4}' | sort | uniq
-#	nm "$(program)"
+	otool -o -v "$(targetAppName)" | grep 'imp 0x' | grep '\[' | awk '{print $$3 " " $$4}' | sort | uniq
 
 .PHONY: clean
 clean:
