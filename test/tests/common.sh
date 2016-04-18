@@ -25,6 +25,8 @@ lastRun="${results}/last.log"
 lastResultFile="${results}/last.result"
 testLog="${results}/test-suite.log"
 
+shortTimeout=100 # milliseconds
+
 testCount=0
 failureCount=0
 successCount=0
@@ -230,4 +232,25 @@ checkOriginalIsClean() {
         echo "Original directory is not clean: ${original}/${buildDir}" >&2
         exit 1
     fi
+}
+
+checkForPPiOSRename() {
+    type ppios-rename &> /dev/null
+    if test $? -ne 0
+    then
+        echo "$(basename $0): cannot find ppios-rename in PATH" >&2
+        exit 1
+    fi
+}
+
+assertSucceeds() {
+    verify test $? -eq 0
+}
+
+assertFails() {
+    verify test $? -ne 0
+}
+
+assertRunsQuickly() {
+    verify test "${lastMS}" -lt "${shortTimeout}"
 }

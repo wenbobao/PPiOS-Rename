@@ -14,6 +14,7 @@ buildDir=build
 
 
 oneTimeSetUp() {
+    checkForPPiOSRename
     checkOriginalIsClean
 
     rsyncInSandbox -a --delete "${original}/" "${prepared}"

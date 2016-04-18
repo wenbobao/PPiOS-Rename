@@ -14,6 +14,7 @@ buildDir=build
 
 
 oneTimeSetUp() {
+    checkForPPiOSRename
     checkOriginalIsClean
 
     rsyncInSandbox -a --delete "${original}/" "${prepared}"
@@ -168,20 +169,6 @@ run ppios-rename --obfuscate-sources --storyboards "${copiedStoryboards}"
 verify test $? -eq 0
 verify test "${originalSums}" = "$(checksumStoryboards "${originalStoryboards}")"
 verifyFails test "${originalSums}" = "$(checksumStoryboards "${copiedStoryboards}")"
-
-shortTimeout=100 # milliseconds
-
-assertSucceeds() {
-    verify test $? -eq 0
-}
-
-assertFails() {
-    verify test $? -ne 0
-}
-
-assertRunsQuickly() {
-    verify test "${lastMS}" -lt "${shortTimeout}"
-}
 
 assertHasInvalidOptionMessage() {
     verify grep 'invalid option' "${lastRun}" # short option form
