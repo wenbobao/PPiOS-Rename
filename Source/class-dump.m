@@ -209,6 +209,9 @@ int main(int argc, char *argv[])
                 case CD_OPT_ARCH: {
                     checkOnlyAnalyzeMode("--arch", shouldAnalyze);
                     NSString *name = [NSString stringWithUTF8String:optarg];
+                    if ([name length] == 0){
+                        terminateWithError(1, "--arch can not be used with a blank string");
+                    }
                     targetArch = CDArchFromName(name);
                     if (targetArch.cputype != CPU_TYPE_ANY)
                         hasSpecifiedArch = YES;
@@ -221,17 +224,26 @@ int main(int argc, char *argv[])
                 case CD_OPT_SDK_IOS: {
                     checkOnlyAnalyzeMode("--sdk-ios", shouldAnalyze);
                     sdkIOSOption = [NSString stringWithUTF8String:optarg];
+                    if ([sdkIOSOption length] == 0){
+                        terminateWithError(1, "--sdk-ios can not be blank");
+                    }
                     break;
                 }
                 case CD_OPT_SDK_ROOT: {
                     checkOnlyAnalyzeMode("--sdk-root", shouldAnalyze);
                     sdkRootOption = [NSString stringWithUTF8String:optarg];
+                    if ([sdkRootOption length] == 0){
+                        terminateWithError(1, "--sdk-root can not be blank");
+                    }
                     break;
                 }
 
                 case 'F': {
                     checkOnlyAnalyzeMode("-F", shouldAnalyze);
                     NSString *value = [NSString stringWithUTF8String:optarg];
+                    if ([value length] == 0 || ([value length] == 1 && [value hasPrefix:@"!"])){
+                        terminateWithError(1, "-F can not be used with a blank string");
+                    }
                     if ((commandLineClassFilters.count == 0) && ![value hasPrefix:@"!"]) {
                         reportWarning("Warning: include filters without a preceding exclude filter "
                                 "have no effect");
@@ -243,11 +255,17 @@ int main(int argc, char *argv[])
                 case 'X':
                     checkOnlyObfuscateMode("--storyboards", shouldObfuscate);
                     xibBaseDirectory = [NSString stringWithUTF8String:optarg];
+                    if ([xibBaseDirectory length] == 0){
+                        terminateWithError(1, "--storyboards can not be used with a blank string");
+                    }
                     break;
 
                 case 'O':
                     checkOnlyObfuscateMode("--symbols-header", shouldObfuscate);
                     symbolsPath = [NSString stringWithUTF8String:optarg];
+                    if ([symbolsPath length] == 0){
+                        terminateWithError(1, "--symbols-header can not be used with a blank string");
+                    }
                     break;
 
                 case 'm':
@@ -255,12 +273,20 @@ int main(int argc, char *argv[])
                         terminateWithError(1, "Argument -m is not valid in this context");
                     }
                     symbolMappingPath = [NSString stringWithUTF8String:optarg];
+                    if ([symbolMappingPath length] == 0){
+                        terminateWithError(1, "--symbols-map can not be used with a blank string");
+                    }
                     break;
 
-                case 'x':
+                case 'x': {
                     checkOnlyAnalyzeMode("-x", shouldAnalyze);
-                    [commandLineExclusionPatterns addObject:[NSString stringWithUTF8String:optarg]];
+                    NSString *value = [NSString stringWithUTF8String:optarg];
+                    if ([value length] == 0) {
+                        terminateWithError(1, "-x can not be used with a blank string");
+                    }
+                    [commandLineExclusionPatterns addObject:value];
                     break;
+                }
 
                 case PPIOS_OPT_EMIT_EXCLUDES:
                     // This option is for testing and diagnosis of behavior.
