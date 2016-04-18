@@ -1,142 +1,35 @@
 #!/bin/bash
 
-testRoot="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")"
-sandbox="${testRoot}/sandbox"
-apps="${testRoot}/apps"
-results="${testRoot}/results"
+targetAppName=BoxSim
+thisDirectory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+testRoot="$(dirname "${thisDirectory}")"
+. "${testRoot}/tests/common.sh"
 
-#echo "testRoot=${testRoot}"
-#echo "sandbox=${sandbox}"
-#echo "apps=${apps}"
 
-test -e "${sandbox}" || mkdir -p "${sandbox}"
-test -e "${results}" || mkdir -p "${results}"
-
-targetName=BoxSim
-
-original="${apps}/${targetName}"
-work="${sandbox}/${targetName}"
-lastRun="${results}/run.log"
+original="${apps}/${targetAppName}"
+work="${sandbox}/${targetAppName}"
 buildLog="${results}/build.log"
-testLog="${results}/test-suite.log"
 buildDir=build
 
-testCount=0
-failureCount=0
-errorCount=0
-successCount=0
+oneTimeSetUp() {
+    checkOriginalIsClean
+}
 
-testName=""
-error=""
-firstSetup=yes
+oneTimeTearDown() {
+    rmFromSandbox "${work}"
+}
 
-TEST() {
-    if test "${firstSetup}" = "yes"
-    then
-        firstSetup=""
-        date > "${testLog}"
-    else
-        tearDown # between tests
-    fi
-
-    testName="$1"
-    testCount=$((testCount + 1))
-
-
-    echo "Setup:" >> "${testLog}"
-    rsync -a --delete "${original}/" "${work}"
-
-    cd "${work}"
-
-
-    echo -n "Test: ${testName}: "
-    echo "Test: ${testName}: " >> "${testLog}"
+setUp() {
+    rsyncInSandbox -a --delete "${original}/" "${work}"
+    pushd "${work}" > /dev/null
 }
 
 tearDown() {
-    if test "${testName}" != ""
-    then
-        if test "${error}" != ""
-        then
-            echo "FAIL"
-            echo "error: ${error}"
-            failureCount=$((failureCount + 1))
-        else
-            echo "PASS"
-            successCount=$((successCount + 1))
-        fi
-
-        testName=""
-        error=""
-    fi
+    popd > /dev/null
 }
 
-report() {
-    tearDown
 
-    echo "Done."
-    echo "Tests run: ${testCount}, pass: ${successCount}, fail: ${failureCount}"
-
-    if test "${testCount}" -eq 0
-    then
-        echo "error: no tests were executed" >&2
-        exit 2
-    fi
-
-    if test "${successCount}" -lt "${testCount}" \
-            || test "${failureCount}" -gt 0
-    then
-        exit 1
-    fi
-}
-
-run() {
-    echo "$@" >> "${testLog}"
-    "$@" 2>&1 | tee "${lastRun}" >> "${testLog}"
-    return "${PIPESTATUS[0]}"
-}
-
-verify() {
-    echo "verify $@" >> "${testLog}"
-    if test "${error}" = ""
-    then
-        "$@" &> /dev/null
-        result=$?
-        if test "${result}" -ne 0
-        then
-            error="\"$@\" (return: ${result})"
-        fi
-    fi
-}
-
-verifyFails() {
-    echo "verifyFails $@" >> "${testLog}"
-    if test "${error}" = ""
-    then
-        "$@" &> /dev/null
-        result=$?
-        if test "${result}" -eq 0
-        then
-            error="\"$@\" (expected non-zero)"
-        fi
-    fi
-}
-
-toList() {
-    if test $# -lt 2
-    then
-        echo "$(basename $0): toList <symbols.map> <original-symbols.list>" >&2
-        exit 1
-    fi
-
-    source="$1"
-    destination="$2"
-
-    echo "Writing ${destination}" >> "${testLog}"
-    cat "${source}" | sed 's|[",]||g' | awk '{ print $3; }' | sort | grep -v '^$' > "${destination}"
-}
-
-program="${work}/build/Build/Products/Release-iphoneos/${targetName}.app/${targetName}"
+program="${work}/build/Build/Products/Release-iphoneos/${targetAppName}.app/${targetAppName}"
 
 TEST "Normal obfuscated build"
 run make build

@@ -14,7 +14,9 @@ buildDir=build
 
 
 oneTimeSetUp() {
-    rsync -a --delete "${original}/" "${prepared}"
+    checkOriginalIsClean
+
+    rsyncInSandbox -a --delete "${original}/" "${prepared}"
 
     echo "Building ..."
     ( cd "${prepared}" ; make build &> "${buildLog}" )
@@ -22,12 +24,12 @@ oneTimeSetUp() {
 }
 
 oneTimeTearDown() {
-    [[ "${prepared}" == */sandbox/* ]] && rm -r -- "${prepared}"
-    [[ "${work}" == */sandbox/* ]] && rm -r -- "${work}"
+    rmFromSandbox "${prepared}"
+    rmFromSandbox "${work}"
 }
 
 setUp() {
-    rsync -a --delete "${prepared}/" "${work}"
+    rsyncInSandbox -a --delete "${prepared}/" "${work}"
 
     targetApp="$(ls -td $(find "${work}/${buildDir}" -name "*.app") | head -1)"
     targetAppName="$(echo "${targetApp}" | sed 's,.*/\([^/]*\)\.app,\1,')"
@@ -38,7 +40,6 @@ setUp() {
 
 tearDown() {
     popd > /dev/null
-    return 0
 }
 
 checkVersion() {

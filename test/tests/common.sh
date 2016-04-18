@@ -185,3 +185,49 @@ toList() {
         cat "${source}" | sed 's|[",]||g' | awk '{ print $3; }' | sort | grep -v '^$' > "${destination}"
     fi
 }
+
+rsyncInSandbox() {
+    if test $# -lt 2
+    then
+        echo "$(basename $0): rsyncInSandbox [options] <source-spec> <destination>" >&2
+        echo "  Review help documentation for rsync." >&2
+        exit 1
+    fi
+
+    if [[ "${@: -1}" != */sandbox/* ]]
+    then
+        echo "$(basename $0): rsyncInSandbox: destination must contain 'sandbox' path part" >&2
+        echo "  destination: ${@: -1}" >&2
+        exit 2
+    fi
+
+    rsync "$@"
+}
+
+rmFromSandbox() {
+    if test $# -ne 1
+    then
+        echo "$(basename $0): rmFromSandbox <directory>" >&2
+        echo "  Only supports removing one directory at a time from the sandbox." >&2
+        exit 1
+    fi
+
+    if [[ "$1" != */sandbox/* ]]
+    then
+        echo "$(basename $0): rmFromSandbox: directory must contain 'sandbox' path part" >&2
+        echo "  directory: $1" >&2
+        exit 2
+    fi
+
+    rm -r -- "$1"
+}
+
+checkOriginalIsClean() {
+    if test "${original}" != "" \
+       && test "${buildDir}" != "" \
+       && test -e "${original}/${buildDir}"
+    then
+        echo "Original directory is not clean: ${original}/${buildDir}" >&2
+        exit 1
+    fi
+}

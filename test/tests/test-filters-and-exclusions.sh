@@ -1,151 +1,45 @@
 #!/bin/bash
 
-testRoot="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")"
-sandbox="${testRoot}/sandbox"
-apps="${testRoot}/apps"
-results="${testRoot}/results"
+targetAppName=BoxSim
+thisDirectory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+testRoot="$(dirname "${thisDirectory}")"
+. "${testRoot}/tests/common.sh"
 
-#echo "testRoot=${testRoot}"
-#echo "sandbox=${sandbox}"
-#echo "apps=${apps}"
 
-test -e "${sandbox}" || mkdir -p "${sandbox}"
-test -e "${results}" || mkdir -p "${results}"
-
-original="${apps}/BoxSim"
-work="${sandbox}/BoxSim"
-lastRun="${results}/run.log"
+original="${apps}/${targetAppName}"
+prepared="${sandbox}/${targetAppName}-pre"
+work="${sandbox}/${targetAppName}"
 buildLog="${results}/build.log"
-testLog="${results}/test-suite.log"
 buildDir=build
 
-testCount=0
-failureCount=0
-errorCount=0
-successCount=0
 
-testName=""
-error=""
-firstSetup=yes
+oneTimeSetUp() {
+    checkOriginalIsClean
 
-TEST() {
-    if test "${firstSetup}" = "yes"
-    then
-        firstSetup=""
-        date > "${testLog}"
-        rsync -a --delete "${original}/" "${work}"
-    else
-        tearDown # between tests
-    fi
+    rsyncInSandbox -a --delete "${original}/" "${prepared}"
 
-    testName="$1"
-    testCount=$((testCount + 1))
+    echo "Building ..."
+    ( cd "${prepared}" ; make build &> "${buildLog}" )
+    echo "Done."
+}
 
+oneTimeTearDown() {
+    rmFromSandbox "${prepared}"
+    rmFromSandbox "${work}"
+}
 
-    echo "Setup:" >> "${testLog}"
-    rsync -a --delete --exclude=build "${original}/" "${work}"
-
-    cd "${work}"
-
-    if ! test -e "${buildDir}"
-    then
-        echo "Building ..."
-        make build &> "${buildLog}"
-        echo "Done."
-    fi
+setUp() {
+    rsyncInSandbox -a --delete "${prepared}/" "${work}"
 
     targetApp="$(ls -td $(find "${work}/${buildDir}" -name "*.app") | head -1)"
     targetAppName="$(echo "${targetApp}" | sed 's,.*/\([^/]*\)\.app,\1,')"
     program="$(ls -td $(find "${targetApp}" -type f -and -name "${targetAppName}") | head -1)"
 
-    #echo "targetApp=${targetApp}"
-    #echo "targetAppName=${targetAppName}"
-    #echo "program=${program}"
-
-    echo -n "Test: ${testName}: "
-    echo "Test: ${testName}: " >> "${testLog}"
+    pushd "${work}" > /dev/null
 }
 
 tearDown() {
-    if test "${testName}" != ""
-    then
-        if test "${error}" != ""
-        then
-            echo "FAIL"
-            echo "error: ${error}"
-            failureCount=$((failureCount + 1))
-        else
-            echo "PASS"
-            successCount=$((successCount + 1))
-        fi
-
-        testName=""
-        error=""
-    fi
-}
-
-report() {
-    tearDown
-
-    echo "Done."
-    echo "Tests run: ${testCount}, pass: ${successCount}, fail: ${failureCount}"
-
-    if test "${testCount}" -eq 0
-    then
-        echo "error: no tests were executed" >&2
-        exit 2
-    fi
-
-    if test "${successCount}" -lt "${testCount}" \
-            || test "${failureCount}" -gt 0
-    then
-        exit 1
-    fi
-}
-
-run() {
-    echo "$@" >> "${testLog}"
-    "$@" 2>&1 | tee "${lastRun}" >> "${testLog}"
-}
-
-verify() {
-    echo "verify $@" >> "${testLog}"
-    if test "${error}" = ""
-    then
-        "$@" &> /dev/null
-        result=$?
-        if test "${result}" -ne 0
-        then
-            error="\"$@\" (return: ${result})"
-        fi
-    fi
-}
-
-verifyFails() {
-    echo "verifyFails $@" >> "${testLog}"
-    if test "${error}" = ""
-    then
-        "$@" &> /dev/null
-        result=$?
-        if test "${result}" -eq 0
-        then
-            error="\"$@\" (expected non-zero)"
-        fi
-    fi
-}
-
-toList() {
-    if test $# -lt 2
-    then
-        echo "$(basename $0): toList <symbols.map> <original-symbols.list>" >&2
-        exit 1
-    fi
-
-    source="$1"
-    destination="$2"
-
-    echo "Writing ${destination}" >> "${testLog}"
-    cat "${source}" | sed 's|[",]||g' | awk '{ print $3; }' | sort | grep -v '^$' > "${destination}"
+    popd > /dev/null
 }
 
 
