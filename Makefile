@@ -6,7 +6,7 @@ VERSION=v1.0.0
 PROGRAM_NAME=ppios-rename
 
 BUILD_DIR=build
-PROGRAM=$(BUILD_DIR)/Build/Products/Release/$(PROGRAM_NAME)
+PROGRAM="$(shell pwd)/$(BUILD_DIR)/Build/Products/Release/$(PROGRAM_NAME)"
 GIT_CMD=git rev-parse --short HEAD
 GIT_HASH_CHECK=$(GIT_CMD) &> /dev/null
 GIT_HASH=$(shell $(GIT_HASH_CHECK) && $(GIT_CMD) | sed 's,^,-,')
@@ -46,6 +46,7 @@ program: Pods
 .PHONY: check
 check: program
 	xctool $(XCODEBUILD_OPTIONS) test
+	( cd test/tests ; PROGRAM=$(PROGRAM) ./test-suite.sh )
 
 .PHONY: archive
 archive: package-check distclean archive-dir program check $(DIST_PACKAGE)

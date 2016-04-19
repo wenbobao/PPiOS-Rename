@@ -3,6 +3,8 @@
 #Copyright 2016 PreEmptive Solutions, LLC
 #See LICENSE.txt for licensing information
 
+export PROGRAM="${PROGRAM:-ppios-rename}"
+
 targetAppName=BoxSim
 thisDirectory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 testRoot="$(dirname "${thisDirectory}")"
@@ -48,7 +50,7 @@ tearDown() {
 
 
 TEST "Baseline verifying project symbols are renamed"
-run ppios-rename --analyze "${program}"
+run "${PROGRAM}" --analyze "${program}"
 toList symbols.map list
 #verify grep 'Ignoring @protocol __ARCLiteKeyedSubscripting__' "${lastRun}"
 verify grep '^MoreTrimmable$' list
@@ -66,7 +68,7 @@ verify grep 'Ignoring @protocol NSObject' "${lastRun}"
 verify grep 'Ignoring @protocol UIApplicationDelegate' "${lastRun}"
 
 TEST "globbing negative filter"
-run ppios-rename --analyze -F '!BS*' "${program}"
+run "${PROGRAM}" --analyze -F '!BS*' "${program}"
 toList symbols.map list
 verify grep 'Ignoring @class BSClassA' "${lastRun}"
 verifyFails grep '^BSClassA$' list
@@ -78,7 +80,7 @@ verifyFails grep '^methodC$' list
 verifyFails grep '^_squaredC$' list
 
 TEST "globbing negative filter with positive filter"
-run ppios-rename --analyze -F '!BS*' -F BSClassC "${program}"
+run "${PROGRAM}" --analyze -F '!BS*' -F BSClassC "${program}"
 toList symbols.map list
 verify grep 'Ignoring @class BSClassA' "${lastRun}"
 verifyFails grep '^BSClassA$' list
@@ -90,7 +92,7 @@ verify grep '^methodC$' list
 verify grep '^_squaredC$' list
 
 TEST "globbing negative filter with positive filter but -x wins"
-run ppios-rename --analyze -F '!BS*' -F BSClassC -x BSClassC "${program}"
+run "${PROGRAM}" --analyze -F '!BS*' -F BSClassC -x BSClassC "${program}"
 toList symbols.map list
 verify grep 'Ignoring @class BSClassA' "${lastRun}"
 verifyFails grep '^BSClassA$' list
@@ -102,18 +104,18 @@ verify grep '^methodC$' list
 verify grep '^_squaredC$' list
 
 TEST "positive filter before any negative filters produces warning"
-run ppios-rename --analyze -F BSClassC -F '!BS*' "${program}"
+run "${PROGRAM}" --analyze -F BSClassC -F '!BS*' "${program}"
 verify grep "Warning: include filters without a preceding exclude filter have no effect" "${lastRun}"
 
 TEST "-F works on categories"
-run ppios-rename --analyze -F '!MoreTrimmable' "${program}"
+run "${PROGRAM}" --analyze -F '!MoreTrimmable' "${program}"
 verify grep 'Ignoring @category NSString+MoreTrimmable' "${lastRun}"
 toList symbols.map list
 verifyFails grep '^MoreTrimmable$' list
 verifyFails grep '^trimEvenMore$' list
 
 TEST "-F exclusion does not propagate by property type"
-run ppios-rename --analyze -F '!BSClassA' "${program}"
+run "${PROGRAM}" --analyze -F '!BSClassA' "${program}"
 toList symbols.map list
 verify grep 'Ignoring @class BSClassA' "${lastRun}"
 verifyFails grep '^BSClassA$' list
@@ -125,7 +127,7 @@ verify grep '^methodB$' list
 verify grep '^_squaredB$' list
 
 TEST "-F exclusion does not propagate by method return type"
-run ppios-rename --analyze -F '!BSClassC' "${program}"
+run "${PROGRAM}" --analyze -F '!BSClassC' "${program}"
 toList symbols.map list
 verify grep 'Ignoring @class BSClassC' "${lastRun}"
 verifyFails grep '^BSClassC$' list
@@ -137,7 +139,7 @@ verify grep '^methodD$' list
 verify grep '^_squaredD$' list
 
 TEST "-F exclusion does not propagate by method parameter type"
-run ppios-rename --analyze -F '!BSClassE' "${program}"
+run "${PROGRAM}" --analyze -F '!BSClassE' "${program}"
 toList symbols.map list
 verify grep 'Ignoring @class BSClassE' "${lastRun}"
 verifyFails grep '^BSClassE$' list
@@ -149,7 +151,7 @@ verify grep '^methodF$' list
 verify grep '^_squaredF$' list
 
 TEST "-F exclusion does not propagate by protocol in property type"
-run ppios-rename --analyze -F '!BSClassG' "${program}"
+run "${PROGRAM}" --analyze -F '!BSClassG' "${program}"
 toList symbols.map list
 verify grep 'Ignoring @class BSClassG' "${lastRun}"
 verifyFails grep '^BSClassG$' list
@@ -159,7 +161,7 @@ verify grep 'Adding @protocol BSClassH' "${lastRun}"
 verify grep '^BSClassH$' list
 
 TEST "-F exclusion does not propagate by subclassing"
-run ppios-rename --analyze -F '!BSClassI' "${program}"
+run "${PROGRAM}" --analyze -F '!BSClassI' "${program}"
 toList symbols.map list
 verify grep 'Ignoring @class BSClassI' "${lastRun}"
 verifyFails grep '^BSClassI$' list
@@ -171,20 +173,20 @@ verify grep '^methodJ$' list
 verify grep '^_squaredJ$' list
 
 TEST "Excluding a class with -x does not include its contents"
-run ppios-rename --analyze -x BSClassA "${program}"
+run "${PROGRAM}" --analyze -x BSClassA "${program}"
 toList symbols.map list
 verifyFails grep '^BSClassA$' list
 verify grep '^methodA$' list
 verify grep '^_squaredA$' list
 
 TEST "Excluding a protocol with -x does not include its contents"
-run ppios-rename --analyze -x BSClassH "${program}"
+run "${PROGRAM}" --analyze -x BSClassH "${program}"
 toList symbols.map list
 verifyFails grep '^BSClassH$' list
 verify grep '^methodH$' list
 
 TEST "Excluding a property with -x removes all variants from symbols.map"
-run ppios-rename --analyze "${program}"
+run "${PROGRAM}" --analyze "${program}"
 toList symbols.map list
 verify grep '^isSquaredA$' list
 verify grep '^_squaredA$' list
@@ -192,7 +194,7 @@ verify grep '^setIsSquaredA$' list
 verify grep '^_isSquaredA$' list
 verify grep '^setSquaredA$' list
 verify grep '^squaredA$' list
-run ppios-rename --analyze -x squaredA --emit-excludes excludes "${program}"
+run "${PROGRAM}" --analyze -x squaredA --emit-excludes excludes "${program}"
 toList symbols.map list
 verifyFails grep '^isSquaredA$' list
 verifyFails grep '^_squaredA$' list
