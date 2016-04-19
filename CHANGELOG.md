@@ -3,21 +3,36 @@ Change Log
 
 1.0
 -----------------------
- 
+
 ### Functional Changes:
 
 * Forked from [Polidia iOS Class Guard](https://github.com/Polidea/ios-class-guard)
-* Fix corruption in git repository, see details below
-
-* {Place functional changes here}
+* Fixed corruption in git repository, see details below
+* Improved usability of the application:
+    * Split the obfuscation process into two phases (analyze and obfuscate-sources).
+    * Documented how to use the application with any version control system and without use of a wrapper script.
+    * Documented how to integrate the obfuscation process into an existing Xcode project.
+    * Added protection against "double obfuscation".
+* Streamlined use of the application for supported platforms: iOS apps on Xcode 7.
+* Changed crash dump translation to require an output file name.
+* Removed exclusion propagation for excluded symbols (-x).
 
 ### Enhancements:
- 
-* {Place enhancements here}
- 
+
+* Simplified program options and mnemonics, and enforced single mode selection.
+* Added support for category exclusion via class filters.
+* Updated the list of explicitly excluded symbols.
+* Improved the documentation.
+* Clarified the usage text.
+* Verified support with PPiOS-ControlFlow.
+* Cleaned up the source tree, removing unnecessary and derived files.
+* Added integration tests.
+
 ### Fixes:
- 
-* {Place fixes here}
+
+* Removed chaining of class filters, which was essentially broken since its behavior depended on the arbitrary order in which classes were processed.
+* Fixed command-line argument validation.
+* Fixed support for applications targeting iPhoneOS, broken by the release of Xcode 7.
 
 ### Additional Details
 
