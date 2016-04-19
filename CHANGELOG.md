@@ -32,7 +32,7 @@ Change Log
 
 * Removed chaining of class filters, which was essentially broken since its behavior depended on the arbitrary order in which classes were processed.
 * Fixed command-line argument validation.
-* Fixed support for applications targeting iPhoneOS, broken by the release of Xcode 7.
+* Fixed support for applications targeting iPhoneOS, broken by the release of Xcode 7, and verified support for Xcode 7.3.
 
 ### Additional Details
 
