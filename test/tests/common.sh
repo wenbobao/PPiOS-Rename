@@ -65,7 +65,8 @@ finishTest() {
         if test "${error}" != ""
         then
             echo "FAIL"
-            echo "error: ${error}"
+            echo "  File: '$(basename $0)'"
+            echo "  Error: '${error}'"
             failureCount=$((failureCount + 1))
         else
             echo "PASS"

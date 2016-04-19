@@ -76,62 +76,58 @@ checkUsage() {
     verify grep -- --symbols-header "${lastRun}"
 }
 
-checksumStoryboards() {
-    ( cd $1 ; find . -name "*.storyboard" -exec md5 "{}" \; )
-}
-
 TEST "Baseline"
 run "${PPIOS_RENAME}" --analyze "${program}"
-verify test $? -eq 0
+assertSucceeds
 toList symbols.map list
 verify grep '^methodA$' list
 verify test -f symbols.map
 
 TEST "Specifying just the .app works too"
 run "${PPIOS_RENAME}" --analyze "${targetApp}"
-verify test $? -eq 0
+assertSucceeds
 toList symbols.map list
 verify grep '^methodA$' list
 verify test -f symbols.map
 
 TEST "Test usage"
 run "${PPIOS_RENAME}" -h
-verify test $? -eq 0
+assertSucceeds
 checkUsage
 run "${PPIOS_RENAME}" --help
-verify test $? -eq 0
+assertSucceeds
 checkUsage
 
 TEST "Version works"
 run "${PPIOS_RENAME}" --version
-verify test $? -eq 0
+assertSucceeds
 checkVersion
 verify test "$(cat "${lastRun}" | wc -l)" -le 3 # three or fewer lines
 
 TEST "Option -i replaced with -x"
 # try old option
 run "${PPIOS_RENAME}" --analyze -i methodA "${program}"
-verifyFails test $? -eq 0
+assertFails
 # try new option
 run "${PPIOS_RENAME}" --analyze -x methodA "${program}"
-verify test $? -eq 0
+assertSucceeds
 toList symbols.map list
 verifyFails grep '^methodA$' list
 
 TEST "Option -m replaced with --symbols-map"
 # try old option
 run "${PPIOS_RENAME}" --analyze -m symbolz.map "${program}"
-verifyFails test $? -eq 0
+assertFails
 # try new option
 verifyFails test -f symbolz.map
 run "${PPIOS_RENAME}" --analyze --symbols-map symbolz.map "${program}"
-verify test $? -eq 0
+assertSucceeds
 verify test -f symbolz.map
 
 TEST "Option -O replaced with --symbols-header"
 # try old option
 run "${PPIOS_RENAME}" --analyze "${program}"
-verify test $? -eq 0
+assertSucceeds
 run "${PPIOS_RENAME}" --obfuscate-sources -O symbolz.h
 verifyFails test $? -eq 0
 # try new option
@@ -141,7 +137,7 @@ verify test -f symbolz.h
 
 TEST "Option --emit-excludes writes files"
 run "${PPIOS_RENAME}" --analyze --emit-excludes excludes "${program}"
-verify test $? -eq 0
+assertSucceeds
 verify test -f excludes-classFilters.list
 verify test -f excludes-exclusionPatterns.list
 verify test -f excludes-forbiddenNames.list
@@ -150,28 +146,9 @@ TEST "Change default map file from symbols.json to symbols.map"
 verifyFails test -f symbols.json
 verifyFails test -f symbols.map
 run "${PPIOS_RENAME}" --analyze "${program}"
-verify test $? -eq 0
+assertSucceeds
 verifyFails test -f symbols.json
 verify test -f symbols.map
-
-TEST "Option -X replaced with --storyboards"
-run "${PPIOS_RENAME}" --analyze "${program}"
-verify test $? -eq 0
-originalStoryboards="${targetAppName}/Base.lproj"
-originalSums="$(checksumStoryboards "${originalStoryboards}")"
-copiedStoryboards="${targetAppName}/Copied.lproj"
-cp -r "${originalStoryboards}" "${copiedStoryboards}"
-verify test "${originalSums}" = "$(checksumStoryboards "${copiedStoryboards}")"
-# try old option
-run "${PPIOS_RENAME}" --obfuscate-sources -X "${copiedStoryboards}"
-verifyFails test $? -eq 0
-verify test "${originalSums}" = "$(checksumStoryboards "${originalStoryboards}")"
-verify test "${originalSums}" = "$(checksumStoryboards "${copiedStoryboards}")"
-# try new option
-run "${PPIOS_RENAME}" --obfuscate-sources --storyboards "${copiedStoryboards}"
-verify test $? -eq 0
-verify test "${originalSums}" = "$(checksumStoryboards "${originalStoryboards}")"
-verifyFails test "${originalSums}" = "$(checksumStoryboards "${copiedStoryboards}")"
 
 assertHasInvalidOptionMessage() {
     verify grep 'invalid option' "${lastRun}" # short option form

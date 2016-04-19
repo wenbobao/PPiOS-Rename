@@ -13,6 +13,8 @@ original="${apps}/${targetAppName}"
 work="${sandbox}/${targetAppName}"
 buildLog="${results}/build.log"
 buildDir=build
+program="${work}/${buildDir}/Build/Products/Release-iphoneos/${targetAppName}.app/${targetAppName}"
+
 
 oneTimeSetUp() {
     checkForPPiOSRename
@@ -32,8 +34,6 @@ tearDown() {
     popd > /dev/null
 }
 
-
-program="${work}/build/Build/Products/Release-iphoneos/${targetAppName}.app/${targetAppName}"
 
 TEST "Normal obfuscated build"
 run make build
