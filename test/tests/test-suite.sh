@@ -5,9 +5,9 @@
 
 set -e
 
-export PROGRAM="${PROGRAM:-ppios-rename}"
+export PPIOS_RENAME="${PPIOS_RENAME:-ppios-rename}"
 echo "Testing:"
-type "${PROGRAM}" | sed 's,.* is ,  ,'
+type "${PPIOS_RENAME}" | sed 's,.* is ,  ,'
 
 ./test-double-obfuscation-protection.sh
 ./test-filters-and-exclusions.sh

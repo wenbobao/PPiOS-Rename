@@ -4,6 +4,8 @@
 #Copyright 2016 PreEmptive Solutions, LLC
 #See LICENSE.txt for licensing information
 
+export PPIOS_RENAME="${PPIOS_RENAME:-ppios-rename}"
+
 if test "${testRoot}" = "" \
         || test "${targetAppName}" = ""
 then
@@ -238,10 +240,10 @@ checkOriginalIsClean() {
 }
 
 checkForPPiOSRename() {
-    type ppios-rename &> /dev/null
+    type "${PPIOS_RENAME}" &> /dev/null
     if test $? -ne 0
     then
-        echo "$(basename $0): cannot find ppios-rename in PATH" >&2
+        echo "$(basename $0): cannot find ${PPIOS_RENAME}" >&2
         exit 1
     fi
 }

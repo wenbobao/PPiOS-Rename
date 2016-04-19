@@ -46,7 +46,7 @@ program: Pods
 .PHONY: check
 check: program
 	xctool $(XCODEBUILD_OPTIONS) test
-	( cd test/tests ; PROGRAM=$(PROGRAM) ./test-suite.sh )
+	( cd test/tests ; PPIOS_RENAME=$(PROGRAM) ./test-suite.sh )
 
 .PHONY: archive
 archive: package-check distclean archive-dir program check $(DIST_PACKAGE)

@@ -3,8 +3,6 @@
 #Copyright 2016 PreEmptive Solutions, LLC
 #See LICENSE.txt for licensing information
 
-export PROGRAM="${PROGRAM:-ppios-rename}"
-
 targetAppName=BoxSim
 thisDirectory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 testRoot="$(dirname "${thisDirectory}")"
@@ -40,9 +38,9 @@ program="${work}/build/Build/Products/Release-iphoneos/${targetAppName}.app/${ta
 TEST "Normal obfuscated build"
 run make build
 assertSucceeds
-run "${PROGRAM}" --analyze "${program}"
+run "${PPIOS_RENAME}" --analyze "${program}"
 assertSucceeds
-run "${PROGRAM}" --obfuscate-sources
+run "${PPIOS_RENAME}" --obfuscate-sources
 assertSucceeds
 run make build
 assertSucceeds
@@ -52,26 +50,26 @@ verifyFails grep BSClass "${lastRun}"
 TEST "Analyzing obfuscated build fails with error (BAOBA)"
 run make build
 assertSucceeds
-run "${PROGRAM}" --analyze "${program}"
+run "${PPIOS_RENAME}" --analyze "${program}"
 assertSucceeds
-run "${PROGRAM}" --obfuscate-sources
+run "${PPIOS_RENAME}" --obfuscate-sources
 assertSucceeds
 run make build
 assertSucceeds
-run "${PROGRAM}" --analyze "${program}"
+run "${PPIOS_RENAME}" --analyze "${program}"
 assertFails
 verify grep "Error: Analyzing an already obfuscated binary. This will result in an unobfuscated binary. Please see the documentation for details." "${lastRun}"
 
 TEST "Analyzing obfuscated build fails with error (BAOBA), even with few symbols"
 run make build
 assertSucceeds
-run "${PROGRAM}" --analyze -F '!*' -F BSClassB -x BSClassB -x squaredB "${program}"
+run "${PPIOS_RENAME}" --analyze -F '!*' -F BSClassB -x BSClassB -x squaredB "${program}"
 assertSucceeds
-run "${PROGRAM}" --obfuscate-sources
+run "${PPIOS_RENAME}" --obfuscate-sources
 assertSucceeds
 run make build
 assertSucceeds
-run "${PROGRAM}" --analyze -F '!*' -F BSClassB -x BSClassB -x squaredB "${program}"
+run "${PPIOS_RENAME}" --analyze -F '!*' -F BSClassB -x BSClassB -x squaredB "${program}"
 assertFails
 verify grep "Error: Analyzing an already obfuscated binary. This will result in an unobfuscated binary. Please see the documentation for details." "${lastRun}"
 
@@ -79,13 +77,13 @@ TEST "Building double-obfuscated sources yields failing build (BAOAOB)"
 verifyFails test -e "${buildDir}"
 run make build
 assertSucceeds
-run "${PROGRAM}" --analyze "${program}"
+run "${PPIOS_RENAME}" --analyze "${program}"
 assertSucceeds
-run "${PROGRAM}" --obfuscate-sources
+run "${PPIOS_RENAME}" --obfuscate-sources
 assertSucceeds
-run "${PROGRAM}" --analyze "${program}"
+run "${PPIOS_RENAME}" --analyze "${program}"
 assertSucceeds
-run "${PROGRAM}" --obfuscate-sources
+run "${PPIOS_RENAME}" --obfuscate-sources
 assertSucceeds
 run make build
 assertFails
