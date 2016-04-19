@@ -6,8 +6,8 @@ Change Log
 
 ### Functional Changes:
 
-* Forked from [Polidia iOS Class Guard](https://github.com/Polidea/ios-class-guard)
-* Fixed corruption in git repository, see details below
+* Forked from [Polidia iOS Class Guard](https://github.com/Polidea/ios-class-guard), and renamed the project and program.
+* Fixed corruption in git repository, see details below.
 * Improved usability of the application:
     * Split the obfuscation process into two phases (analyze and obfuscate-sources).
     * Documented how to use the application with any version control system and without use of a wrapper script.
