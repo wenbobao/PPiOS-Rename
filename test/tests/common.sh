@@ -1,8 +1,8 @@
-#Copyright 2016 PreEmptive Solutions, LLC
-#See LICENSE.txt for licensing information
-
 #!/usr/bin/env false
 # this script is intended to be sourced by other scripts, not run directly
+
+#Copyright 2016 PreEmptive Solutions, LLC
+#See LICENSE.txt for licensing information
 
 if test "${testRoot}" = "" \
         || test "${targetAppName}" = ""
