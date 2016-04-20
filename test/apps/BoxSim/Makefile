@@ -1,4 +1,6 @@
-# Copyright 2016 PreEmptive Solutions LLC
+#Copyright 2016 PreEmptive Solutions, LLC
+#See LICENSE.txt for licensing information
+
 buildDir=build
 targetName=BoxSim
 configuration=Release

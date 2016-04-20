@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#Copyright 2016 PreEmptive Solutions, LLC
+#See LICENSE.txt for licensing information
+
 targetAppName=BoxSim
 thisDirectory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 testRoot="$(dirname "${thisDirectory}")"

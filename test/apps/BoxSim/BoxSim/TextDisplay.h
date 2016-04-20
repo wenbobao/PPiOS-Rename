@@ -1,4 +1,10 @@
-// Copyright 2016 PreEmptive Solutions LLC. All rights reserved.
+//
+//  TextDisplay.h
+//  BoxSim
+//
+//  Copyright 2016 PreEmptive Solutions, LLC
+//  See LICENSE.txt for licensing information
+//
 
 #ifndef TextDisplay_h
 #define TextDisplay_h
