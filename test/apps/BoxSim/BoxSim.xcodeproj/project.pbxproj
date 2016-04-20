@@ -36,6 +36,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D002A5831CC67A7200380B83 /* TextDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextDisplay.h; sourceTree = "<group>"; };
 		D0CFE6661CBD6F4E00E18918 /* BoxSim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BoxSim.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0CFE66A1CBD6F4E00E18918 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D0CFE66C1CBD6F4E00E18918 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -105,6 +106,7 @@
 		D0CFE6681CBD6F4E00E18918 /* BoxSim */ = {
 			isa = PBXGroup;
 			children = (
+				D002A5831CC67A7200380B83 /* TextDisplay.h */,
 				D0CFE66C1CBD6F4E00E18918 /* AppDelegate.h */,
 				D0CFE66D1CBD6F4E00E18918 /* AppDelegate.m */,
 				D0CFE66F1CBD6F4E00E18918 /* ViewController.h */,
@@ -423,6 +425,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = BoxSim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.preemptive.ppios.test.BoxSim;
@@ -434,6 +437,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = BoxSim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.preemptive.ppios.test.BoxSim;
