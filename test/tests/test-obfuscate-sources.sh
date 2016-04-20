@@ -41,7 +41,7 @@ oneTimeSetUp() {
 
 oneTimeTearDown() {
     rmFromSandbox "${prepared}"
-#    rmFromSandbox "${work}"
+    rmFromSandbox "${work}"
 }
 
 setUp() {

@@ -438,6 +438,13 @@ int main(int argc, char *argv[])
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];
             [mapper writeSymbolsFromSymbolsVisitor:visitor toFile:symbolMappingPath];
         } else if(shouldObfuscate){
+            if ((xibBaseDirectory != nil)
+                    && ![fileManager fileExistsAtPath:xibBaseDirectory]) {
+                terminateWithError(1,
+                        "Storyboards directory does not exist %s",
+                        [xibBaseDirectory fileSystemRepresentation]);
+            }
+
             int result = [classDump obfuscateSourcesUsingMap:symbolMappingPath
                                            symbolsHeaderFile:symbolsPath
                                             workingDirectory:@"."
