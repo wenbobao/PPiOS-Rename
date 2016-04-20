@@ -322,4 +322,9 @@ run "${PPIOS_RENAME}" --list-arches "${program}" bogus
 assertFails
 assertRunsQuickly
 
+TEST "Error handling: First argument must not be blank"
+run "${PPIOS_RENAME}" --list-arches ''
+assertFails
+assertRunsQuickly
+
 report
