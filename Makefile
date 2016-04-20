@@ -46,7 +46,7 @@ program: Pods
 .PHONY: check
 check: program
 	xctool $(XCODEBUILD_OPTIONS) test
-#	( cd test/tests ; PPIOS_RENAME=$(PROGRAM) ./test-suite.sh ) # has an issue on build server
+	( cd test/tests ; PPIOS_RENAME=$(PROGRAM) ./test-suite.sh ) # has an issue on build server
 
 .PHONY: archive
 archive: package-check distclean archive-dir program check $(DIST_PACKAGE)
