@@ -260,3 +260,12 @@ assertFails() {
 assertRunsQuickly() {
     verify test "${lastMS}" -lt "${shortTimeout}"
 }
+
+checksum() {
+    if test -f "$1"
+    then
+        cat "$1" | md5
+    else
+        ( cd "$1" ; find . -type f -exec md5 "{}" \; )
+    fi
+}

@@ -28,7 +28,7 @@ oneTimeSetUp() {
         make build &> "${buildLog}"
         productsDir="${prepared}/${buildDir}/Build/Products"
         preparedProgram="${productsDir}/Release-iphoneos/${targetAppName}.app/${targetAppName}"
-        ppios-rename --analyze "${preparedProgram}" >> "${buildLog}" 2>&1
+        "${PPIOS_RENAME}" --analyze "${preparedProgram}" >> "${buildLog}" 2>&1
     )
     if test $? -ne 0
     then
@@ -54,55 +54,49 @@ tearDown() {
 }
 
 
-checksumStoryboards() {
-    ( cd $1 ; find . -name "*.storyboard" -exec md5 "{}" \; )
-}
-
-
-
-TEST "Obfuscate works"
-run ppios-rename --obfuscate-sources
+TEST "obfuscate sources works"
+run "${PPIOS_RENAME}" --obfuscate-sources
 assertSucceeds
 
 TEST "obfuscate sources: option --symbols-header: works"
 verifyFails test -f symbolz.h
-run ppios-rename --obfuscate-sources --symbols-header symbolz.h
+run "${PPIOS_RENAME}" --obfuscate-sources --symbols-header symbolz.h
 assertSucceeds
 verify test -f symbolz.h
 
 TEST "obfuscate sources: option --symbols-header: missing argument fails"
-run ppios-rename --obfuscate-sources --symbols-header
+run "${PPIOS_RENAME}" --obfuscate-sources --symbols-header
 assertFails
 assertRunsQuickly
 
 TEST "obfuscate sources: option --symbols-header: empty argument fails"
-run ppios-rename --obfuscate-sources --symbols-header ''
+run "${PPIOS_RENAME}" --obfuscate-sources --symbols-header ''
 assertFails
 assertRunsQuickly
 
 TEST "obfuscate sources: option --storyboards: works"
 originalStoryboards="${targetAppName}/Base.lproj"
-originalSums="$(checksumStoryboards "${originalStoryboards}")"
+originalSums="$(checksum "${originalStoryboards}")"
 copiedStoryboards="${targetAppName}/Copied.lproj"
 run cp -r "${originalStoryboards}" "${copiedStoryboards}"
-verify test "${originalSums}" = "$(checksumStoryboards "${copiedStoryboards}")"
-run ppios-rename --obfuscate-sources --storyboards "${copiedStoryboards}"
+verify test "${originalSums}" = "$(checksum "${copiedStoryboards}")"
+run "${PPIOS_RENAME}" --obfuscate-sources --storyboards "${copiedStoryboards}"
 assertSucceeds
-verify test "${originalSums}" = "$(checksumStoryboards "${originalStoryboards}")"
-verifyFails test "${originalSums}" = "$(checksumStoryboards "${copiedStoryboards}")"
+verify test "${originalSums}" = "$(checksum "${originalStoryboards}")"
+verifyFails test "${originalSums}" = "$(checksum "${copiedStoryboards}")"
 
 TEST "obfuscate sources: option --storyboards: missing argument fails"
-run ppios-rename --obfuscate-sources --storyboards
+run "${PPIOS_RENAME}" --obfuscate-sources --storyboards
 assertFails
 assertRunsQuickly
 
 TEST "obfuscate sources: option --storyboards: empty argument fails"
-run ppios-rename --obfuscate-sources --storyboards ''
+run "${PPIOS_RENAME}" --obfuscate-sources --storyboards ''
 assertFails
 assertRunsQuickly
 
 TEST "obfuscate sources: option --storyboards: bogus"
-run ppios-rename --obfuscate-sources --storyboards bogus
+run "${PPIOS_RENAME}" --obfuscate-sources --storyboards bogus
 assertFails
 assertRunsQuickly
 
