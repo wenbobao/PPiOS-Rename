@@ -336,6 +336,9 @@ int main(int argc, char *argv[])
                 terminateWithError(1, "Unrecognized additional argument: %s", argv[optind]);
             }
             firstArg = [NSString stringWithFileSystemRepresentation:argv[optind]];
+            if([firstArg length] == 0){
+                terminateWithError(1, "Arguments can not be blank");
+            }
         }
         NSString *secondArg = nil;
         if(optind + 1 < argc ){
@@ -343,6 +346,9 @@ int main(int argc, char *argv[])
                 terminateWithError(1, "Unrecognized additional argument: %s", argv[optind + 1]);
             }
             secondArg = [NSString stringWithFileSystemRepresentation:argv[optind + 1]];
+            if([secondArg length] == 0){
+                terminateWithError(1, "Arguments can not be blank");
+            }
         }
         if(argc > optind + 2){
             terminateWithError(1, "Unrecognized additional argument: %s", argv[optind + 2]);
