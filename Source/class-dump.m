@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
                     checkOnlyAnalyzeMode("--arch", shouldAnalyze);
                     NSString *name = [NSString stringWithUTF8String:optarg];
                     if ([name length] == 0){
-                        terminateWithError(1, "--arch can not be used with a blank string");
+                        terminateWithError(1, "--arch must not be blank");
                     }
                     targetArch = CDArchFromName(name);
                     if (targetArch.cputype != CPU_TYPE_ANY)
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
                     checkOnlyAnalyzeMode("--sdk-ios", shouldAnalyze);
                     sdkIOSOption = [NSString stringWithUTF8String:optarg];
                     if ([sdkIOSOption length] == 0){
-                        terminateWithError(1, "--sdk-ios can not be blank");
+                        terminateWithError(1, "--sdk-ios must not be blank");
                     }
                     break;
                 }
@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
                     checkOnlyAnalyzeMode("--sdk-root", shouldAnalyze);
                     sdkRootOption = [NSString stringWithUTF8String:optarg];
                     if ([sdkRootOption length] == 0){
-                        terminateWithError(1, "--sdk-root can not be blank");
+                        terminateWithError(1, "--sdk-root must not be blank");
                     }
                     break;
                 }
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
                     checkOnlyAnalyzeMode("-F", shouldAnalyze);
                     NSString *value = [NSString stringWithUTF8String:optarg];
                     if ([value length] == 0 || ([value length] == 1 && [value hasPrefix:@"!"])){
-                        terminateWithError(1, "-F can not be used with a blank string");
+                        terminateWithError(1, "-F must not be blank");
                     }
                     if ((commandLineClassFilters.count == 0) && ![value hasPrefix:@"!"]) {
                         reportWarning("Warning: include filters without a preceding exclude filter "
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
                     checkOnlyObfuscateMode("--storyboards", shouldObfuscate);
                     xibBaseDirectory = [NSString stringWithUTF8String:optarg];
                     if ([xibBaseDirectory length] == 0){
-                        terminateWithError(1, "--storyboards can not be used with a blank string");
+                        terminateWithError(1, "--storyboards must not be blank");
                     }
                     break;
 
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
                     checkOnlyObfuscateMode("--symbols-header", shouldObfuscate);
                     symbolsPath = [NSString stringWithUTF8String:optarg];
                     if ([symbolsPath length] == 0){
-                        terminateWithError(1, "--symbols-header can not be used with a blank string");
+                        terminateWithError(1, "--symbols-header must not be blank");
                     }
                     break;
 
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
                     }
                     symbolMappingPath = [NSString stringWithUTF8String:optarg];
                     if ([symbolMappingPath length] == 0){
-                        terminateWithError(1, "--symbols-map can not be used with a blank string");
+                        terminateWithError(1, "--symbols-map must not be blank");
                     }
                     break;
 
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
                     checkOnlyAnalyzeMode("-x", shouldAnalyze);
                     NSString *value = [NSString stringWithUTF8String:optarg];
                     if ([value length] == 0) {
-                        terminateWithError(1, "-x can not be used with a blank string");
+                        terminateWithError(1, "-x must not be blank");
                     }
                     [commandLineExclusionPatterns addObject:value];
                     break;
@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
             }
             firstArg = [NSString stringWithFileSystemRepresentation:argv[optind]];
             if([firstArg length] == 0){
-                terminateWithError(1, "Arguments can not be blank");
+                terminateWithError(1, "Arguments must not be blank");
             }
         }
         NSString *secondArg = nil;
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
             }
             secondArg = [NSString stringWithFileSystemRepresentation:argv[optind + 1]];
             if([secondArg length] == 0){
-                terminateWithError(1, "Arguments can not be blank");
+                terminateWithError(1, "Arguments must not be blank");
             }
         }
         if(argc > optind + 2){
