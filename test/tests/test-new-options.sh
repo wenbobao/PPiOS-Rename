@@ -76,21 +76,21 @@ checkUsage() {
     verify grep -- --symbols-header "${lastRun}"
 }
 
-TEST "Baseline"
+TEST "analyze works"
 run "${PPIOS_RENAME}" --analyze "${program}"
 assertSucceeds
 toList symbols.map list
 verify grep '^methodA$' list
 verify test -f symbols.map
 
-TEST "Specifying just the .app works too"
+TEST "analyze: specifying just the .app works too"
 run "${PPIOS_RENAME}" --analyze "${targetApp}"
 assertSucceeds
 toList symbols.map list
 verify grep '^methodA$' list
 verify test -f symbols.map
 
-TEST "Test usage"
+TEST "help works"
 run "${PPIOS_RENAME}" -h
 assertSucceeds
 checkUsage
@@ -98,7 +98,7 @@ run "${PPIOS_RENAME}" --help
 assertSucceeds
 checkUsage
 
-TEST "Version works"
+TEST "version works"
 run "${PPIOS_RENAME}" --version
 assertSucceeds
 checkVersion
@@ -303,6 +303,22 @@ assertRunsQuickly
 
 TEST "Error handling: --analyze: --sdk-ios: argument bogus"
 run "${PPIOS_RENAME}" --analyze --sdk-ios bogus "${program}" # expecting: digits ( dot digits ) *
+assertFails
+assertRunsQuickly
+
+TEST "list arches works"
+run "${PPIOS_RENAME}" --list-arches "${program}"
+assertSucceeds
+verify grep armv7 "${lastRun}"
+verify grep arm64 "${lastRun}"
+
+TEST "list arches: error handling: not enough arguments"
+run "${PPIOS_RENAME}" --list-arches
+assertFails
+assertRunsQuickly
+
+TEST "list arches: error handling: too many arguments"
+run "${PPIOS_RENAME}" --list-arches "${program}" bogus
 assertFails
 assertRunsQuickly
 
