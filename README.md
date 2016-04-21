@@ -177,7 +177,7 @@ Reverse engineered code with both PPiOS-Rename and PPiOS-ControlFlow:
 
 <img width="350" alt="controlflow-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/controlflow-sized.png">
 
-As seen, the code is relatively straight forward to understand with no obfuscation. It's not obvious after applying PPiOS-Rename obfuscation, but the logic could still be inferred by the system framework methods being used. And finally, it's extremely difficult to understand the logic in the last version with PPiOS-ControlFlow obfuscation. The decompiled code was actually significantly longer than shown here. 
+As seen, the code is relatively straightforward to understand with no obfuscation. It's not obvious after applying PPiOS-Rename obfuscation, but the logic could still be inferred by the system framework methods being used. And finally, it's extremely difficult to understand the logic in the last version with PPiOS-ControlFlow obfuscation. The decompiled code was actually significantly longer than shown here. 
 
 
 Troubleshooting
