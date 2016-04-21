@@ -2,8 +2,6 @@ PreEmptive Protection for iOS - Rename
 ===========================================
 *PreEmptive Protection for iOS - Rename*, or *PPiOS-Rename* for short, is a command-line utility for obfuscating Objective-C class, protocol, property, and methods names, in iOS apps. It is a fork of [iOS-Class-Guard](https://github.com/Polidea/ios-class-guard) from [Polidea](https://www.polidea.com/), with extensive improvements and modifications.
 
-*PPiOS-Rename* can be used on its own or alongside [PreEmptive Protection for iOS - Control Flow](https://www.preemptive.com/products/ppios), [PreEmptive Solutions](https://www.preemptive.com/)' product for control-flow obfuscation of iOS apps.
-
 *PPiOS-Rename* works by generating a special set of `#define` statements (e.g. `#define createArray y09FYzLXv7T`) that automatically rename symbols during compilation. It includes a number of features:
 
 * Analyze a Mach-O binary to identify symbols to be renamed
@@ -12,6 +10,8 @@ PreEmptive Protection for iOS - Rename
 * Generate unobfuscated dSYM files for upload to analytics tools, for automatic stack trace mapping
 
 *PPiOS-Rename* works with more than just your project's code. It also automatically finds symbols to exclude from renaming by looking at all external/dependent frameworks and in Core Data (xcdatamodel) files. The renamed symbols will also be applied to your XIB/Storyboard files, and to any open-source CocoaPods libraries in your project.
+
+[PreEmptive Solutions](https://www.preemptive.com/) also offers another product, [PreEmptive Protection for iOS - Control Flow](https://www.preemptive.com/products/ppios), that includes additional obfuscation transforms. *PPiOS-Rename* is meant to work alongside *PPiOS-ControlFlow*; together they provide much better protection than either one alone can provide.
 
 *PPiOS-Rename* is licensed under the GNU GPL v2, but commercial support is also available from [PreEmptive Solutions](https://www.preemptive.com/contact/contactus) via a commercial support agreement. Please see LICENSE.txt for details.
 
@@ -151,9 +151,34 @@ If you modify the original build target or scheme, be sure to delete and recreat
 
 Using PPiOS-Rename with PPiOS-ControlFlow
 -------------------------
-*PreEmptive Protection for iOS - Rename* (*PPiOS-Rename)* provides the "renaming" obfuscation, which is the most-common type of obfuscation typically applied to applications to help protect them from reverse engineering, intellectual property theft, software piracy, tampering, and data loss. There are additional obfuscation techniques, however, that are critically important for serious protection of apps. [PreEmptive Solutions](https://www.preemptive.com/) offers another product, named [PreEmptive Protection for iOS - Control Flow](https://www.preemptive.com/products/ppios), that includes multiple additional obfuscation transforms. *PPiOS-Rename* is meant to work alongside *PPiOS-ControlFlow*; together they provide much better protection than either one alone can provide.
+*PreEmptive Protection for iOS - Rename* (*PPiOS-Rename)* provides the "renaming" obfuscation, which is the most-common type of obfuscation typically applied to applications to help protect them from reverse engineering, intellectual property theft, software piracy, tampering, and data loss. There are additional obfuscation techniques, however, that are critically important for serious protection of apps. [PreEmptive Solutions](https://www.preemptive.com/) offers another product, [PreEmptive Protection for iOS - Control Flow](https://www.preemptive.com/products/ppios), that includes additional obfuscation transforms. *PPiOS-Rename* is meant to work alongside *PPiOS-ControlFlow*; together they provide much better protection than either one alone can provide.
 
 If you have both *PPiOS-rename* and *PPiOS-ControlFlow*, no special instructions are required for using them together. Set each one up according to its documentation, and they will each perform their obfuscation without affecting the other.
+
+
+Demonstration
+-------------------
+
+Below is a demonstration of the effects of applying obfuscation. The optimized binary was reverse engineered using [Hopper](http://www.hopperapp.com/) with no debugging symbols. This is a realistic example of what an attacker would see using reverse engineering tools. 
+
+Original code:
+
+<img width="350" alt="original-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/original-sized.png">
+
+Reverse engineered code: (what an attacker would see)
+
+<img width="350" alt="unobfuscated-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/unobfuscated-sized.png">
+
+Reverse engineered code with PPiOS-Rename:
+
+<img width="350" alt="renamed-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/renamed-sized.png">
+
+Reverse engineered code with both PPiOS-Rename and PPiOS-ControlFlow:
+
+<img width="350" alt="controlflow-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/controlflow-sized.png">
+
+As seen, the code is relatively straight forward to understand with no obfuscation. It's not obvious after applying PPiOS-Rename obfuscation, but the logic could still be inferred by the system framework methods being used. And finally, it's extremely difficult to understand the logic in the last version with PPiOS-ControlFlow obfuscation. The decompiled code was actually significantly longer than shown here. 
+
 
 Troubleshooting
 ---------------
@@ -332,30 +357,6 @@ Note that `nm` will not work properly after stripping symbols from your binary. 
     ppios-rename --translate-dsym --symbols-map path/to/symbols_1.0.0.map path/to/input.dSYM path/to/output.dSYM
 
 The resulting dSYM file can be uploaded to e.g. HockeyApp.
-
-
-Demonstration
--------------------
-
-Below is a demonstration of the effects of applying obfuscation. The optimized binary was reverse engineered using Hopper with no debugging symbols. This is a realistic example of what an attacker would see using reverse engineering tools. 
-
-Original code:
-
-<img width="350" alt="original-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/original-sized.png">
-
-Reverse engineered code: (what an attacker would see)
-
-<img width="350" alt="unobfuscated-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/unobfuscated-sized.png">
-
-Reverse engineered code with PPiOS-Rename:
-
-<img width="350" alt="renamed-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/renamed-sized.png">
-
-Reverse engineered code with both PPiOS-Rename and PPiOS-ControlFlow:
-
-<img width="350" alt="controlflow-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/controlflow-sized-sized.png">
-
-As seen, the code is relatively straight forward to understand with no obfuscation. It's not obvious after applying PPiOS-Rename obfuscation, but the logic could still be inferred by the system framework methods being used. And finally, it's extremely difficult to understand the logic in the last version with PPiOS-ControlFlow obfuscation. The decompiled code was actually significantly longer than shown here. 
 
 
 Command Line Argument Reference
