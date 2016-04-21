@@ -49,7 +49,7 @@ tearDown() {
 checkVersion() {
     verify grep PreEmptive "${lastRun}"
     verify grep -i version "${lastRun}"
-    verify grep 1.0.0 "${lastRun}"
+    verify grep '[1-9][0-9]*.[0-9]*.[0-9]*' "${lastRun}"
 }
 
 checkUsage() {
