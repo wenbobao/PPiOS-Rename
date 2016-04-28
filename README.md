@@ -153,7 +153,7 @@ Using PPiOS-Rename with PPiOS-ControlFlow
 -------------------------
 *PreEmptive Protection for iOS - Rename* (*PPiOS-Rename)* provides the "renaming" obfuscation, which is the most-common type of obfuscation typically applied to applications to help protect them from reverse engineering, intellectual property theft, software piracy, tampering, and data loss. There are additional obfuscation techniques, however, that are critically important for serious protection of apps. [PreEmptive Solutions](https://www.preemptive.com/) offers another product, [PreEmptive Protection for iOS - Control Flow](https://www.preemptive.com/products/ppios), that includes additional obfuscation transforms. *PPiOS-Rename* is meant to work alongside *PPiOS-ControlFlow*; together they provide much better protection than either one alone can provide.
 
-If you have both *PPiOS-rename* and *PPiOS-ControlFlow*, no special instructions are required for using them together. Set each one up according to its documentation, and they will each perform their obfuscation without affecting the other.
+If you have both *PPiOS-Rename* and *PPiOS-ControlFlow*, no special instructions are required for using them together. Set each one up according to its documentation, and they will each perform their obfuscation without affecting the other.
 
 
 Demonstration
