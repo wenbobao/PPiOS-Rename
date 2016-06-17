@@ -144,7 +144,7 @@ When ready to start testing an obfuscated build:
 
 6. Revert changes to the sources before continuing development.
 
-Once the sources are obfuscated, the process of building and testing for different destinations can be repeated using the original scheme (step #4), as long as you haven't reverted the sources yet (step #5).
+Once the sources are obfuscated, the process of building and testing for different destinations can be repeated using the original scheme (step #5), as long as you haven't reverted the sources yet (step #6).
 
 If you modify the original build target or scheme, be sure to delete and recreate the Build and Analyze target as above. Under certain conditions, the Obfuscate Sources target and scheme will need to be recreated as well.
 
