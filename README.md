@@ -67,7 +67,7 @@ The basic process is:
 1. Ensure all local source code changes have been committed
 2. Build the program
 3. Analyze the program
-4. Obfuscate the sources
+4. Apply renaming to the sources
 5. Build the program again
 
 For your first time using *PPiOS-Rename,* the following script (adjusted for your project) will perform the Analyze step:
@@ -76,11 +76,11 @@ For your first time using *PPiOS-Rename,* the following script (adjusted for you
 
 The analyze process generates `symbols.map`, the file containing a symbol mapping that can be used to decode stack traces in the event of a crash. The symbols file created during a build that is released should always be archived for subsequent use.
 
-Then the Obfuscate Sources step can be accomplished with the following:
+Then the Apply Renaming step can be accomplished with the following:
 
     ppios-rename --obfuscate-sources
 
-> Note: The Obfuscate Sources phase modifies the **source code** of your app, but you should not check in the changes it makes. If you do so, it will cause errors the next time you need to perform the Analyze phase, and will cause issues with Storyboards in the IDE. We recommend only using the Obfuscate Sources phase in your release (or automated) build process, and you should always clean/reset your source tree after the build, before doing any further development.
+> Note: The Obfuscate Sources phase (invoked in the Apply Renaming step) modifies the **source code** of your app, but you should not check in the changes it makes. If you do so, it will cause errors the next time you need to perform the Analyze phase, and will cause issues with Storyboards in the IDE. We recommend only using the Obfuscate Sources phase in your release (or automated) build process, and you should always clean/reset your source tree after the build, before doing any further development.
 
 Once you are comfortable using *PPiOS-Rename,* it can be easier to use if you integrate it into your Xcode project as part of the build process. This can be set up with the following process:
 
@@ -96,7 +96,7 @@ Once you are comfortable using *PPiOS-Rename,* it can be easier to use if you in
 
 6. Select Build Phases.
 
-7. Add a script phase by selecting the "+" and then selecting New Run Script Phase (it should run as the last phase, and will by default).
+7. Add a script phase by selecting the "+" (right above "Target Dependencies") and then selecting New Run Script Phase (it should run as the last phase, and will by default).
 
 8. Rename the phase from "Run Script" to "Analyze Binary".
 
@@ -106,28 +106,26 @@ Once you are comfortable using *PPiOS-Rename,* it can be easier to use if you in
         [[ "${SDKROOT}" == *iPhoneSimulator*.sdk* ]] && sdk="${SDKROOT}" || sdk="${CORRESPONDING_SIMULATOR_SDK_DIR}"
         ppios-rename --analyze --sdk-root "${sdk}" "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}"
 
-10. Go to Product | Scheme | Manage Schemes.
+10. From the menu, select Product | Scheme | Manage Schemes.
 
-11. If Autocreate Schemes is enabled, a new scheme for the obfuscate target will have already been created, rename it to "Build and Analyze <original-scheme-name>".
+11. If Autocreate Schemes is enabled, a new scheme for the duplicated target will have already been created. Rename it to "Build and Analyze <original-scheme-name>", and close the dialog. Otherwise, create a new scheme for the Build and Analyze target.
 
-12. Otherwise, create a new scheme for the Build and Analyze target.
+12. Duplicate the original target again, and rename it to "Apply Renaming to <original-target-name>".
 
-13. Duplicate the original target again, and rename it to "Obfuscate Sources".
+13. Delete all of the steps in this target.
 
-14. Delete all of the steps in this target.
+14. If there are any target dependencies, delete them as well.
 
-15. If there are any target dependencies, delete them as well.
+15. Add a script phase, and rename it to "Apply Renaming to Sources" (this should be the only real action for this target).
 
-16. Add a script phase, and rename it to "Obfuscate Sources" (this should be the only real action for this target).
-
-17. Paste the following script, again adjusting for the correct path:
+16. Paste the following script, again adjusting for the correct path:
 
         PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.0"
         ppios-rename --obfuscate-sources
 
-18. Edit the scheme (or add one) for this new target, renaming the scheme to "Obfuscate Sources".
+17. Edit the scheme (or add one) for this new target, renaming the scheme to "Apply Renaming to <original-scheme-name>".
 
-19. These changes should be committed to source control at this point, since building the Obfuscate Sources target will change the sources in ways that shouldn't generally be committed.
+18. These changes should be committed to source control at this point, since building the target to Apply Renaming will change the sources in ways that shouldn't generally be committed.
 
 
 When ready to start testing an obfuscated build:
@@ -138,22 +136,22 @@ When ready to start testing an obfuscated build:
 
 3. Commit or otherwise preserve the `symbols.map` file.
 
-4. Build using the Obfuscate Sources scheme, which applies the renaming to the sources.
+4. Build using the Apply Renaming scheme, which applies the renaming to the sources.
 
 5. Build using the original scheme.
 
 6. Revert changes to the sources before continuing development.
 
-Once the sources are obfuscated, the process of building and testing for different destinations can be repeated using the original scheme (step #5), as long as you haven't reverted the sources yet (step #6).
+Once renaming has been applied to the sources, the process of building and testing for different destinations can be repeated using the original scheme (step #5), as long as you haven't reverted the sources yet (step #6).
 
-If you modify the original build target or scheme, be sure to delete and recreate the Build and Analyze target as above. Under certain conditions, the Obfuscate Sources target and scheme will need to be recreated as well.
+If you modify the original build target or scheme, be sure to delete and recreate the Build and Analyze target as above. Under certain conditions, the Apply Renaming target and scheme will need to be recreated as well.
 
 
 Using PPiOS-Rename with PPiOS-ControlFlow
 -------------------------
 *PreEmptive Protection for iOS - Rename* (*PPiOS-Rename)* provides the "renaming" obfuscation, which is the most-common type of obfuscation typically applied to applications to help protect them from reverse engineering, intellectual property theft, software piracy, tampering, and data loss. There are additional obfuscation techniques, however, that are critically important for serious protection of apps. [PreEmptive Solutions](https://www.preemptive.com/) offers another product, [PreEmptive Protection for iOS - Control Flow](https://www.preemptive.com/products/ppios), that includes additional obfuscation transforms. *PPiOS-Rename* is meant to work alongside *PPiOS-ControlFlow*; together they provide much better protection than either one alone can provide.
 
-If you have both *PPiOS-Rename* and *PPiOS-ControlFlow*, no special instructions are required for using them together. Set each one up according to its documentation, and they will each perform their obfuscation without affecting the other.
+If you have both *PPiOS-Rename* and *PPiOS-ControlFlow*, simple instructions accompany *PPiOS-ControlFlow* on their combined usage.
 
 
 Demonstration
