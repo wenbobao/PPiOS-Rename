@@ -70,7 +70,7 @@ The basic process is:
 4. Apply renaming to the sources
 5. Build the program again
 
-For your first time using *PPiOS-Rename,* the following script (adjusted for your project) will perform the Analyze step:
+For your first time using *PPiOS-Rename,* the following command (adjusted for your project) will perform the Analyze step:
 
     ppios-rename --analyze /path/to/program.app/program
 
@@ -151,7 +151,7 @@ Using PPiOS-Rename with PPiOS-ControlFlow
 -------------------------
 *PreEmptive Protection for iOS - Rename* (*PPiOS-Rename)* provides the "renaming" obfuscation, which is the most-common type of obfuscation typically applied to applications to help protect them from reverse engineering, intellectual property theft, software piracy, tampering, and data loss. There are additional obfuscation techniques, however, that are critically important for serious protection of apps. [PreEmptive Solutions](https://www.preemptive.com/) offers another product, [PreEmptive Protection for iOS - Control Flow](https://www.preemptive.com/products/ppios), that includes additional obfuscation transforms. *PPiOS-Rename* is meant to work alongside *PPiOS-ControlFlow*; together they provide much better protection than either one alone can provide.
 
-If you have both *PPiOS-Rename* and *PPiOS-ControlFlow*, simple instructions accompany *PPiOS-ControlFlow* on their combined usage.
+Simple instructions for using them together are available in the documentation for *PPiOS-ControlFlow*.
 
 
 Demonstration
