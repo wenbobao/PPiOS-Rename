@@ -45,13 +45,13 @@ Supported Platforms
 *PPiOS-Rename* supports apps developed for:
 
 * iOS 9, iOS 10
-* iPhone, iPod Touch, and iPad
-* ARM 32-bit, 64-bit, and x86 simulator
+* iPhone, iPod touch, and iPad
+* ARM 32-bit, ARM 64-bit, and x86 Simulator
 
 Using:
 
 * Xcode 7, Xcode 8
-* OS X El Capitan
+* OS X El Capitan, macOS Sierra
 * Objective-C
 
 
