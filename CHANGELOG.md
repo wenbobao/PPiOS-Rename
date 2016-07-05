@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+1.0.1
+-----------------------
+### Enhancements:
+
+* Now supports macOS Sierra and Xcode 8.
+* Updated documentation.
+
+
 1.0
 -----------------------
 ### Functional Changes:

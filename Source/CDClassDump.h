@@ -10,8 +10,6 @@
 
 #import "CDFile.h" // For CDArch
 
-#define CLASS_DUMP_VERSION "1.1.0"
-
 @class CDFile;
 @class CDTypeController;
 @class CDVisitor;
