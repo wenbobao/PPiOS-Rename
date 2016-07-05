@@ -8,6 +8,7 @@ PROGRAM_NAME=ppios-rename
 
 BUILD_DIR=build
 PROGRAM="$(shell pwd)/$(BUILD_DIR)/Build/Products/Release/$(PROGRAM_NAME)"
+README="$(shell pwd)/README.md"
 GIT_CMD=git rev-parse --short HEAD
 GIT_HASH_CHECK=$(GIT_CMD) &> /dev/null
 GIT_HASH=$(shell $(GIT_HASH_CHECK) && $(GIT_CMD) | sed 's,^,-,')
@@ -48,8 +49,8 @@ program: Pods
 	xctool $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION) build test
 
 .PHONY: check
-check: program
-	( cd test/tests ; PPIOS_RENAME=$(PROGRAM) ./test-suite.sh )
+check:
+	( cd test/tests ; PPIOS_RENAME=$(PROGRAM) README=$(README) NUMERIC_VERSION=$(NUMERIC_VERSION) ./test-suite.sh )
 
 .PHONY: archive
 archive: package-check distclean archive-dir program check $(DIST_PACKAGE)
