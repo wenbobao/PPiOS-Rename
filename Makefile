@@ -2,11 +2,13 @@
 # See LICENSE.txt for licensing information
 
 PROJECT_NAME=PPiOS-Rename
-VERSION=v1.0.0
+NUMERIC_VERSION=1.0.1
+VERSION=v$(NUMERIC_VERSION)
 PROGRAM_NAME=ppios-rename
 
 BUILD_DIR=build
 PROGRAM="$(shell pwd)/$(BUILD_DIR)/Build/Products/Release/$(PROGRAM_NAME)"
+README="$(shell pwd)/README.md"
 GIT_CMD=git rev-parse --short HEAD
 GIT_HASH_CHECK=$(GIT_CMD) &> /dev/null
 GIT_HASH=$(shell $(GIT_HASH_CHECK) && $(GIT_CMD) | sed 's,^,-,')
@@ -41,12 +43,14 @@ $(WORKSPACE) Pods Podfile.lock: Podfile
 
 .PHONY: program
 program: Pods
-	xctool $(XCODEBUILD_OPTIONS) build
+# Merged the separate build and test steps: xcodebuild was rebuilding the product for 'test'.  It
+# appears that Xcode 8 provides test-without-building option for xcodebuild, and once we move to
+# that version we should be able to separate these two parts again.
+	xctool $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION) build test
 
 .PHONY: check
-check: program
-	xctool $(XCODEBUILD_OPTIONS) test
-	( cd test/tests ; PPIOS_RENAME=$(PROGRAM) ./test-suite.sh )
+check:
+	( cd test/tests ; PPIOS_RENAME=$(PROGRAM) README=$(README) NUMERIC_VERSION=$(NUMERIC_VERSION) ./test-suite.sh )
 
 .PHONY: archive
 archive: package-check distclean archive-dir program check $(DIST_PACKAGE)

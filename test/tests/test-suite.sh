@@ -14,3 +14,4 @@ type "${PPIOS_RENAME}" | sed 's,.* is ,  ,'
 ./test-new-options.sh
 ./test-obfuscate-sources.sh
 ./test-post-obfuscation-behavior.sh
+./check-documentation.sh

@@ -44,14 +44,14 @@ Supported Platforms
 -------------------
 *PPiOS-Rename* supports apps developed for:
 
-* iOS 9, 10 beta
-* iPhone, iPod Touch, and iPad
-* ARM 32-bit, 64-bit, and x86 simulator
+* iOS 9, iOS 10
+* iPhone, iPod touch, and iPad
+* ARM 32-bit, ARM 64-bit, and x86 Simulator
 
 Using:
 
-* Xcode 7, Xcode 8 beta
-* OS X El Capitan
+* Xcode 7, Xcode 8
+* OS X El Capitan, macOS Sierra
 * Objective-C
 
 
@@ -100,9 +100,9 @@ Once you are comfortable using *PPiOS-Rename,* it can be easier to use if you in
 
 8. Rename the phase from "Run Script" to "Analyze Binary".
 
-9. Where it says "Type a script or ...", paste the following script, adjusting for the correct path:
+9. Expand the phase, and where it says "Type a script or ...", paste the following script, adjusting for the correct path:
 
-        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.0"
+        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.1"
         [[ "${SDKROOT}" == *iPhoneSimulator*.sdk* ]] && sdk="${SDKROOT}" || sdk="${CORRESPONDING_SIMULATOR_SDK_DIR}"
         ppios-rename --analyze --sdk-root "${sdk}" "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}"
 
@@ -112,7 +112,7 @@ Once you are comfortable using *PPiOS-Rename,* it can be easier to use if you in
 
 12. Duplicate the original target again, and rename it to "Apply Renaming to <original-target-name>".
 
-13. Delete all of the steps in this target.
+13. Delete all of the build phases in this target.
 
 14. If there are any target dependencies, delete them as well.
 
@@ -120,7 +120,7 @@ Once you are comfortable using *PPiOS-Rename,* it can be easier to use if you in
 
 16. Paste the following script, again adjusting for the correct path:
 
-        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.0"
+        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.1"
         ppios-rename --obfuscate-sources
 
 17. Edit the scheme (or add one) for this new target, renaming the scheme to "Apply Renaming to <original-scheme-name>".
@@ -347,12 +347,12 @@ Note that `nm` will not work properly after stripping symbols from your binary. 
 #### Reversing obfuscation in crash dumps
 *PPiOS-Rename* lets you reverse the process of obfuscation for crash dump files. This is important so you can find the original classes and methods involved in a crash. It does this by using the information from a map file (e.g. `symbols.map`) to modify the crash dump text, replacing the obfuscated symbols with the original names. For example:
 
-    ppios-rename --translate-crashdump --symbols-map path/to/symbols_1.0.0.map path/to/crashdump path/to/output
+    ppios-rename --translate-crashdump --symbols-map path/to/symbols_1.0.1.map path/to/crashdump path/to/output
 
 #### Reversing obfuscation in dSYMs
 *PPiOS-Rename* lets you reverse the process of obfuscation for automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
 
-    ppios-rename --translate-dsym --symbols-map path/to/symbols_1.0.0.map path/to/input.dSYM path/to/output.dSYM
+    ppios-rename --translate-dsym --symbols-map path/to/symbols_1.0.1.map path/to/input.dSYM path/to/output.dSYM
 
 The resulting dSYM file can be uploaded to e.g. HockeyApp.
 
