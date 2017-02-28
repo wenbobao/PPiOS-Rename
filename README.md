@@ -82,7 +82,7 @@ Then the Apply Renaming step can be accomplished with the following:
 
 > Note: The Obfuscate Sources phase (invoked in the Apply Renaming step) modifies the **source code** of your app, but you should not check in the changes it makes. If you do so, it will cause errors the next time you need to perform the Analyze phase, and will cause issues with Storyboards in the IDE. We recommend only using the Obfuscate Sources phase in your release (or automated) build process, and you should always clean/reset your source tree after the build, before doing any further development.
 
-Once you are comfortable using *PPiOS-Rename,* it can be easier to use if you integrate it into your Xcode project as part of the build process. This can be set up with the following process:
+Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you integrate it into your Xcode project as part of the build process. This can be set up with the following process:
 
 1. Open the project in Xcode.
 
@@ -94,38 +94,44 @@ Once you are comfortable using *PPiOS-Rename,* it can be easier to use if you in
 
 5. Select the duplicated target and rename it to `Build and Analyze <original-target-name>`.
 
-6. Select Build Phases.
+6. (Optional) Duplicating the target duplicates the associated `.plist` file a default name. Rename the `.plist` file:
 
-7. Add a script phase by selecting the `+` (right above Target Dependencies) and then selecting New Run Script Phase (it should run as the last phase, and will by default).
+    1. Select Build Settings, select _All_ settings, select _Combined_ view, and search for `plist`.
+    2. Update the value for `Info.plist File` to be consistent with that of the original target (something like `<project-name>/Build and Analyze <original-target-name>-Info.plist`).
+    3. Move/rename the duplicated `.plist` file to the new name and path.
 
-8. Rename the phase from `Run Script` to `Analyze Binary`.
+7. Select Build Phases.
 
-9. Expand the phase, and where it says `Type a script or ...`, paste the following script, adjusting for the correct path:
+8. Add a script phase by selecting the `+` (right above Target Dependencies) and then selecting New Run Script Phase (it should run as the last phase, and will by default).
+
+9. Rename the phase from `Run Script` to `Analyze Binary`.
+
+10. Expand the phase, and where it says `Type a script or ...`, paste the following script, adjusting for the correct path:
 
         PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.1"
         [[ "${SDKROOT}" == *iPhoneSimulator*.sdk* ]] && sdk="${SDKROOT}" || sdk="${CORRESPONDING_SIMULATOR_SDK_DIR}"
         ppios-rename --analyze --sdk-root "${sdk}" "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}"
 
-10. From the menu, select Product | Scheme | Manage Schemes.
+11. From the menu, select Product | Scheme | Manage Schemes.
 
-11. If Autocreate Schemes is enabled, a new scheme for the duplicated target will have already been created. Rename it to `Build and Analyze <original-scheme-name>`, and close the dialog. Otherwise, create a new scheme for the Build and Analyze target.
+12. If Autocreate Schemes is enabled, a new scheme for the duplicated target will have already been created. Rename it to `Build and Analyze <original-scheme-name>`, and close the dialog. Otherwise, create a new scheme for the Build and Analyze target.
 
-12. Duplicate the original target again, and rename it to `Apply Renaming to <original-target-name>`.
+13. Duplicate the original target again, and rename it to `Apply Renaming to <original-target-name>`.
 
-13. Delete all of the build phases in this target.
+14. Delete all of the build phases in this target.
 
-14. If there are any target dependencies, delete them as well.
+15. If there are any target dependencies, delete them as well.
 
-15. Add a script phase, and rename it to `Apply Renaming to Sources` (this should be the only real action for this target).
+16. Add a script phase, and rename it to `Apply Renaming to Sources` (this should be the only real action for this target).
 
-16. Paste the following script, again adjusting for the correct path:
+17. Paste the following script, again adjusting for the correct path:
 
         PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.1"
         ppios-rename --obfuscate-sources
 
-17. Edit the scheme (or add one) for this new target, renaming the scheme to `Apply Renaming to <original-scheme-name>`.
+18. Edit the scheme (or add one) for this new target, renaming the scheme to `Apply Renaming to <original-scheme-name>`.
 
-18. These changes should be committed to source control at this point, since building the target to Apply Renaming will change the sources in ways that shouldn't generally be committed.
+19. These changes should be committed to source control at this point, since building the target to Apply Renaming will change the sources in ways that shouldn't generally be committed.
 
 
 When ready to start testing an obfuscated build:
