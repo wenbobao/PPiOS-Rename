@@ -17,6 +17,7 @@ PreEmptive Protection for iOS - Rename
 
 > DEVELOPER NOTE: This fork includes a substantial rewrite of the git history, to fix [a corrupted commit in the original repo](https://github.com/nygard/class-dump/commit/509591f78f37905913ba0cbd832e5e4f7b925a8a). More details are in [the changelog](CHANGELOG.md).
 
+
 How It Works
 ------------
 *PPiOS-Rename* is designed to be used in two phases of your build and release process. In the first phase, *PPiOS-Rename* analyzes an unobfuscated compiled build of your app, to determine which symbols should be renamed and which should be excluded from renaming. In the second phase, *PPiOS-Rename* applies those renaming rules to the **source code** of your app, so that the next build made from that source will be obfuscated. These two phases can be integrated into your build and release processes in a number of ways, including back-to-back.
@@ -59,6 +60,7 @@ Installation
 ------------
 
 We suggest downloading one of the binary releases from the [Releases](https://github.com/preemptive/ppios-rename/releases) page. The archive contains a standalone binary that you can copy to an appropriate place on your system, e.g. `/usr/local/bin`. We suggest ensuring that the location is on your PATH. The release archive also includes other files such as this README, a changelog, and our license.
+
 
 Project Setup
 -------------
@@ -155,14 +157,14 @@ If you modify the original build target or scheme, be sure to delete and recreat
 
 
 Using PPiOS-Rename with PPiOS-ControlFlow
--------------------------
+-----------------------------------------
 *PreEmptive Protection for iOS - Rename* (*PPiOS-Rename)* provides the "renaming" obfuscation, which is the most-common type of obfuscation typically applied to applications to help protect them from reverse engineering, intellectual property theft, software piracy, tampering, and data loss. There are additional obfuscation techniques, however, that are critically important for serious protection of apps. [PreEmptive Solutions](https://www.preemptive.com/) offers another product, [PreEmptive Protection for iOS - Control Flow](https://www.preemptive.com/products/ppios), that includes additional obfuscation transforms. *PPiOS-Rename* is meant to work alongside *PPiOS-ControlFlow*; together they provide much better protection than either one alone can provide.
 
 Simple instructions for using them together are available in the documentation for *PPiOS-ControlFlow*.
 
 
 Demonstration
--------------------
+-------------
 
 Below is a demonstration of the effects of applying obfuscation. The optimized binary was reverse engineered using [Hopper](http://www.hopperapp.com/) with no debugging symbols. This is a realistic example of what an attacker would see using reverse engineering tools.
 
@@ -183,6 +185,12 @@ Reverse engineered code with both PPiOS-Rename and PPiOS-ControlFlow:
 <img width="350" alt="controlflow-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/controlflow-sized.png">
 
 As seen, the code is relatively straightforward to understand with no obfuscation. It's not obvious after applying PPiOS-Rename obfuscation, but the logic could still be inferred by the system framework methods being used. And finally, it's extremely difficult to understand the logic in the last version with PPiOS-ControlFlow obfuscation. The decompiled code was actually significantly longer than shown here.
+
+
+Sample Project
+--------------
+
+A sample project demonstrating the process of obfuscating an iOS app is available on GitHub: [PPiOS-Sample-Vie](https://github.com/preemptive/PPiOS-Sample-Vie). This project uses both *PPiOS-ControlFlow* and *PPiOS-Rename*, but can be used to examine their effects independently. All of the steps required to integrate *PPiOS* into an existing Xcode project have already been applied. The configuration has also been adjusted to ensure a positive user experience with the obfuscated app. Documentation for the project discusses in detail how to build and use the sample, how the project was configured, and how to interpret the build output.
 
 
 Troubleshooting
@@ -399,6 +407,7 @@ You then need to determine and use the proper filters.  You will need to choose 
 * Start with a `-F '!*'` (exclude everything) and then include things not mentioned in those headers.
 
  Once you have run `ppios-rename --analyze` with the proper filters, continue with the standard `ppios-rename --obfuscate-sources` step and follow the rest of the instructions.
+
 
 Command Line Argument Reference
 -------------------------------
