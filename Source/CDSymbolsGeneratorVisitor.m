@@ -643,10 +643,14 @@ static NSString *const lettersSet[maxLettersSet] = {
 
 - (void)willVisitObjectiveCProcessor:(CDObjectiveCProcessor *)processor {
     NSString *importBaseName = processor.machOFile.importBaseName;
-
     if (importBaseName) {
-        NSLog(@"Processing external symbols from %@...", importBaseName);
-        _external = YES;
+        if ([importBaseName isEqualTo:_frameworkName]) {
+            NSLog(@"Processing internal symbols from %@...", importBaseName);
+            _external = NO;
+        } else  {
+            NSLog(@"Processing external symbols from %@...", importBaseName);
+            _external = YES;
+        }
     } else {
         NSLog(@"Processing internal symbols...");
         _external = NO;

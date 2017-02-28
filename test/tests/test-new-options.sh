@@ -72,6 +72,7 @@ checkUsage() {
     verify grep -- --arch "${lastRun}"
     verify grep -- --sdk-root "${lastRun}"
     verify grep -- --sdk-ios "${lastRun}"
+    verify grep -- --framework "${lastRun}"
     verify grep -- --storyboards "${lastRun}"
     verify grep -- --symbols-header "${lastRun}"
 }
@@ -303,6 +304,17 @@ assertRunsQuickly
 
 TEST "Error handling: --analyze: --sdk-ios: argument bogus"
 run "${PPIOS_RENAME}" --analyze --sdk-ios bogus "${program}" # expecting: digits ( dot digits ) *
+assertFails
+assertRunsQuickly
+
+TEST "Error handling: --analyze: --framework: argument missing"
+run "${PPIOS_RENAME}" --analyze --framework "${program}"
+assertFails
+assertRunsQuickly
+# do not specify details of the output
+
+TEST "Error handling: --analyze: --framework: argument empty"
+run "${PPIOS_RENAME}" --analyze --framework '' "${program}"
 assertFails
 assertRunsQuickly
 

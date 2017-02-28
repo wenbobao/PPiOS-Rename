@@ -11,6 +11,7 @@
 @property (nonatomic, copy) NSArray<NSString *> *exclusionPatterns;
 @property (nonatomic, readonly) NSDictionary *symbols;
 @property (nonatomic, copy) NSString *diagnosticFilesPrefix;
+@property (nonatomic, copy) NSString *frameworkName;
 - (void)addSymbolsPadding;
 
 + (void)appendDefineTo:(NSMutableString *)stringBuilder

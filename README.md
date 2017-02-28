@@ -93,6 +93,7 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 4. Select the target to obfuscate, right-click, and select Duplicate (Command-D).
 
 5. Select the duplicated target and rename it to `Build and Analyze <original-target-name>`.
+> Note: If applying these changes to a framework project, you may need to use *underscores* instead of *spaces* in the new target names.
 
 6. (Optional) Duplicating the target duplicates the associated `.plist` file a default name. Rename the `.plist` file:
 
@@ -108,7 +109,7 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 
 10. Expand the phase, and where it says `Type a script or ...`, paste the following script, adjusting for the correct path:
 
-        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.1"
+        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.1.0"
         [[ "${SDKROOT}" == *iPhoneSimulator*.sdk* ]] && sdk="${SDKROOT}" || sdk="${CORRESPONDING_SIMULATOR_SDK_DIR}"
         ppios-rename --analyze --sdk-root "${sdk}" "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}"
 
@@ -117,6 +118,7 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 12. If Autocreate Schemes is enabled, a new scheme for the duplicated target will have already been created. Rename it to `Build and Analyze <original-scheme-name>`, and close the dialog. Otherwise, create a new scheme for the Build and Analyze target.
 
 13. Duplicate the original target again, and rename it to `Apply Renaming to <original-target-name>`.
+> Note: If applying these changes to a framework project, you may need to use *underscores* instead of *spaces* in the new target names.
 
 14. Delete all of the build phases in this target.
 
@@ -126,13 +128,12 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 
 17. Paste the following script, again adjusting for the correct path:
 
-        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.0.1"
+        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.1.0"
         ppios-rename --obfuscate-sources
 
 18. Edit the scheme (or add one) for this new target, renaming the scheme to `Apply Renaming to <original-scheme-name>`.
 
 19. These changes should be committed to source control at this point, since building the target to Apply Renaming will change the sources in ways that shouldn't generally be committed.
-
 
 When ready to start testing an obfuscated build:
 
@@ -163,7 +164,7 @@ Simple instructions for using them together are available in the documentation f
 Demonstration
 -------------------
 
-Below is a demonstration of the effects of applying obfuscation. The optimized binary was reverse engineered using [Hopper](http://www.hopperapp.com/) with no debugging symbols. This is a realistic example of what an attacker would see using reverse engineering tools. 
+Below is a demonstration of the effects of applying obfuscation. The optimized binary was reverse engineered using [Hopper](http://www.hopperapp.com/) with no debugging symbols. This is a realistic example of what an attacker would see using reverse engineering tools.
 
 Original code:
 
@@ -181,7 +182,7 @@ Reverse engineered code with both PPiOS-Rename and PPiOS-ControlFlow:
 
 <img width="350" alt="controlflow-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/controlflow-sized.png">
 
-As seen, the code is relatively straightforward to understand with no obfuscation. It's not obvious after applying PPiOS-Rename obfuscation, but the logic could still be inferred by the system framework methods being used. And finally, it's extremely difficult to understand the logic in the last version with PPiOS-ControlFlow obfuscation. The decompiled code was actually significantly longer than shown here. 
+As seen, the code is relatively straightforward to understand with no obfuscation. It's not obvious after applying PPiOS-Rename obfuscation, but the logic could still be inferred by the system framework methods being used. And finally, it's extremely difficult to understand the logic in the last version with PPiOS-ControlFlow obfuscation. The decompiled code was actually significantly longer than shown here.
 
 
 Troubleshooting
@@ -218,6 +219,22 @@ You might also see `unresolved external` linker errors, e.g. if you used a C fun
 These errors usually mean that *PPiOS-Rename* obfuscated a symbol that needs to be excluded for some reason. You can find the symbol by searching `symbols.map` or `symbols.h` for the referenced symbol (`n9z`, in this example) to see what the original name was. Then you can exclude the symbol via command-line arguments to the Analyze phase, via `-F` or `-x`, described below.
 
 In this example, if `n9z` had mapped to `PSSomeClass`, you would add `-F '!PSSomeClass'` to your arguments when running `--analyze`.
+
+### Error: Fat file doesn't contain a valid Mach-O file for the specified architecture (...). It probably means that class-dump was run on a static library, which is not supported.
+
+You have tried to run analysis on a static library or framework.  Sometimes, it will work if you `--analyze` the `AppName.framework` directory created by Xcode when archiving.  Try archiving the framework from Xcode and use the `AppName.framework` folder created inside the project's derived data folder (`~Library/Developer/Xcode/DerivedData/ProjectName-.../...`).
+
+### Issues using an obfuscated framework
+
+Ensure you have excluded all the classes, properties, etc specified in the distributed header files as users of the framework may encounter linking and/or runtime issues if some were renamed.
+
+#### Undefined symbols for architecture ...: "_OBJC_CLASS_$_SomeClass", referenced from: objc-class-ref in ObjectFile.o
+
+This linking issue occurred because `SomeClass` was not excluded when analyzing the framework.  Add `-F '!ClassName'` to the command line when analyzing.  You will then need to obfuscate, build, and redistribute the framework.
+
+#### 'NSInvalidArgumentException', reason: '-[_ClassName setPropertyName:]: unrecognized selector sent to instance 0x145a7c90'
+
+This end user application runtime failure occurred because `PropertyName` was not excluded when analyzing the framework.  Add `-x PropertyName` to the the command line when analyzing.  You will then need to obfuscate, build, and redistribute the framework.
 
 #### Filter Classes, Protocols, and/or Categories
 The `-F` option defines a filter against which class, protocol, and category names will be matched. The argument to `-F` is a glob pattern supporting `*` (any number of any character) and `?` (any single character). If the first character of the pattern is a `!` then the filter will _exclude_ any matching classes, protocols, and categories. If the first character is _not_ a `!`, then the filter will _include_ any matching classes, protocols, and categories.
@@ -258,6 +275,8 @@ When excluding properties (either via `-x` or via propagation from `-F`), the fo
 1. _propertyName
 2. setPropertyName
 3. isPropertyName
+4. _isPropertyName
+5. setIsPropertyName
 
 
 ### XIB and Storyboards limitations
@@ -353,15 +372,33 @@ Note that `nm` will not work properly after stripping symbols from your binary. 
 #### Reversing obfuscation in crash dumps
 *PPiOS-Rename* lets you reverse the process of obfuscation for crash dump files. This is important so you can find the original classes and methods involved in a crash. It does this by using the information from a map file (e.g. `symbols.map`) to modify the crash dump text, replacing the obfuscated symbols with the original names. For example:
 
-    ppios-rename --translate-crashdump --symbols-map path/to/symbols_1.0.1.map path/to/crashdump path/to/output
+    ppios-rename --translate-crashdump --symbols-map path/to/symbols_x.y.z.map path/to/crashdump path/to/output
 
 #### Reversing obfuscation in dSYMs
 *PPiOS-Rename* lets you reverse the process of obfuscation for automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
 
-    ppios-rename --translate-dsym --symbols-map path/to/symbols_1.0.1.map path/to/input.dSYM path/to/output.dSYM
+    ppios-rename --translate-dsym --symbols-map path/to/symbols_x.y.z.map path/to/input.dSYM path/to/output.dSYM
 
 The resulting dSYM file can be uploaded to e.g. HockeyApp.
 
+#### Analyzing Frameworks
+
+Analyzing a framework is similar to analyzing an application, but will probably require many more filters.  To start, use:
+
+    ppios-rename --analyze /path/to/ProjectName.framework/ProjectName
+
+Instead of seeing `Processing external symbols from ProjectName...`, which you will see for other frameworks, you should see `Processing internal symbols from ProjectName...`
+
+If the `--analyze` is not properly finding your framework, then add the `--framework` argument:
+
+    ppios-rename --analyze --framework ProjectName /path/to/framework/executable
+
+You then need to determine and use the proper filters.  You will need to choose one of two ways depending on how many public APIs you include in your framework:
+
+* Exclude everything which is mentioned in the `.h` files you distribute with the framework.
+* Start with a `-F '!*'` (exclude everything) and then include things not mentioned in those headers.
+
+ Once you have run `ppios-rename --analyze` with the proper filters, continue with the standard `ppios-rename --obfuscate-sources` step and follow the rest of the instructions.
 
 Command Line Argument Reference
 -------------------------------
@@ -376,6 +413,7 @@ ppios-rename --analyze [options] <mach-o-file>
     --arch <arch>                 Specify architecture from universal binary
     --sdk-root <path>             Specify full SDK root path
     --sdk-ios <version>           Specify iOS SDK by version
+    --framework <name>            Override the detected framework name
 
 ppios-rename --obfuscate-sources [options]
   Alter source code (relative to current working directory), renaming based on the symbol map
@@ -406,4 +444,3 @@ ppios-rename --version
 ppios-rename --help
   Print out usage information
 ```
-

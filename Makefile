@@ -1,8 +1,8 @@
-# Copyright 2016 PreEmptive Solutions, LLC
+# Copyright 2016-2017 PreEmptive Solutions, LLC
 # See LICENSE.txt for licensing information
 
 PROJECT_NAME=PPiOS-Rename
-NUMERIC_VERSION=1.0.1
+NUMERIC_VERSION=1.1.0
 VERSION=v$(NUMERIC_VERSION)
 PROGRAM_NAME=ppios-rename
 

@@ -53,6 +53,7 @@ void print_usage(void)
             "  --arch <arch>                Specify architecture from universal binary\n"
             "  --sdk-root <path>            Specify full SDK root path\n"
             "  --sdk-ios <version>          Specify iOS SDK by version\n"
+            "  --framework <name>           Override the detected framework name\n"
             "\n"
             "Additional options for --obfuscate-sources:\n"
             "  --storyboards <path>         Alternate path for XIBs and storyboards\n"
@@ -69,9 +70,11 @@ void print_usage(void)
 #define CD_OPT_TRANSLATE_CRASH 10
 #define CD_OPT_TRANSLATE_DSYM 11
 
+//Add new arguments below
 #define PPIOS_OPT_ANALYZE 12
 #define PPIOS_OPT_OBFUSCATE 13
 #define PPIOS_OPT_EMIT_EXCLUDES 14
+#define PPIOS_OPT_FRAMEWORK_NAME 15
 static char* programName;
 
 static NSString *resolveSDKPath(NSFileManager *fileManager,
@@ -145,6 +148,7 @@ int main(int argc, char *argv[])
         NSString *sdkRootOption = nil;
         NSString *sdkIOSOption = nil;
         NSString *diagnosticFilesPrefix;
+        NSString *frameworkName = nil;
 
         int ch;
         BOOL errorFlag = NO;
@@ -160,6 +164,7 @@ int main(int argc, char *argv[])
                 { "sdk-ios",                 required_argument, NULL, CD_OPT_SDK_IOS },
                 { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
                 { "analyze",                 no_argument,       NULL, PPIOS_OPT_ANALYZE },
+                { "framework",               required_argument, NULL, PPIOS_OPT_FRAMEWORK_NAME },
                 { "obfuscate-sources",       no_argument,       NULL, PPIOS_OPT_OBFUSCATE },
                 { "translate-crashdump",     no_argument,       NULL, CD_OPT_TRANSLATE_CRASH},
                 { "translate-dsym",          no_argument,       NULL, CD_OPT_TRANSLATE_DSYM},
@@ -239,6 +244,14 @@ int main(int argc, char *argv[])
                     sdkRootOption = [NSString stringWithUTF8String:optarg];
                     if ([sdkRootOption length] == 0){
                         terminateWithError(1, "--sdk-root must not be blank");
+                    }
+                    break;
+                }
+                case PPIOS_OPT_FRAMEWORK_NAME: {
+                    checkOnlyAnalyzeMode("--framework", shouldAnalyze);
+                    frameworkName= [NSString stringWithUTF8String:optarg];
+                    if ([frameworkName length] == 0){
+                        terminateWithError(1, "--framework must not be blank");
                     }
                     break;
                 }
@@ -433,6 +446,17 @@ int main(int argc, char *argv[])
             visitor.classFilters = classFilters;
             visitor.exclusionPatterns = exclusionPatterns;
             visitor.diagnosticFilesPrefix = diagnosticFilesPrefix;
+            if (frameworkName) {
+                visitor.frameworkName = frameworkName;
+            } else {
+                NSArray<NSString *> *pathElements = [executablePath pathComponents];
+                NSUInteger size = [pathElements count];
+                if (size > 1 && [[pathElements objectAtIndex:(size-2)] hasSuffix:@".framework"]) {
+                    visitor.frameworkName = [executablePath lastPathComponent];
+                } else if ([firstArg hasSuffix:@".framework"]) {
+                    visitor.frameworkName = [executablePath lastPathComponent];
+                }
+            }
 
             [classDump recursivelyVisit:visitor];
             CDSymbolMapper *mapper = [[CDSymbolMapper alloc] init];

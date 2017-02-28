@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+
+1.1.0
+-----------------------
+### Enhancements:
+
+* Dynamic frameworks can now be processed.
+
+
 1.0.1
 -----------------------
 ### Enhancements:
