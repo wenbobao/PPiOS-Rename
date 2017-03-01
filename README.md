@@ -281,7 +281,7 @@ This will exclude symbols named *deflate* and symbols that start with *curl_*.
 
 `?` matches any single character, while `*` matches any number of characters.
 
-> Note: symbols excluded with `-x` will be excluded regardless of positive `-F` filters (`-x` "wins").  However, `-x` exclusions do not propagate like `-F` inclusions/exclusions do.  For example, specifying `-F '!*' -F MyClass -x MyClass` will not rename the `MyClass` class itself, but will rename the properties and methods contained therein.
+> Note: Symbols excluded with `-x` will be excluded regardless of positive `-F` filters (`-x` "wins").  However, `-x` exclusions do not propagate like `-F` inclusions/exclusions do.  For example, specifying `-F '!*' -F MyClass -x MyClass` will not rename the `MyClass` class itself, but will rename the properties and methods contained therein.
 
 #### Property name exclusions
 When excluding properties (either via `-x` or via propagation from `-F`), the following names are also excluded (assuming the propery name is `propertyName`):
