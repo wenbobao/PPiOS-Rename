@@ -1,5 +1,6 @@
 PreEmptive Protection for iOS - Rename
-===========================================
+======================================
+
 *PreEmptive Protection for iOS - Rename*, or *PPiOS-Rename* for short, is a command-line utility for obfuscating Objective-C class, protocol, property, and methods names, in iOS apps. It is a fork of [iOS-Class-Guard](https://github.com/Polidea/ios-class-guard) from [Polidea](https://www.polidea.com/), with extensive improvements and modifications.
 
 *PPiOS-Rename* works by generating a special set of `#define` statements (e.g. `#define createArray y09FYzLXv7T`) that automatically rename symbols during compilation. It includes a number of features:
@@ -20,6 +21,7 @@ PreEmptive Protection for iOS - Rename
 
 How It Works
 ------------
+
 *PPiOS-Rename* is designed to be used in two phases of your build and release process. In the first phase, *PPiOS-Rename* analyzes an unobfuscated compiled build of your app, to determine which symbols should be renamed and which should be excluded from renaming. In the second phase, *PPiOS-Rename* applies those renaming rules to the **source code** of your app, so that the next build made from that source will be obfuscated. These two phases can be integrated into your build and release processes in a number of ways, including back-to-back.
 
 ### Phase 1: Analyze
@@ -43,6 +45,7 @@ Now, with the source modifications in place, you can build your app as usual. It
 
 Supported Platforms
 -------------------
+
 *PPiOS-Rename* supports apps developed for:
 
 * iOS 9, iOS 10
@@ -64,6 +67,7 @@ We suggest downloading one of the binary releases from the [Releases](https://gi
 
 Project Setup
 -------------
+
 The basic process is:
 
 1. Ensure all local source code changes have been committed
@@ -97,11 +101,12 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 5. Select the duplicated target and rename it to `Build and Analyze <original-target-name>`.
 > Note: If applying these changes to a framework project, you may need to use *underscores* instead of *spaces* in the new target names.
 
-6. (Optional) Duplicating the target duplicates the associated `.plist` file a default name. Rename the `.plist` file:
+6. (Optional) Duplicating the target duplicates the associated `.plist` file with a default name. Rename the `.plist` file:
 
     1. Select Build Settings, select _All_ settings, select _Combined_ view, and search for `plist`.
     2. Update the value for `Info.plist File` to be consistent with that of the original target (something like `<project-name>/Build and Analyze <original-target-name>-Info.plist`).
     3. Move/rename the duplicated `.plist` file to the new name and path.
+    4. Delete the reference to the default `.plist` file from the Project Navigator.
 
 7. Select Build Phases.
 
@@ -158,6 +163,7 @@ If you modify the original build target or scheme, be sure to delete and recreat
 
 Using PPiOS-Rename with PPiOS-ControlFlow
 -----------------------------------------
+
 *PreEmptive Protection for iOS - Rename* (*PPiOS-Rename)* provides the "renaming" obfuscation, which is the most-common type of obfuscation typically applied to applications to help protect them from reverse engineering, intellectual property theft, software piracy, tampering, and data loss. There are additional obfuscation techniques, however, that are critically important for serious protection of apps. [PreEmptive Solutions](https://www.preemptive.com/) offers another product, [PreEmptive Protection for iOS - Control Flow](https://www.preemptive.com/products/ppios), that includes additional obfuscation transforms. *PPiOS-Rename* is meant to work alongside *PPiOS-ControlFlow*; together they provide much better protection than either one alone can provide.
 
 Simple instructions for using them together are available in the documentation for *PPiOS-ControlFlow*.
@@ -411,6 +417,7 @@ You then need to determine and use the proper filters.  You will need to choose 
 
 Command Line Argument Reference
 -------------------------------
+
 ```
 ppios-rename --analyze [options] <mach-o-file>
   Analyze a Mach-O binary and generate a symbol map
