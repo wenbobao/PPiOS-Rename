@@ -219,6 +219,9 @@ To fix this, add a `.pch` file as follows:
 
 4. At the target's *Build Settings*, in *Apple LLVM - Language* section, set **Precompile Prefix Header** to *YES*.
 
+### Error: Fat file doesn't contain a valid Mach-O file for the specified architecture (...). It probably means that class-dump was run on a static library, which is not supported.
+
+You have tried to run analysis on a static library or framework.  Sometimes, it will work if you `--analyze` the `AppName.framework` directory created by Xcode when archiving.  Try archiving the framework from Xcode and use the `AppName.framework` folder created inside the project's derived data folder (`~Library/Developer/Xcode/DerivedData/ProjectName-.../...`).
 
 ### Undefined symbols / exclusions
 
@@ -233,22 +236,6 @@ You might also see `unresolved external` linker errors, e.g. if you used a C fun
 These errors usually mean that *PPiOS-Rename* obfuscated a symbol that needs to be excluded for some reason. You can find the symbol by searching `symbols.map` or `symbols.h` for the referenced symbol (`n9z`, in this example) to see what the original name was. Then you can exclude the symbol via command-line arguments to the Analyze phase, via `-F` or `-x`, described below.
 
 In this example, if `n9z` had mapped to `PSSomeClass`, you would add `-F '!PSSomeClass'` to your arguments when running `--analyze`.
-
-### Error: Fat file doesn't contain a valid Mach-O file for the specified architecture (...). It probably means that class-dump was run on a static library, which is not supported.
-
-You have tried to run analysis on a static library or framework.  Sometimes, it will work if you `--analyze` the `AppName.framework` directory created by Xcode when archiving.  Try archiving the framework from Xcode and use the `AppName.framework` folder created inside the project's derived data folder (`~Library/Developer/Xcode/DerivedData/ProjectName-.../...`).
-
-### Issues using an obfuscated framework
-
-Ensure you have excluded all the classes, properties, etc specified in the distributed header files as users of the framework may encounter linking and/or runtime issues if some were renamed.
-
-#### Undefined symbols for architecture ...: "_OBJC_CLASS_$_SomeClass", referenced from: objc-class-ref in ObjectFile.o
-
-This linking issue occurred because `SomeClass` was not excluded when analyzing the framework.  Add `-F '!ClassName'` to the command line when analyzing.  You will then need to obfuscate, build, and redistribute the framework.
-
-#### 'NSInvalidArgumentException', reason: '-[_ClassName setPropertyName:]: unrecognized selector sent to instance 0x145a7c90'
-
-This end user application runtime failure occurred because `PropertyName` was not excluded when analyzing the framework.  Add `-x PropertyName` to the the command line when analyzing.  You will then need to obfuscate, build, and redistribute the framework.
 
 #### Filter Classes, Protocols, and/or Categories
 The `-F` option defines a filter against which class, protocol, and category names will be matched. The argument to `-F` is a glob pattern supporting `*` (any number of any character) and `?` (any single character). If the first character of the pattern is a `!` then the filter will _exclude_ any matching classes, protocols, and categories. If the first character is _not_ a `!`, then the filter will _include_ any matching classes, protocols, and categories.
@@ -292,6 +279,17 @@ When excluding properties (either via `-x` or via propagation from `-F`), the fo
 4. _isPropertyName
 5. setIsPropertyName
 
+### Issues using an obfuscated framework
+
+Ensure you have excluded all the classes, properties, etc specified in the distributed header files as users of the framework may encounter linking and/or runtime issues if some were renamed.
+
+#### Undefined symbols for architecture ...: "_OBJC_CLASS_$_SomeClass", referenced from: objc-class-ref in ObjectFile.o
+
+This linking issue occurred because `SomeClass` was not excluded when analyzing the framework.  Add `-F '!ClassName'` to the command line when analyzing.  You will then need to obfuscate, build, and redistribute the framework.
+
+#### 'NSInvalidArgumentException', reason: '-[_ClassName setPropertyName:]: unrecognized selector sent to instance 0x145a7c90'
+
+This end user application runtime failure occurred because `PropertyName` was not excluded when analyzing the framework.  Add `-x PropertyName` to the the command line when analyzing.  You will then need to obfuscate, build, and redistribute the framework.
 
 ### XIB and Storyboards limitations
 If you're using external libraries which provide Interface Builder files, be sure to ignore those symbols as they won't work when you launch the app and try to use them. You can do that using the `-F` option to the Analyze phase.
@@ -383,19 +381,19 @@ Note that `nm` will not work properly after stripping symbols from your binary. 
     otool -o /path/to/your/binary | grep 'name 0x' | awk '{print $3}' | sort | uniq
 
 
-#### Reversing obfuscation in crash dumps
+### Reversing obfuscation in crash dumps
 *PPiOS-Rename* lets you reverse the process of obfuscation for crash dump files. This is important so you can find the original classes and methods involved in a crash. It does this by using the information from a map file (e.g. `symbols.map`) to modify the crash dump text, replacing the obfuscated symbols with the original names. For example:
 
     ppios-rename --translate-crashdump --symbols-map path/to/symbols_x.y.z.map path/to/crashdump path/to/output
 
-#### Reversing obfuscation in dSYMs
+### Reversing obfuscation in dSYMs
 *PPiOS-Rename* lets you reverse the process of obfuscation for automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
 
     ppios-rename --translate-dsym --symbols-map path/to/symbols_x.y.z.map path/to/input.dSYM path/to/output.dSYM
 
 The resulting dSYM file can be uploaded to e.g. HockeyApp.
 
-#### Analyzing Frameworks
+### Analyzing Frameworks
 
 Analyzing a framework is similar to analyzing an application, but will probably require many more filters.  To start, use:
 
