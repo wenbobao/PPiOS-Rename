@@ -8,6 +8,10 @@ Change Log
 
 * Dynamic frameworks can now be processed.
 
+### Changes:
+
+* New identifiers will typically be eight characters long, regardless of their original length, to help prevent conflicts.
+
 
 1.0.1
 -----------------------

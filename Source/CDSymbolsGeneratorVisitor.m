@@ -299,7 +299,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     return false;
 }
 
-- (NSString *)generateRandomStringWithLength:(NSInteger)length andPrefix:(NSString *)prefix  andName:(NSString *)originalName{
+- (NSString *)generateRandomStringWithPrefix:(NSString *)prefix  andName:(NSString *)originalName{
     if(_guardName == nil ) {
         //fairly expensive to check over everything, so only do this once
         NSString *guard = @"X__PPIOS_DOUBLE_OBFUSCATION_GUARD__";
@@ -319,6 +319,7 @@ static NSString *const lettersSet[maxLettersSet] = {
         //Maybe there is a conflict in a property, so generate a new name and let the guard be inserted later
         _guardName = nil;
     }
+    NSInteger length = 8;
     while (true) {
         NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
         if (prefix) {
@@ -340,12 +341,8 @@ static NSString *const lettersSet[maxLettersSet] = {
     }
 }
 
-- (NSString *)generateRandomStringWithLength:(NSUInteger)length andName:(NSString *)originalName{
-    return [self generateRandomStringWithLength:length andPrefix:nil andName:originalName];
-}
-
-- (NSString *)generateRandomStringWithPrefix:(NSString *)prefix length:(NSUInteger)length andName:(NSString *)originalName{
-    return [self generateRandomStringWithLength:length andPrefix:prefix andName:originalName];
+- (NSString *)generateRandomString:(NSString *)originalName{
+    return [self generateRandomStringWithPrefix:nil andName:originalName];
 }
 
 - (BOOL)doesContainGeneratedSymbol:(NSString *)symbol {
@@ -359,7 +356,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     if ([self shouldSymbolsBeIgnored:symbolName]) {
         return;
     }
-    NSString *newSymbolName = [self generateRandomStringWithLength:symbolName.length andName:symbolName];
+    NSString *newSymbolName = [self generateRandomString:symbolName];
     [self addGenerated:newSymbolName forSymbol:symbolName];
 }
 
@@ -446,10 +443,10 @@ static NSString *const lettersSet[maxLettersSet] = {
     }
     if ([self isInitMethod:symbolName]) {
         NSString *initPrefix = @"initL";
-        NSString *newSymbolName = [self generateRandomStringWithPrefix:initPrefix length:symbolName.length - initPrefix.length andName:symbolName];
+        NSString *newSymbolName = [self generateRandomStringWithPrefix:initPrefix andName:symbolName];
         [self addGenerated:newSymbolName forSymbol:symbolName];
     } else {
-        NSString *newSymbolName = [self generateRandomStringWithLength:symbolName.length andName:symbolName];
+        NSString *newSymbolName = [self generateRandomString:symbolName];
         [self addGenerated:newSymbolName forSymbol:getterName];
         // Why is this being added?
         [self addGenerated:[@"set" stringByAppendingString:[newSymbolName capitalizeFirstCharacter]] forSymbol:setterName];
@@ -542,7 +539,7 @@ static NSString *const lettersSet[maxLettersSet] = {
     NSInteger symbolLength = propertyName.length;
 
     while (true) {
-        NSString *newPropertyName = [self generateRandomStringWithLength:symbolLength andPrefix:nil andName:propertyName];
+        NSString *newPropertyName = [self generateRandomStringWithPrefix:nil andName:propertyName];
         NSArray *symbols = [self symbolsForProperty:newPropertyName];
 
         BOOL isAlreadyGenerated = NO;
@@ -770,15 +767,6 @@ static NSString *const lettersSet[maxLettersSet] = {
             [self addForbiddenSymbol:[NSString stringWithFormat:@"%@", type.typeName]];
         }
     }
-}
-
-- (void)addSymbolsPadding {
-    [_symbols.allKeys enumerateObjectsUsingBlock:^(NSString *key, NSUInteger idx, BOOL *stop) {
-        NSString *obfuscated = _symbols[key];
-        if (key.length > obfuscated.length) {
-            _symbols[key] = [self generateRandomStringWithLength:key.length - obfuscated.length andPrefix:obfuscated andName:key];
-        }
-    }];
 }
 
 @end
