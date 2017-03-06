@@ -4,6 +4,66 @@
 #Copyright 2016 PreEmptive Solutions, LLC
 #See LICENSE.txt for licensing information
 
+# Note: this file is being kept in sync with PPiOS-Rename/test/tests/common.sh
+
+# TEST FRAMEWORK:
+#
+# Each test script is composed of the following four parts:
+# 1. Inclusion of this test framework script and initial configuration
+# 2. Per-script and per-test setup and tear down functions
+# 3. Test definitions (as sequences of commands)
+# 4. The 'report' command
+#
+# Each test starts with the 'TEST' command followed by the test name, and ends
+# when the next test starts or the report command is executed.  After the tests
+# have run, the 'report' command prints a summary of the test results.  Commands
+# under test are prefixed with the 'run' command, which logs and times the
+# command.  Commands verifying assertions are verified with the 'verify'
+# command, and similarly for the 'verifyFails' command for negative assertions.
+# The 'assertSucceeds' and 'assertFails' commands check the return code from
+# command under test with 'run'.
+#
+# LAYOUT:
+#
+# tests/ - committed directory containing this, tests scripts, and test-suite.sh
+# apps/ - committed directory containing test programs and their resources
+# sandbox/ - directory where tests are executed
+# results/ - directory containing the test log and output from the last 'run'
+#
+# DIAGNOSIS:
+#
+# As a first step, review the contents of the test log ${testRoot}/results
+# /test-suite.log.  This will log the 'verify' statements and record the output
+# from commands under test (with 'run').  The failing test can be found by
+# searching for 'FAIL'.
+#
+# If the issue with the failed test is not clear by examining the log, comment
+# out all test scripts in the test suite (in ${testRoot}/tests/test-suite.sh)
+# except for the failing script.  Comment out all of the tests except for the
+# failing test.  At this point the failing test can by run by invoking the
+# outermost test script which calls ${testRoot}/tests/test-suite.sh.  This
+# ensures that the same conditions and environment variables, etc. are used.
+#
+# After a test script runs, the sandbox (in ${testRoot}/sandbox/) is cleaned up,
+# and any intermediate results (which might aid in diagnosis) are removed.
+# Comment-out the contents of the 'tearDown' and 'oneTimeTearDown' functions,
+# add 'return' (bash doesn't like empty functions), and rerun the outermost
+# script.
+#
+# Further diagnosis can be done by setting up the environment in a shell (with
+# 'export VARIABLE=blah'), and running the individual commands in the test.
+# It is a good idea to run these commands from the sandbox directory rather than
+# from the apps directory, since any changes made in the apps directory will be
+# copied over to the sandbox and may affect the results of other tests.  Omit
+# the wrapper commands like 'run', 'verify', etc..  The outermost script should
+# emit the pertinent enviroment variables with their values.  If there is any
+# question about what the environment should look like, just add 'env;exit 1' to
+# the top of the test and rerun.  Test lines invoked with 'run' won't have their
+# output logged in the same way that they are when the test runs normally.
+#
+# Theoretically this script could be sourced in a shell and the lines of the
+# test script run verbatim, but this is untested.
+
 export PPIOS_RENAME="${PPIOS_RENAME:-ppios-rename}"
 
 if test "${testRoot}" = "" \
@@ -40,6 +100,15 @@ testName=""
 error=""
 firstSetup=yes
 
+testSuiteLog() {
+    echo "$@" >> "${testLog}"
+}
+
+logAndEcho() {
+    testSuiteLog "$@"
+    echo "$@"
+}
+
 # capitalization of these methods mimics that of shunit2
 oneTimeSetUp() {
     return 0
@@ -64,14 +133,16 @@ finishTest() {
 
         if test "${error}" != ""
         then
-            echo "FAIL"
-            echo "  File: '$(basename $0)'"
-            echo "  Error: '${error}'"
+            logAndEcho "FAIL"
+            logAndEcho "  File: '$(basename $0)'"
+            logAndEcho "  Error: '${error}'"
             failureCount=$((failureCount + 1))
         else
-            echo "PASS"
+            logAndEcho "PASS"
             successCount=$((successCount + 1))
         fi
+
+        testSuiteLog "$(date)"
 
         testName=""
         error=""
@@ -82,6 +153,8 @@ TEST() {
     if test "${firstSetup}" = "yes"
     then
         firstSetup=""
+
+        # clears the log
         date > "${testLog}"
 
         oneTimeSetUp
@@ -93,12 +166,13 @@ TEST() {
     testName="$1"
     testCount=$((testCount + 1))
 
-    echo "Setup:" >> "${testLog}"
+    testSuiteLog ""
+    testSuiteLog "Setup:"
 
     setUp
 
     echo -n "Test: ${testName}: "
-    echo "Test: ${testName}: " >> "${testLog}"
+    testSuiteLog "Test: ${testName}: "
 }
 
 report() {
@@ -125,7 +199,7 @@ report() {
 run() {
     if test "${error}" = ""
     then
-        echo "$@" >> "${testLog}"
+        testSuiteLog "$@"
 
         # time the execution, get the exit code, and record stdout and stderr
         # subshell is necessary to get at the output
@@ -140,9 +214,9 @@ run() {
 
         lastResult="$(cat "${lastResultFile}")"
 
-        cat "${lastRun}" >> "${testLog}"
-        echo "exit code: ${lastResult}" >> "${testLog}"
-        echo "run time: ${lastMS} ms" >> "${testLog}"
+        testSuiteLog "$(cat "${lastRun}")"
+        testSuiteLog "exit code: ${lastResult}"
+        testSuiteLog "run time: ${lastMS} ms"
 
         # because of the subshell, the result cannot be passed directly in a variable
         return "${lastResult}"
@@ -152,9 +226,11 @@ run() {
 }
 
 verify() {
-    echo "verify $@" >> "${testLog}"
     if test "${error}" = ""
     then
+        # only record if an error has not already happened
+        testSuiteLog "verify $@"
+
         "$@" &> /dev/null
         result=$?
         if test "${result}" -ne 0
@@ -165,9 +241,11 @@ verify() {
 }
 
 verifyFails() {
-    echo "verifyFails $@" >> "${testLog}"
     if test "${error}" = ""
     then
+        # only record if an error has not already happened
+        testSuiteLog "verifyFails $@"
+
         "$@" &> /dev/null
         result=$?
         if test "${result}" -eq 0
@@ -189,7 +267,7 @@ toList() {
         source="$1"
         destination="$2"
 
-        echo "Writing ${destination}" >> "${testLog}"
+        testSuiteLog "Writing ${destination}"
         cat "${source}" | sed 's|[",]||g' | awk '{ print $3; }' | sort | grep -v '^$' > "${destination}"
     fi
 }
