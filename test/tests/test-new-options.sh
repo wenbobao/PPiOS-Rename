@@ -50,6 +50,10 @@ checkVersion() {
     verify grep PreEmptive "${lastRun}"
     verify grep -i version "${lastRun}"
     verify grep '[1-9][0-9]*[.][0-9][0-9]*[.][0-9][0-9]*' "${lastRun}"
+
+    # verify correct version and commit
+    verify grep "${NUMERIC_VERSION:-BAD_VERSION}" "${lastRun}"
+    verify grep `git rev-parse --short HEAD` "${lastRun}"
 }
 
 checkUsage() {

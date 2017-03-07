@@ -46,7 +46,7 @@ program: Pods
 # Merged the separate build and test steps: xcodebuild was rebuilding the product for 'test'.  It
 # appears that Xcode 8 provides test-without-building option for xcodebuild, and once we move to
 # that version we should be able to separate these two parts again.
-	xctool $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION) build test
+	xctool $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION)$(GIT_HASH) build test
 
 .PHONY: check
 check:
