@@ -76,10 +76,13 @@
                                                    encoding:NSASCIIStringEncoding
         ];
         NSNumber *position = @(matchPattern->position - matchPattern->patterns[maxStringIdx].length);
-        replaces[pattern] = (replaces[pattern]
-                ? [replaces[pattern] arrayByAddingObject:position]
-                : @[position]
-        );
+
+        NSMutableArray * array = replaces[pattern];
+        if (array == nil) {
+            array = [NSMutableArray new];
+            replaces[pattern] = array;
+        }
+        [array addObject:position];
     }
 
     ac_automata_release(atm);
