@@ -368,21 +368,15 @@ Advanced Topics
 
 ### Locating the Binary and dSYM Files.
 
-When looking to verify obfuscation or send de-obfuscated dSYMS to analytics services, you must first locate the binary and dSYM files.
+When looking to verify obfuscation or send de-obfuscated dSYMs to analytics services, you must first locate the binary and dSYM files.
 
-#### Command Line Build
-
-If you build from the command line (e.g. `xcodebuild`), this will typically create a `build` directory. Inside the `build` directory, you should find:
-
-  * Binary: `Release-[iphoneos|iphonesimulator]/{AppName}.app/{AppName}`.
-  * dSYM: `Release-[iphoneos|iphonesimulator]/{AppName}.app.dSYM`.
-
-#### Archive
+#### Xcode Archive
 
 If you created an archive, Xcode would have placed it in the *archives* directory, `~/Library/Developer/Xcode/Archives/{Date}/{AppName} {Date}, {Time}.xcarchive`. Inside there, you should find:
 
-  * Binary: `Products/Applications/{AppName}.app/{AppName}`.
-  * dSYM: `dSYMs/{AppName}.app.dSYM`.
+  * Binary: `Products/Applications/{AppName}.app/{AppName}`
+  * dSYM: `dSYMs/{AppName}.app.dSYM
+  >Note: If you have uploaded your archive to Apple's App Store it may have been recompiled from bitcode and you would need to download the new dSYM files from either <https://itunesconnect.apple.com> or by using the *Download dSYMS...* button in Xcode's *Organizer* window.  The *Download dSYMS...* button will download a dSYM for each architecture to the same `dSYMs` in the *archives* directory, but it will be named `{SOME GUID}.dSYM`.
 
 #### .ipa File
 
@@ -390,6 +384,13 @@ If you have an `{AppName}.ipa` file, you will need to extract it by running `unz
 
   * Binary: `{AppName}.app/{AppName}`
   * dSYM: Is **not** included in the `.ipa` file.
+
+#### Command Line Build
+
+If you build from the command line (e.g. `xcodebuild`), this will typically create a `build` directory. Inside the `build` directory, you should find:
+
+   * Binary: `Release-[iphoneos|iphonesimulator]/{AppName}.app/{AppName}`
+   * dSYM: `Release-[iphoneos|iphonesimulator]/{AppName}.app.dSYM`
 
 ### Verifying obfuscation
 
@@ -405,7 +406,7 @@ This will show the symbols from your app. If you do this with an unobfuscated bu
 
     otool -o /path/to/your/binary | grep 'name 0x' | awk '{print $3}' | sort | uniq
 
->Note: The `X__PPIOS_DOUBLE_OBFUSCATION_GUARD__` symbol is used to help prevent attempt double obfuscation.
+>Note: The `X__PPIOS_DOUBLE_OBFUSCATION_GUARD__` symbol is used to help ensure renaming is applied properly.
 
 
 ### Reversing obfuscation in crash dumps
