@@ -372,7 +372,7 @@ When looking to verify obfuscation or send de-obfuscated dSYMS to analytics serv
 
 #### Command Line Build
 
-If you build from the command line (e.g.  `xcodebuild`), this will typically create a `build` directory. Inside the `build` directory, you should find:
+If you build from the command line (e.g. `xcodebuild`), this will typically create a `build` directory. Inside the `build` directory, you should find:
 
   * Binary: `Release-[iphoneos|iphonesimulator]/{AppName}.app/{AppName}`.
   * dSYM: `Release-[iphoneos|iphonesimulator]/{AppName}.app.dSYM`.
