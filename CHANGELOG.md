@@ -7,7 +7,8 @@ Change Log
 ### Enhancements:
 
 * Dynamic frameworks can now be processed.
-* Add git commit hash to version number.
+* Added the git commit hash to the version information.
+* Improved documentation.
 
 ### Changes:
 
