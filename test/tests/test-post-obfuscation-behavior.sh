@@ -41,13 +41,7 @@ assertSymbolicatedCrashdump() {
     verifyFails test grep -- '-\[ViewController justGoAction:]' "$1"
 }
 
-assertDeobfuscatedCrashdump() {
-    verify grep -- '-\[BSClassP doSomethingP:]' "$1"
-    verify grep -- '-\[BSClassO doSomethingO:]' "$1"
-    verify grep -- '+\[BSClassN doSomethingInClassN:]' "$1"
-    verify grep -- '-\[BSClassM doSomethingM:]' "$1"
-    verify grep -- '-\[ViewController justGoAction:]' "$1"
-}
+. "${testRoot}/tests/common-assertions.sh"
 
 input=symbolicated.crash
 output=de-obfuscated.crash
