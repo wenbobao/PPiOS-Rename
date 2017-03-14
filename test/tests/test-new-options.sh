@@ -64,7 +64,7 @@ checkUsage() {
     verify grep -- --analyze "${lastRun}"
     verify grep -- --obfuscate-sources "${lastRun}"
     verify grep -- --translate-crashdump "${lastRun}"
-    verify grep -- --translate-dsym "${lastRun}"
+    verifyFails grep -- --translate-dsym "${lastRun}"
     verify grep -- --list-arches "${lastRun}"
     # minor modes
     verify grep -- --version "${lastRun}"

@@ -21,7 +21,6 @@
 #import "CDCoreDataModelProcessor.h"
 #import "CDSymbolMapper.h"
 #import "CDSystemProtocolsProcessor.h"
-#import "CDdSYMProcessor.h"
 
 NSString *defaultSymbolMappingPath = @"symbols.map";
 
@@ -39,7 +38,6 @@ void print_usage(void)
             "  ppios-rename --analyze [options] <Mach-O file>\n"
             "  ppios-rename --obfuscate-sources [options]\n"
             "  ppios-rename --translate-crashdump [options] <input file> <output file>\n"
-            "  ppios-rename --translate-dsym [options] <input dSYM> <output dSYM>\n"
             "  ppios-rename --list-arches <Mach-O file>\n"
             "  ppios-rename --version\n"
             "  ppios-rename --help\n"
@@ -135,7 +133,6 @@ int main(int argc, char *argv[])
         BOOL shouldObfuscate = NO;
         BOOL shouldListArches = NO;
         BOOL shouldPrintVersion = NO;
-        BOOL shouldTranslateDsym = NO;
         BOOL shouldTranslateCrashDump = NO;
         BOOL shouldShowUsage = NO;
         CDArch targetArch;
@@ -200,7 +197,7 @@ int main(int argc, char *argv[])
                         shouldPrintVersion = YES;
                         break;
                     case CD_OPT_TRANSLATE_DSYM:
-                        shouldTranslateDsym = YES;
+                        terminateWithError(1, "The --translate-dsym functionality has been replaced.  Please see the documentation.");
                         break;
                     case CD_OPT_TRANSLATE_CRASH:
                         shouldTranslateCrashDump = YES;
@@ -355,7 +352,7 @@ int main(int argc, char *argv[])
         }
         NSString *secondArg = nil;
         if(optind + 1 < argc ){
-            if(!(shouldTranslateCrashDump | shouldTranslateDsym)){
+            if(!(shouldTranslateCrashDump)){
                 terminateWithError(1, "Unrecognized additional argument: %s", argv[optind + 1]);
             }
             secondArg = [NSString stringWithFileSystemRepresentation:argv[optind + 1]];
@@ -502,46 +499,6 @@ int main(int argc, char *argv[])
             [processedFile writeToFile:outputCrashDump atomically:YES encoding:NSUTF8StringEncoding error:&error];
             if(error){
                 terminateWithError(4, "Error writing crash dump file: %s", [[error localizedFailureReason] UTF8String]);
-            }
-        } else if (shouldTranslateDsym){
-            NSString *dSYMInPath = firstArg;
-            NSString *dSYMOutPath = secondArg;
-
-            if(!dSYMInPath) {
-                terminateWithError(5, "No valid dSYM input path provided");
-            }
-            if(!dSYMOutPath) {
-                terminateWithError(5, "No valid dSYM output path provided");
-            }
-            NSString *symbolsData = [NSString stringWithContentsOfFile:symbolMappingPath encoding:NSUTF8StringEncoding error:nil];
-            if (symbolsData.length == 0) {
-                terminateWithError(5, "Symbols file does not exist or is empty %s", [symbolMappingPath fileSystemRepresentation]);
-            }
-
-            BOOL isDirectory = NO;
-            BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:dSYMInPath isDirectory:&isDirectory];
-            if(exists){
-                if(!isDirectory){
-                    terminateWithError(5, "Input dSYM path provided is invalid %s", [dSYMInPath fileSystemRepresentation]);
-                }
-            }else{
-                terminateWithError(5, "Input dSYM path provided does not exist %s", [dSYMInPath fileSystemRepresentation]);
-            }
-
-            CDdSYMProcessor *processor = [[CDdSYMProcessor alloc] init];
-            NSArray *dwarfFilesPaths = [processor extractDwarfPathsForDSYM:dSYMInPath];
-
-            for (NSString *dwarfFilePath in dwarfFilesPaths) {
-                NSData *dwarfdumpData = [NSData dataWithContentsOfFile:dwarfFilePath];
-                if (dwarfdumpData.length == 0) {
-                    terminateWithError(4, "DWARF file does not exist or is empty %s", [dwarfFilePath fileSystemRepresentation]);
-                }
-
-                NSData *processedFileContent = [processor processDwarfdump:dwarfdumpData
-                                                               withSymbols:[NSJSONSerialization JSONObjectWithData:[symbolsData dataUsingEncoding:NSUTF8StringEncoding]
-                                                                                                           options:0
-                                                                                                             error:nil]];
-                [processor writeDwarfdump:processedFileContent originalDwarfPath:dwarfFilePath inputDSYM:dSYMInPath outputDSYM:dSYMOutPath];
             }
         }
         exit(0); // avoid costly autorelease pool drain, we’re exiting anyway

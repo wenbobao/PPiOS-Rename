@@ -8,7 +8,6 @@ PreEmptive Protection for iOS - Rename
 * Analyze a Mach-O binary to identify symbols to be renamed
 * Apply the renaming rules to the project source code
 * Translate an obfuscated crash dump back to unobfuscated names
-* Generate unobfuscated dSYM files for upload to analytics tools, for automatic stack trace mapping
 
 *PPiOS-Rename* works with more than just your project's code. It also automatically finds symbols to exclude from renaming by looking at all external/dependent frameworks and in Core Data (xcdatamodel) files. The renamed symbols will also be applied to your XIB/Storyboard files, and to any open-source CocoaPods libraries in your project.
 
@@ -415,11 +414,15 @@ This will show the symbols from your app. If you do this with an unobfuscated bu
     ppios-rename --translate-crashdump --symbols-map path/to/symbols_x.y.z.map path/to/crashdump path/to/output
 
 ### Reversing obfuscation in dSYMs
-*PPiOS-Rename* lets you reverse the process of obfuscation for automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
+It is possible to reverse the process of obfuscation in the dSYMs by using a utility included with [PPiOS-ControlFlow](https://www.preemptive.com/products/ppios).  The de-obfuscated dSYMs let you see the original names in automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
 
-    ppios-rename --translate-dsym --symbols-map path/to/symbols_x.y.z.map path/to/input.dSYM path/to/output.dSYM
+    path/to/ppios-controlflow/bin/llvm-dsymutil -ppios-map=path/to/symbols_x.y.z.map path/to/input.dSYM -o=path/to/output.dSYM
+
+>Note: If you do not pass the `-o` argument, the `input.dSYM` will be manipulated by `llvm-dsymutil`.
 
 The resulting dSYM file can be uploaded to e.g. HockeyApp.
+
+> DEVELOPER NOTE: The original `--translate-dsym` logic did not work properly with small symbol names nor when the obfuscated names were a different size than the originals. It has been replaced by a feature in PPiOS-ControlFlow.
 
 ### Analyzing Frameworks
 
@@ -467,12 +470,6 @@ ppios-rename --obfuscate-sources [options]
 
 ppios-rename --translate-crashdump [options] <input crash dump file> <output crash dump file>
   Translate symbolicated crash dump
-
-  Options:
-    --symbols-map <symbols.map>   Path to symbol map file
-
-ppios-rename --translate-dsym [options] <input dir> <output dir>
-  Translates dsym with obfuscated symbols to dsym with unobfuscated symbols
 
   Options:
     --symbols-map <symbols.map>   Path to symbol map file

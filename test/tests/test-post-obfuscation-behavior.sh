@@ -125,92 +125,14 @@ run "${PPIOS_RENAME}" --translate-crashdump --symbols-map bogus "${input}" "${ou
 assertFails
 assertRunsQuickly
 
-symbolicateCrash() {
-    if test $# -ne 4
-    then
-        echo "$(basename $0): usage: symbolicateCrash <app-name> <dSYM-binary> <in> <out>" >&2
-        exit 1
-    fi
+#----------------------------------------------
+# Test the removed --translate-dsym option.
+#----------------------------------------------
 
-    addresses="$(cat "$3" \
-        | sed -n '/^Thread 0 Crashed:$/,/^$/p' \
-        | grep "$1" \
-        | awk '{ print $4, $3 }')"
-    verify test "$(echo "${addresses}" | wc -l)" -ge 2
-
-    echo -n "" > "$4"
-    echo "${addresses}" | while read line
-    do
-        base="$(echo "${line}" | awk '{print $1}')"
-        address="$(echo "${line}" | awk '{print $2}')"
-        xcrun atos -o "$2" -arch armv7 -l "${base}" "${address}" >> "$4"
-    done
-}
-
-crash=unsymbolicated.crash
-deobfuscated=de-obfuscated-partial.crash
-input=BoxSim.app.dSYM
-output=de-obfuscated.dSYM
-outputBinary="${output}/Contents/Resources/DWARF/BoxSim"
-
-TEST "translate dSYM works"
-originalSum="$(checksum "${input}")"
-run "${PPIOS_RENAME}" --translate-dsym "${input}" "${output}"
-assertSucceeds
-verify test "${originalSum}" = "$(checksum "${input}")" # no change to original
-verify test -e "${output}"
-verifyFails test "${originalSum}" = "$(checksum "${output}")" # changed
-symbolicateCrash "${targetAppName}" "${outputBinary}" "${crash}" "${deobfuscated}"
-assertDeobfuscatedCrashdump "${deobfuscated}"
-
-TEST "translate dSYM works: error handling: no arguments"
+TEST "translate dSYM fails"
 run "${PPIOS_RENAME}" --translate-dsym
 assertFails
 assertRunsQuickly
-
-TEST "translate dSYM works: error handling: only one argument"
-run "${PPIOS_RENAME}" --translate-dsym "${input}"
-assertFails
-assertRunsQuickly
-
-TEST "translate dSYM works: error handling: too many arguments"
-run "${PPIOS_RENAME}" --translate-dsym "${input}" "${output}" bogus
-assertFails
-assertRunsQuickly
-
-TEST "translate dSYM works: error handling: too many arguments"
-run "${PPIOS_RENAME}" --translate-dsym "${input}" "${output}" bogus
-assertFails
-assertRunsQuickly
-
-TEST "translate dSYM works: error handling: empty input"
-run "${PPIOS_RENAME}" --translate-dsym '' "${output}"
-assertFails
-assertRunsQuickly
-
-TEST "translate dSYM works: error handling: bogus input"
-run "${PPIOS_RENAME}" --translate-dsym bogus "${output}"
-assertFails
-assertRunsQuickly
-
-TEST "translate dSYM works: error handling: empty output"
-run "${PPIOS_RENAME}" --translate-dsym "${input}" ''
-assertFails
-assertRunsQuickly
-
-TEST "translate dsym: error handling: symbols-map argument missing"
-run "${PPIOS_RENAME}" --translate-dsym --symbols-map "${input}" "${output}"
-assertFails
-assertRunsQuickly
-
-TEST "translate dsym: error handling: symbols-map argument empty"
-run "${PPIOS_RENAME}" --translate-dsym --symbols-map '' "${input}" "${output}"
-assertFails
-assertRunsQuickly
-
-TEST "translate dsym: error handling: symbols-map argument bogus"
-run "${PPIOS_RENAME}" --translate-dsym --symbols-map bogus "${input}" "${output}"
-assertFails
-assertRunsQuickly
+verify grep -- "--translate-dsym functionality has been replaced" "${lastRun}"
 
 report
