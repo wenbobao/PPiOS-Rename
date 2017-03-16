@@ -409,14 +409,16 @@ This will show the symbols from your app. If you do this with an unobfuscated bu
 
 
 ### Reversing obfuscation in crash dumps
+
 *PPiOS-Rename* lets you reverse the process of obfuscation for crash dump files. This is important so you can find the original classes and methods involved in a crash. It does this by using the information from a map file (e.g. `symbols.map`) to modify the crash dump text, replacing the obfuscated symbols with the original names. For example:
 
     ppios-rename --translate-crashdump --symbols-map path/to/symbols_x.y.z.map path/to/crashdump path/to/output
 
 ### Reversing obfuscation in dSYMs
+
 It is possible to reverse the process of obfuscation in the dSYMs by using a utility included with [PPiOS-ControlFlow](https://www.preemptive.com/products/ppios).  The de-obfuscated dSYMs let you see the original names in automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
 
-    path/to/ppios-controlflow/bin/llvm-dsymutil -ppios-map=path/to/symbols_x.y.z.map path/to/input.dSYM -o=path/to/output.dSYM
+    /usr/local/share/preemptive/PPiOS/bin/llvm-dsymutil -ppios-map=path/to/symbols_x.y.z.map path/to/input.dSYM -o=path/to/output.dSYM
 
 >Note: If you do not pass the `-o` argument, the `input.dSYM` will be manipulated by `llvm-dsymutil`.
 
