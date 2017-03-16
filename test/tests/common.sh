@@ -1,7 +1,7 @@
 #!/usr/bin/env false
 # this script is intended to be sourced by other scripts, not run directly
 
-#Copyright 2016 PreEmptive Solutions, LLC
+#Copyright 2016-2017 PreEmptive Solutions, LLC
 #See LICENSE.txt for licensing information
 
 # Note: this file is being kept in sync with PPiOS-Rename/test/tests/common.sh

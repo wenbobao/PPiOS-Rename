@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Copyright 2016 PreEmptive Solutions, LLC
+#Copyright 2016-2017 PreEmptive Solutions, LLC
 #See LICENSE.txt for licensing information
 
 targetAppName=BoxSim

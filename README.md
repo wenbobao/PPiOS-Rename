@@ -3,7 +3,7 @@ PreEmptive Protection for iOS - Rename
 
 *PreEmptive Protection for iOS - Rename*, or *PPiOS-Rename* for short, is a command-line utility for obfuscating Objective-C class, protocol, property, and methods names, in iOS apps. It is a fork of [iOS-Class-Guard](https://github.com/Polidea/ios-class-guard) from [Polidea](https://www.polidea.com/), with extensive improvements and modifications.
 
-*PPiOS-Rename* works by generating a special set of `#define` statements (e.g. `#define createArray y09FYzLXv7T`) that automatically rename symbols during compilation. It includes a number of features:
+*PPiOS-Rename* works by generating a special set of `#define` statements (e.g. `#define createArray y09FzL7T`) that automatically rename symbols during compilation. It includes a number of features:
 
 * Analyze a Mach-O binary to identify symbols to be renamed
 * Apply the renaming rules to the project source code
@@ -483,3 +483,6 @@ ppios-rename --version
 ppios-rename --help
   Print out usage information
 ```
+
+---------------------------------------------------------------------
+Copyright 2016-2017 PreEmptive Solutions, LLC
