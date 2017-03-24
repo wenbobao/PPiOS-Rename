@@ -115,7 +115,7 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 
 10. Expand the phase, and where it says `Type a script or ...`, paste the following script, adjusting for the correct path:
 
-        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.1.0"
+        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.1.1"
         [[ "${SDKROOT}" == *iPhoneSimulator*.sdk* ]] && sdk="${SDKROOT}" || sdk="${CORRESPONDING_SIMULATOR_SDK_DIR}"
         ppios-rename --analyze --sdk-root "${sdk}" "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}"
 
@@ -134,7 +134,7 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 
 17. Paste the following script, again adjusting for the correct path:
 
-        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.1.0"
+        PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.1.1"
         ppios-rename --obfuscate-sources
 
 18. Edit the scheme (or add one) for this new target, renaming the scheme to `Apply Renaming to <original-scheme-name>`.

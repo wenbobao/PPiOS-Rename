@@ -2,6 +2,13 @@ Change Log
 ==========
 
 
+1.1.1
+-----------------------
+
+### Enhancements:
+### Changes:
+### Fixes:
+
 1.1.0
 -----------------------
 ### Enhancements:
