@@ -342,6 +342,7 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> *supportedArches = nil;
     if (self.sdkRoot != nil) {
         [resultString appendString:@"//\n"];
         [resultString appendFormat:@"// SDK Root: %@\n", self.sdkRoot];
+        [resultString appendFormat:@"// Headers Root: %@\n", self.headersRoot];
         [resultString appendString:@"//\n\n"];
     }
 }

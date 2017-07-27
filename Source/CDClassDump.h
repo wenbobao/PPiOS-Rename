@@ -25,6 +25,7 @@
 @property (copy, nonatomic) NSArray *forceRecursiveAnalyze;
 
 @property (strong) NSString *sdkRoot;
+@property (strong) NSString *headersRoot;
 
 @property (readonly) NSArray *machOFiles;
 @property (readonly) NSArray *objcProcessors;
