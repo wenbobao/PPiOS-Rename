@@ -220,7 +220,7 @@ To fix this, add a `.pch` file as follows:
 
 ### Error: Fat file doesn't contain a valid Mach-O file for the specified architecture (...). It probably means that class-dump was run on a static library, which is not supported.
 
-You have tried to run analysis on a static library or framework.  Sometimes, it will work if you `--analyze` the `AppName.framework` directory created by Xcode when archiving.  Try archiving the framework from Xcode and use the `AppName.framework` folder created inside the project's derived data folder (`~Library/Developer/Xcode/DerivedData/ProjectName-.../...`).
+You have tried to run analysis on a static library or framework. Sometimes, it will work if you `--analyze` the `AppName.framework` directory created by Xcode when archiving. Try archiving the framework from Xcode and use the `AppName.framework` folder created inside the project's derived data folder (`~Library/Developer/Xcode/DerivedData/ProjectName-.../...`).
 
 ### Undefined symbols / exclusions
 
@@ -267,7 +267,7 @@ This will exclude symbols named *deflate* and symbols that start with *curl_*.
 
 `?` matches any single character, while `*` matches any number of characters.
 
-> Note: Symbols excluded with `-x` will be excluded regardless of positive `-F` filters (`-x` "wins").  However, `-x` exclusions do not propagate like `-F` inclusions/exclusions do.  For example, specifying `-F '!*' -F MyClass -x MyClass` will not rename the `MyClass` class itself, but will rename the properties and methods contained therein.
+> Note: Symbols excluded with `-x` will be excluded regardless of positive `-F` filters (`-x` "wins"). However, `-x` exclusions do not propagate like `-F` inclusions/exclusions do. For example, specifying `-F '!*' -F MyClass -x MyClass` will not rename the `MyClass` class itself, but will rename the properties and methods contained therein.
 
 #### Property name exclusions
 When excluding properties (either via `-x` or via propagation from `-F`), the following names are also excluded (assuming the propery name is `propertyName`):
@@ -284,11 +284,11 @@ Ensure you have excluded all the classes, properties, etc specified in the distr
 
 #### Undefined symbols for architecture ...: "_OBJC_CLASS_$_SomeClass", referenced from: objc-class-ref in ObjectFile.o
 
-This linking issue occurred because `SomeClass` was not excluded when analyzing the framework.  Add `-F '!ClassName'` to the command line when analyzing.  You will then need to obfuscate, build, and redistribute the framework.
+This linking issue occurred because `SomeClass` was not excluded when analyzing the framework. Add `-F '!ClassName'` to the command line when analyzing. You will then need to obfuscate, build, and redistribute the framework.
 
 #### 'NSInvalidArgumentException', reason: '-[_ClassName setPropertyName:]: unrecognized selector sent to instance 0x145a7c90'
 
-This end user application runtime failure occurred because `PropertyName` was not excluded when analyzing the framework.  Add `-x PropertyName` to the the command line when analyzing.  You will then need to obfuscate, build, and redistribute the framework.
+This end user application runtime failure occurred because `PropertyName` was not excluded when analyzing the framework. Add `-x PropertyName` to the the command line when analyzing. You will then need to obfuscate, build, and redistribute the framework.
 
 ### XIB and Storyboards limitations
 If you're using external libraries which provide Interface Builder files, be sure to ignore those symbols as they won't work when you launch the app and try to use them. You can do that using the `-F` option to the Analyze phase.
@@ -375,7 +375,7 @@ If you created an archive, Xcode would have placed it in the *archives* director
 
   * Binary: `Products/Applications/{AppName}.app/{AppName}`
   * dSYM: `dSYMs/{AppName}.app.dSYM
-  >Note: If you have uploaded your archive to Apple's App Store it may have been recompiled from bitcode and you would need to download the new dSYM files from either <https://itunesconnect.apple.com> or by using the *Download dSYMS...* button in Xcode's *Organizer* window.  The *Download dSYMS...* button will download a dSYM for each architecture to the same `dSYMs` in the *archives* directory, but it will be named `{SOME GUID}.dSYM`.
+  >Note: If you have uploaded your archive to Apple's App Store it may have been recompiled from bitcode and you would need to download the new dSYM files from either <https://itunesconnect.apple.com> or by using the *Download dSYMS...* button in Xcode's *Organizer* window. The *Download dSYMS...* button will download a dSYM for each architecture to the same `dSYMs` in the *archives* directory, but it will be named `{SOME GUID}.dSYM`.
 
 #### .ipa File
 
@@ -416,7 +416,7 @@ This will show the symbols from your app. If you do this with an unobfuscated bu
 
 ### Reversing obfuscation in dSYMs
 
-It is possible to reverse the process of obfuscation in the dSYMs by using a utility included with [PPiOS-ControlFlow](https://www.preemptive.com/products/ppios).  The de-obfuscated dSYMs let you see the original names in automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
+It is possible to reverse the process of obfuscation in the dSYMs by using a utility included with [PPiOS-ControlFlow](https://www.preemptive.com/products/ppios). The de-obfuscated dSYMs let you see the original names in automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
 
     /usr/local/share/preemptive/PPiOS/bin/llvm-dsymutil -ppios-map=path/to/symbols_x.y.z.map path/to/input.dSYM -o=path/to/output.dSYM
 
@@ -428,7 +428,7 @@ The resulting dSYM file can be uploaded to e.g. HockeyApp.
 
 ### Analyzing Dynamic Frameworks
 
-Analyzing a dynamic framework is similar to analyzing an application, but will probably require many more filters.  To start, use:
+Analyzing a dynamic framework is similar to analyzing an application, but will probably require many more filters. To start, use:
 
     ppios-rename --analyze /path/to/ProjectName.framework/ProjectName
 
@@ -438,7 +438,7 @@ If the `--analyze` is not properly finding your framework, then add the `--frame
 
     ppios-rename --analyze --framework ProjectName /path/to/framework/executable
 
-You then need to determine and use the proper filters.  You will need to choose one of two ways depending on how many public APIs you include in your framework:
+You then need to determine and use the proper filters. You will need to choose one of two ways depending on how many public APIs you include in your framework:
 
 * Exclude everything which is mentioned in the `.h` files you distribute with the framework.
 * Start with a `-F '!*'` (exclude everything) and then include things not mentioned in those headers.
@@ -447,30 +447,30 @@ You then need to determine and use the proper filters.  You will need to choose 
 
 ### Obfuscating Static Libraries
 
-Static libraries cannot be directly processed by *PPiOS-Rename*, but it is possible to work around the technical issue preventing direct processing.  The basic idea is:
+Static libraries cannot be directly processed by *PPiOS-Rename*, but it is possible to work around the technical issue preventing direct processing. Although the initial setup is somewhat involved, once this is complete the build process is no more complicated than with *PPiOS-Rename* other projects. The basic idea is:
 
 1. Create a workspace to simplify interactions with the library.
 2. Create an app that uses the static library.
-3. Reference all of the public classes in the library.
+3. Reference all of the public classes, protocols, etc. in the library.
 4. Use the app for the analysis portion of PPiOS-Rename.
 5. Use the analysis to apply renaming to the static library's sources.
 6. Build the static library.
 
-Referencing the public classes from the code in the wrapping app, pulls all of these classes and all of the classes that they reference into the app.  Using this as the basis for analysis would rename all of the symbols in the static library.  In order for the static library to be usable externally, however, the public symbols need to be excluded from renaming.
+Referencing the public classes from the code in the wrapping app pulls all of these classes and all of the classes that they reference into the app. Using this as the basis for analysis would rename **all of the symbols in the static library**. The resulting library would be unusable because all of the identifiers in the API would be renamed. In order for the static library to be usable externally, all of the public symbols need to be excluded from renaming. Excluding these classes must be done manually, but `ppios-rename` will exclude all of the members of these classes.
 
-This procedure is as follows:
+The procedure is as follows:
 
 1. If your static library project (referred to here as `StaticLib`) does not already have a containing workspace, create one:
     1. In Xcode, go to `File` > `New` > `Workspace ...`.
-    2. Choose an appropriate name for the workspace (referred to here as `LibWorkspace`), and save it in the directory containing the `StaticLib` project directory.  See the source tree layout shown below.
+    2. Choose an appropriate name for the workspace (referred to here as `LibWorkspace`), and save it in the directory containing the `StaticLib` project directory. See the source tree layout shown below.
     3. Go to `File` > `Add Files to "LibWorkspace"...`.
     4. Add the project file `StaticLib/StaticLib.xcodeproj`.
 
-2. Create a new project:
+2. From within the workspace, create a new project:
     1. In Xcode, go to `File` > `New` > `Project ...`.
     2. Select `iOS`, and under the `Application` section select `Single View Application`.
     3. When choosing the options, specify the `Product Name` as `WrappingApp`, and be sure to select Objective-C as the language.
-    4. Specify the directory to store the `WrappingApp` project as a sibling of the static library's project directory.  These instructions expect a source tree layout like the following, with everything under `someParentDir` under version control:
+    4. Specify the directory to store the `WrappingApp` project as a sibling of the static library's project directory. These instructions expect a source tree layout like the following, with everything under `someParentDir` under version control:
 
             someParentDir/StaticLib/StaticLib.xcodeproj
             someParentDir/LibWorkspace.xcworkspace
@@ -487,14 +487,15 @@ This procedure is as follows:
     1. Follow `Project Setup` instructions [steps 5-12 above](#configureAnalyze), but apply them to `WrappingApp`, rather than the static library, and modify the original `WrappingApp` target (duplication of the target is unnecessary).
     2. You may need to close and re-open the workspace to get Xcode to use the correct target name in the report navigator.
     3. <a name="countUniqueSymbols"></a>Clean and build the `Build and Analyze WrappingApp` target.
-    4. Review the build log in the report navigator, and look for the number of `Generated unique symbols`.  This should be about 10.
-    5. Create a list of public classes for the static library, it will be needed in two places.  Either create the list using the following procedure (requires that the name of the public header files match the names of the classes), or create the list by hand.
+    4. Review the build log in the report navigator, and look for the number of `Generated unique symbols`. This should be about 10.
+    5. Create a list of public classes for the static library, it will be needed in two places. Either create the list using the following procedure (requires that the name of the public header files match the names of the classes), or create the list by hand.
         1. Go to the Report Navigator, review the log for a build of `StaticLib`, select a copy file task for one of the header files, right-click and `Copy`.
         2. Paste the result in a text editor.
         3. Select and copy the build output path (this should have the form: `<products-directory>/include/StaticLib`, and contain the string `/DerivedData/`).
         4. At a command-line, run the following command, from `someParentDir`.
 
-                # Replace .../include/StaticLib with the path
+                # Replace ".../include/StaticLib" with the path
+                # Replace "StaticLib" with the name of the umbrella header
                 ls ".../include/StaticLib" | sed 's/[.]h$//' | grep -v StaticLib > public-classes.list
                 # verify the contents
                 head public-classes.list
@@ -507,7 +508,7 @@ This procedure is as follows:
 
                 #import <StaticLib/StaticLib.h>
 
-        2. Add code to call `alloc` on each of the public classes in `StaticLib`.  Use the following script to produce the code, using `public-classes.list` produced earlier:
+        2. Add code to call `alloc` on each of the public classes in `StaticLib`. Use the following script to produce the code, using `public-classes.list` produced earlier:
 
                 cat public-classes.list | sed 's/\(.*\)/[\1 alloc];/' > alloc-statements.txt
                 head alloc-statements.txt
@@ -515,23 +516,27 @@ This procedure is as follows:
                 # [SLAnotherPublicClass alloc];
                 # ...
 
+        >Note: This is an additional point of maintenance: as classes are added to or removed from the public API of the library, this code will need to be updated accordingly.
+
         3. Add the content of `alloc-statements.txt` to the body of the `application:didFinishLaunchingWithOptions:` method.
 
-    7. Repeat steps [iii-iv](#countUniqueSymbols).  The number of unique symbols should jump significantly.  This should be all of the public and all of the non-public symbols from `StaticLib`.
-    8. Exclude the public classes from renaming, by using the `-F` option (and other symbols with `-x`, as needed) on the command-line to `ppios-rename` (in the `Analyze Binary` run script phase).  The following script will help produce the options to add:
+    7. Repeat steps [iii-iv](#countUniqueSymbols). The number of unique symbols should jump significantly. This should be all of the public and all of the non-public symbols from `StaticLib`.
+    8. Exclude the public classes from renaming, by using the `-F` option (and other symbols with `-x`, as needed) on the command-line to `ppios-rename` (in the `Analyze Binary` run script phase). The following script will help produce the options to add:
 
-            for each in $(cat public-classes.list) ; do echo -n "-F '"'!'"$each' " ; done
+            for each in $(cat public-classes.list) ; do printf -- '-F !%s ' "$each" ; done
             # -F '!SLPublicClass' -F '!SLAnotherPublicClass' ...
             # Add this list of options after `--analyze `
 
-    9. Repeat steps [iii-iv](#countUniqueSymbols).  The number of unique symbols should decrease, but still be significantly more than 10.  This should be the count of all of the non-public symbols (non-public symbols for which there are not public symbols with the same name).
+    >Note: This is an additional point of maintenance: as classes are added to or removed from the public API of the library, the list of options to `ppios-rename` will need to be updated accordingly.
+
+    9. Repeat steps [iii-iv](#countUniqueSymbols). The number of unique symbols should decrease, but still be significantly more than 10. This should be the count of all of the non-public symbols (non-public symbols for which there are not public symbols with the same name).
     10. Review the list of classes that will be renamed, by executing the following at a command-line (assuming all of the class names are prefixed with the two letters `SL`):
 
             cat WrappingApp/symbols.map | awk '{print $3}' | sed 's/[",]//g' | grep '^SL' > renamed-classes.txt
 
 4. Modify the static library project to apply the renaming:
     1. Follow `Project Setup` instructions [steps 13-16 above](#configureRenaming), applying them to the static library target.
-    2. The call to `ppios-rename` needs to reference the `symbols.map` file from the WrappingApp project, using the `--symbols-map` option.  Use this script for the new Run Script phase (adjusting the path as necessary):
+    2. The call to `ppios-rename` needs to reference the `symbols.map` file from the WrappingApp project, using the `--symbols-map` option. Use this script for the new Run Script phase (adjusting the path as necessary):
 
             PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.1.1"
             ppios-rename --obfuscate-sources --symbols-map ../WrappingApp/symbols.map
