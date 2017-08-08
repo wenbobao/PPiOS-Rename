@@ -10,6 +10,10 @@
 
 #import "CDFile.h" // For CDArch
 
+#define NOT_MACHO_OR_FAT_MESSAGE "Input file (%s) is neither a Mach-O file nor a fat archive."
+#define STATIC_LIBRARY_MESSAGE "If you are trying to obfuscate a static library, please review the " \
+    "'Obfuscating Static Libraries' section of the documentation."
+
 @class CDFile;
 @class CDTypeController;
 @class CDVisitor;

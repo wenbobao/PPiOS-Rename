@@ -408,7 +408,12 @@ int main(int argc, char *argv[])
             if (file == nil) {
                 if ([fileManager fileExistsAtPath:executablePath]) {
                     if ([fileManager isReadableFileAtPath:executablePath]) {
-                        terminateWithError(1, "Input file (%s) is neither a Mach-O file nor a fat archive.", [executablePath UTF8String]);
+                        if ([executablePath hasSuffix:@".a"]) {
+                            terminateWithError(1, NOT_MACHO_OR_FAT_MESSAGE " " STATIC_LIBRARY_MESSAGE,
+                                               [executablePath UTF8String]);
+                        } else {
+                            terminateWithError(1, NOT_MACHO_OR_FAT_MESSAGE, [executablePath UTF8String]);
+                        }
                     } else {
                         terminateWithError(1, "Input file (%s) is not readable (check read permissions).", [executablePath UTF8String]);
                     }
