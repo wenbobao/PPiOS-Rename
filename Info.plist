@@ -5,10 +5,10 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.stevenygard.class-dump</string>
+	<string>com.preemptive.ppios-rename</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>class-dump</string>
+	<string>ppios-rename</string>
 </dict>
 </plist>

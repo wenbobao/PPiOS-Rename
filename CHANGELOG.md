@@ -4,10 +4,14 @@ Change Log
 
 1.1.1
 -----------------------
-
 ### Enhancements:
+
+* Documented workaround for renaming static libraries. (\#16127)
+
 ### Changes:
-### Fixes:
+
+* Updated error messages when attempting to directly process static libraries. (\#16127)
+
 
 1.1.0
 -----------------------
