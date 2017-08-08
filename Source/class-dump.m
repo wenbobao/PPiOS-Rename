@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
                 if ([fileManager fileExistsAtPath:executablePath]) {
                     if ([fileManager isReadableFileAtPath:executablePath]) {
                         if ([executablePath hasSuffix:@".a"]) {
-                            terminateWithError(1, NOT_MACHO_OR_FAT_MESSAGE " " STATIC_LIBRARY_MESSAGE,
+                            terminateWithError(1, (NOT_MACHO_OR_FAT_MESSAGE " " STATIC_LIBRARY_MESSAGE),
                                                [executablePath UTF8String]);
                         } else {
                             terminateWithError(1, NOT_MACHO_OR_FAT_MESSAGE, [executablePath UTF8String]);

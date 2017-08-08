@@ -464,7 +464,7 @@ Static libraries cannot be directly processed by *PPiOS-Rename*, but it is possi
 5. Use the analysis to apply renaming to the static library's sources.
 6. Build the static library.
 
-Referencing the public classes from the code in the wrapping app pulls all of these classes and all of the classes that they reference into the app. Using this as the basis for analysis would rename **all of the symbols in the static library**. The resulting library would be unusable because all of the identifiers in the API would be renamed. In order for the static library to be usable externally, all of the public symbols need to be excluded from renaming. Excluding these classes **must be done manually** (`ppios-rename` will exclude all of the members of these classes).
+Referencing the public classes from the code in the wrapping app pulls all of these classes and all of the classes that they reference into the app. Using this as the basis for analysis would rename **all of the symbols in the static library**. The resulting library would be unusable because all of the identifiers in the API would be renamed. In order for the static library to be usable externally, all of the public symbols need to be excluded from renaming. Excluding these classes **must be done manually**. `ppios-rename` will exclude all of the members of these classes, automatically, once the classes are excluded.
 
 The procedure is as follows:
 
