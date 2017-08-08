@@ -218,9 +218,17 @@ To fix this, add a `.pch` file as follows:
 
 4. At the target's *Build Settings*, in *Apple LLVM - Language* section, set **Precompile Prefix Header** to *YES*.
 
-### Error: Fat file doesn't contain a valid Mach-O file for the specified architecture (...). It probably means that class-dump was run on a static library, which is not supported.
+### Error: Fat file does not contain a valid Mach-O binary for the specified architecture (...). If you are trying to obfuscate a static library, please review the 'Obfuscating Static Libraries' section of the documentation.
 
-You have tried to run analysis on a static library or framework. Sometimes, it will work if you `--analyze` the `AppName.framework` directory created by Xcode when archiving. Try archiving the framework from Xcode and use the `AppName.framework` folder created inside the project's derived data folder (`~Library/Developer/Xcode/DerivedData/ProjectName-.../...`).
+You have tried to run analysis on a static library or framework.
+
+If you are trying to analyze a static library, please follow the instructions in the [Obfuscating Static Libraries](#obfuscating-static-libraries) section below.
+
+If you are trying to analyze a framework, sometimes it will work if you `--analyze` the `AppName.framework` directory created by Xcode when archiving. Try archiving the framework from Xcode and use the `AppName.framework` folder created inside the project's derived data folder (`~Library/Developer/Xcode/DerivedData/ProjectName-.../...`).
+
+### Input file (...) is neither a Mach-O file nor a fat archive. If you are trying to obfuscate a static library, please review the 'Obfuscating Static Libraries' section of the documentation.
+
+If you are trying to analyze a static library, please follow the instructions in the [Obfuscating Static Libraries](#obfuscating-static-libraries) section below.
 
 ### Undefined symbols / exclusions
 
