@@ -1,7 +1,7 @@
 PreEmptive Protection for iOS - Rename
 ======================================
 
-*PreEmptive Protection for iOS - Rename*, or *PPiOS-Rename* for short, is a command-line utility for obfuscating Objective-C class, protocol, property, and methods names, in iOS apps. It is a fork of [iOS-Class-Guard](https://github.com/Polidea/ios-class-guard) from [Polidea](https://www.polidea.com/), with extensive improvements and modifications.
+*PreEmptive Protection for iOS - Rename*, or *PPiOS-Rename* for short, is a command line utility for obfuscating Objective-C class, protocol, property, and methods names, in iOS apps. It is a fork of [iOS-Class-Guard](https://github.com/Polidea/ios-class-guard) from [Polidea](https://www.polidea.com/), with extensive improvements and modifications.
 
 *PPiOS-Rename* works by generating a special set of `#define` statements (e.g. `#define createArray y09FzL7T`) that automatically rename symbols during compilation. It includes a number of features:
 
@@ -26,7 +26,7 @@ How It Works
 ### Phase 1: Analyze
 `ppios-rename --analyze [--symbols-map symbols.map] <Mach-O binary>`
 
-In this phase, *PPiOS-Rename* analyzes the unobfuscated compiled build of your app to determine which symbols should be renamed. It parses all classes, properties, methods and i-vars defined in that file adding all symbols to a "rename list". Then it builds up an "excludes list" with standard reserved words, symbols from dependent frameworks, symbols in Core Data (xcdatamodel) files, and any symbols that have been explicitly excluded via command-line arguments. It them combines those lists to generate a final list of symbols that will be renamed.
+In this phase, *PPiOS-Rename* analyzes the unobfuscated compiled build of your app to determine which symbols should be renamed. It parses all classes, properties, methods and i-vars defined in that file adding all symbols to a "rename list". Then it builds up an "excludes list" with standard reserved words, symbols from dependent frameworks, symbols in Core Data (xcdatamodel) files, and any symbols that have been explicitly excluded via command line arguments. It them combines those lists to generate a final list of symbols that will be renamed.
 
 For each such symbol, it generates a random identifier, and writes a "map file" (`symbols.map`, by default) with the original names mapped to the new random names. That map file is the final output of the Analyze phase, and is a required input for the next phase, Obfuscate Sources.
 
@@ -240,7 +240,7 @@ During the build, after the Obfuscate Source phase, you may see errors like this
 
 You might also see `unresolved external` linker errors, e.g. if you used a C function and named an Objective-C method using the same name.
 
-These errors usually mean that *PPiOS-Rename* obfuscated a symbol that needs to be excluded for some reason. You can find the symbol by searching `symbols.map` or `symbols.h` for the referenced symbol (`n9z`, in this example) to see what the original name was. Then you can exclude the symbol via command-line arguments to the Analyze phase, via `-F` or `-x`, described below.
+These errors usually mean that *PPiOS-Rename* obfuscated a symbol that needs to be excluded for some reason. You can find the symbol by searching `symbols.map` or `symbols.h` for the referenced symbol (`n9z`, in this example) to see what the original name was. Then you can exclude the symbol via command line arguments to the Analyze phase, via `-F` or `-x`, described below.
 
 In this example, if `n9z` had mapped to `PSSomeClass`, you would add `-F '!PSSomeClass'` to your arguments when running `--analyze`.
 
@@ -459,12 +459,12 @@ Static libraries cannot be directly processed by *PPiOS-Rename*, but it is possi
 
 1. Create a workspace to simplify interactions with the library.
 2. Create an app that uses the static library.
-3. Reference all of the public classes, protocols, etc. in the library.
+3. Reference all of the library's public classes, protocols, etc. in the app.
 4. Use the app for the analysis portion of PPiOS-Rename.
 5. Use the analysis to apply renaming to the static library's sources.
 6. Build the static library.
 
-Referencing the public classes from the code in the wrapping app pulls all of these classes and all of the classes that they reference into the app. Using this as the basis for analysis would rename **all of the symbols in the static library**. The resulting library would be unusable because all of the identifiers in the API would be renamed. In order for the static library to be usable externally, all of the public symbols need to be excluded from renaming. Excluding these classes must be done manually, but `ppios-rename` will exclude all of the members of these classes.
+Referencing the public classes from the code in the wrapping app pulls all of these classes and all of the classes that they reference into the app. Using this as the basis for analysis would rename **all of the symbols in the static library**. The resulting library would be unusable because all of the identifiers in the API would be renamed. In order for the static library to be usable externally, all of the public symbols need to be excluded from renaming. Excluding these classes **must be done manually** (`ppios-rename` will exclude all of the members of these classes).
 
 The procedure is as follows:
 
@@ -478,29 +478,29 @@ The procedure is as follows:
     1. In Xcode, go to `File` > `New` > `Project ...`.
     2. Select `iOS`, and under the `Application` section select `Single View Application`.
     3. When choosing the options, specify the `Product Name` as `WrappingApp`, and be sure to select Objective-C as the language.
-    4. Specify the directory to store the `WrappingApp` project as a sibling of the static library's project directory. These instructions expect a source tree layout like the following, with everything under `someParentDir` under version control:
+    4. Specify the directory to store the `WrappingApp` project as a sibling of the static library's project directory. These instructions expect a source tree layout like the following, with everything under `someParentDir` under source control:
 
             someParentDir/StaticLib/StaticLib.xcodeproj
             someParentDir/LibWorkspace.xcworkspace
             someParentDir/WrappingApp/WrappingApp.xcodeproj
 
     5. At the bottom of this dialog, specify `Add to:` the `LibWorkspace` workspace, and select `Create`.
-    6. Select the WrappingApp target, and clean and build the project to verify that the project builds.
-    7. Go to the Project Navigator, select the `WrappingApp` project, and then select the `WrappingApp` target.
+    6. Select the WrappingApp target, then clean and build the project to verify that the project builds.
+    7. Go to the Project Navigator, select the `WrappingApp` project, and select the `WrappingApp` target.
     8. Select `General`, scroll to the bottom, and select the `+` to add to the list of `Linked Frameworks and Libraries`.
-    9. Add `libStaticLib.a`, this should appear under the `Workspace` section in the dialog.
-    10. Clean and build again to verify that this builds correctly (it should build the static library first and then the app).
+    9. Add `libStaticLib.a`. This should appear under the `Workspace` section in the dialog.
+    10. Clean and build again to verify that the workspace builds correctly. It should build the static library first and then the app.
 
 3. Setup *PPiOS-Rename* to analyze the app:
-    1. Follow `Project Setup` instructions [steps 5-12 above](#configureAnalyze), but apply them to `WrappingApp`, rather than the static library, and modify the original `WrappingApp` target (duplication of the target is unnecessary).
+    1. Follow `Project Setup` instructions [5-12 above](#configureAnalyze), but apply them to `WrappingApp`, rather than the static library, and modify the original `WrappingApp` target. Duplication of the target is unnecessary.
     2. You may need to close and re-open the workspace to get Xcode to use the correct target name in the report navigator.
     3. <a name="countUniqueSymbols"></a>Clean and build the `Build and Analyze WrappingApp` target.
-    4. Review the build log in the report navigator, and look for the number of `Generated unique symbols`. This should be about 10.
-    5. Create a list of public classes for the static library, it will be needed in two places. Either create the list using the following procedure (requires that the name of the public header files match the names of the classes), or create the list by hand.
+    4. Review the build log in the report navigator and look for the number of `Generated unique symbols`. This should be about 10.
+    5. Create a list of public classes for the static library, which will be used in two of the following steps. Either create the list using the following procedure (requires that the name of the public header files match the names of the classes), or create the list by hand.
         1. Go to the Report Navigator, review the log for a build of `StaticLib`, select a copy file task for one of the header files, right-click and `Copy`.
         2. Paste the result in a text editor.
-        3. Select and copy the build output path (this should have the form: `<products-directory>/include/StaticLib`, and contain the string `/DerivedData/`).
-        4. At a command-line, run the following command, from `someParentDir`.
+        3. Select and copy the build output path. This should have the form: `<products-directory>/include/StaticLib`, and contain the string `/DerivedData/`.
+        4. At a command line, run the following commands, from `someParentDir`:
 
                 # Replace ".../include/StaticLib" with the path
                 # Replace "StaticLib" with the name of the umbrella header
@@ -529,7 +529,7 @@ The procedure is as follows:
         3. Add the content of `alloc-statements.txt` to the body of the `application:didFinishLaunchingWithOptions:` method.
 
     7. Repeat steps [iii-iv](#countUniqueSymbols). The number of unique symbols should jump significantly. This should be all of the public and all of the non-public symbols from `StaticLib`.
-    8. Exclude the public classes from renaming, by using the `-F` option (and other symbols with `-x`, as needed) on the command-line to `ppios-rename` (in the `Analyze Binary` run script phase). The following script will help produce the options to add:
+    8. Update the analyze script (`Analyze Binary` run script phase) to exclude the public classes from renaming by using the `-F` option (and other symbols with `-x`, as needed) on the `ppios-rename` command line. The following script will produce the options to add:
 
             for each in $(cat public-classes.list) ; do printf -- '-F !%s ' "$each" ; done
             # -F '!SLPublicClass' -F '!SLAnotherPublicClass' ...
@@ -538,12 +538,12 @@ The procedure is as follows:
     >Note: This is an additional point of maintenance: as classes are added to or removed from the public API of the library, the list of options to `ppios-rename` will need to be updated accordingly.
 
     9. Repeat steps [iii-iv](#countUniqueSymbols). The number of unique symbols should decrease, but still be significantly more than 10. This should be the count of all of the non-public symbols (non-public symbols for which there are not public symbols with the same name).
-    10. Review the list of classes that will be renamed, by executing the following at a command-line (assuming all of the class names are prefixed with the two letters `SL`):
+    10. Review the list of classes that will be renamed by executing the following at a command line (assuming all of the class names are prefixed with the two letters `SL`):
 
             cat WrappingApp/symbols.map | awk '{print $3}' | sed 's/[",]//g' | grep '^SL' > renamed-classes.txt
 
 4. Modify the static library project to apply the renaming:
-    1. Follow `Project Setup` instructions [steps 13-16 above](#configureRenaming), applying them to the static library target.
+    1. Follow `Project Setup` instructions [13-16 above](#configureRenaming), applying them to the static library target.
     2. The call to `ppios-rename` needs to reference the `symbols.map` file from the WrappingApp project, using the `--symbols-map` option. Use this script for the new Run Script phase (adjusting the path as necessary):
 
             PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.1.1"
