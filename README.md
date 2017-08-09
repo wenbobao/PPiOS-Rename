@@ -528,7 +528,7 @@ The procedure is as follows:
 
         3. Add the content of `alloc-statements.txt` to the body of the `application:didFinishLaunchingWithOptions:` method.
 
-    7. Repeat steps [iii-iv](#countUniqueSymbols). The number of unique symbols should jump significantly. This should be all of the public and all of the non-public symbols from `StaticLib`.
+    7. Repeat steps [3.iii - 3.iv](#countUniqueSymbols). The number of unique symbols should jump significantly. This should be all of the public and all of the non-public symbols from `StaticLib`.
     8. Update the analyze script (`Analyze Binary` run script phase) to exclude the public classes from renaming by using the `-F` option (and other symbols with `-x`, as needed) on the `ppios-rename` command line. The following script will produce the options to add:
 
             for each in $(cat public-classes.list) ; do printf -- '-F !%s ' "$each" ; done
@@ -537,7 +537,7 @@ The procedure is as follows:
 
     >Note: This is an additional point of maintenance: as classes are added to or removed from the public API of the library, the list of options to `ppios-rename` will need to be updated accordingly.
 
-    9. Repeat steps [iii-iv](#countUniqueSymbols). The number of unique symbols should decrease, but still be significantly more than 10. This should be the count of all of the non-public symbols (non-public symbols for which there are not public symbols with the same name).
+    9. Repeat steps [3.iii - 3.iv](#countUniqueSymbols). The number of unique symbols should decrease, but still be significantly more than 10. This should be the count of all of the non-public symbols (non-public symbols for which there are not public symbols with the same name).
     10. Review the list of classes that will be renamed by executing the following at a command line (assuming all of the class names are prefixed with the two letters `SL`):
 
             cat WrappingApp/symbols.map | awk '{print $3}' | sed 's/[",]//g' | grep '^SL' > renamed-classes.txt
