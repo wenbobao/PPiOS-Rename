@@ -521,7 +521,7 @@ The procedure is as follows:
             PATH="${PATH}:${HOME}/Downloads/PPiOS-Rename-v1.1.1"
             [[ "${SDKROOT}" == *iPhoneSimulator*.sdk* ]] && sdk="${SDKROOT}" || sdk="${CORRESPONDING_SIMULATOR_SDK_DIR}"
             ppios-rename --analyze --sdk-root "${sdk}" \
-                $(for each in $(cat ../public-types.list) ; do printf -- "-F '"\!"%s' " "$each" ; done) \
+                $(for each in $(cat ../public-types.list) ; do printf -- '-F !%s ' "$each" ; done) \
                 "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}"
 
     7. Repeat steps [3.iii - 3.iv](#countUniqueSymbols). The number of unique symbols should decrease, but still be significant. This should be the count of all of the non-public symbols (non-public symbols for which there are not public symbols with the same name).
