@@ -496,7 +496,7 @@ The procedure is as follows:
     2. You may need to close and re-open the workspace to get Xcode to use the correct target name in the report navigator.
     3. <a name="countUniqueSymbols"></a>Clean and build the `Build and Analyze WrappingApp` target.
     4. Review the build log in the report navigator and look for the number of `Generated unique symbols`. This number should include all of the public and all of the non-public symbols from `StaticLib`. This will also include a small number of symbols from classes in the app itself. These should be benign, but can be excluded manually if necessary.
-    5. Create a list of public types for the static library. Either create the list using the following procedure, or create the list manually. The procedure requires that the names of the public header files match the names of the types, or follow `AffectedType+CategoryName.h` convention.
+    5. Create a list of public types for the static library named `public-types.list`. Either create the list using the following procedure, or create the list manually. The procedure requires that the names of the public header files match the names of the types, or follow `AffectedType+CategoryName.h` convention.
         1. Go to the Report Navigator, review the log for a build of `StaticLib`, select a copy file task for one of the header files, right-click and `Copy`.
         2. Paste the result in a text editor.
         3. Select and copy the build output path. This should have the form: `<products-directory>/include/StaticLib`, and contain the string `/DerivedData/`.
