@@ -428,7 +428,7 @@ It is possible to reverse the process of obfuscation in the dSYMs by using a uti
 
     /usr/local/share/preemptive/PPiOS/bin/llvm-dsymutil -ppios-map=path/to/symbols_x.y.z.map path/to/input.dSYM -o=path/to/output.dSYM
 
->Note: If you do not pass the `-o` argument, the `input.dSYM` will be manipulated by `llvm-dsymutil`.
+>Note: If you do not specify an output dSYM by passing the `-o` argument, the input dSYM **itself** will be altered by running the `llvm-dsymutil` command.
 
 The resulting dSYM file can be uploaded to e.g. HockeyApp.
 

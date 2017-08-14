@@ -79,6 +79,9 @@ static NSString *resolveSDKPath(NSFileManager *fileManager,
                                 NSString *const sdkRootOption,
                                 NSString *const sdkIOSOption);
 
+static NSString *resolveFrameworkRoot(NSFileManager *fileManager,
+                                      NSString *const sdkRoot);
+
 static NSArray<NSString *> *assembleClassFilters(CDClassDump *classDump,
                                                  NSArray<NSString *> *commandLineClassFilters);
 
@@ -402,7 +405,9 @@ int main(int argc, char *argv[])
             }
             classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
 
-            classDump.sdkRoot = resolveSDKPath(fileManager, sdkRootOption, sdkIOSOption);
+            NSString *sdkRoot = resolveSDKPath(fileManager, sdkRootOption, sdkIOSOption);
+            classDump.headersRoot = sdkRoot;
+            classDump.sdkRoot = resolveFrameworkRoot(fileManager, sdkRoot);
 
             CDFile *file = [CDFile fileWithContentsOfFile:executablePath searchPathState:classDump.searchPathState];
             if (file == nil) {
@@ -519,13 +524,13 @@ static NSArray<NSString *> *assembleClassFilters(CDClassDump *classDump,
 
     // scan for system protocols
     CDSystemProtocolsProcessor *systemProtocolsProcessor
-            = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.sdkRoot];
+            = [[CDSystemProtocolsProcessor alloc] initWithSdkPath:classDump.headersRoot];
     NSArray<NSString *> *systemProtocols
             = [systemProtocolsProcessor systemProtocolsSymbolsToExclude];
     if (systemProtocols == nil) {
         terminateWithError(1,
                 "Unable to process system headers from SDK: %s",
-                [classDump.sdkRoot UTF8String]);
+                [classDump.headersRoot UTF8String]);
     }
 
     // assemble the class filters
@@ -596,4 +601,24 @@ static NSString *resolveSDKPath(NSFileManager *fileManager,
     }
 
     return sdkPath;
+}
+
+// In Xcode 9, the Framework binaries and header files were moved into separate directory roots.  This method tries to
+// resolve the Framework binaries root from the headers root.  The headers root is what has been traditionally specified
+// as "the SDK root".
+static NSString *resolveFrameworkRoot(NSFileManager *fileManager,
+                                      NSString *const sdkRoot) {
+
+    NSString *platformsString = @"Platforms";
+    NSRange range = [sdkRoot rangeOfString:platformsString];
+    if (range.location != NSNotFound) {
+        NSString *platforms = [sdkRoot substringToIndex:(range.location + platformsString.length)];
+        NSString *root = [platforms stringByAppendingString:@"/iPhoneOS.platform/Developer/Library/CoreSimulator/"
+                                    @"Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot"];
+        if ([fileManager fileExistsAtPath:root]) {
+            return root;
+        }
+    }
+    
+    return sdkRoot;
 }
