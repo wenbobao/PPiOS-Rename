@@ -7,6 +7,7 @@ Change Log
 ### Enhancements:
 
 * Documented workaround for renaming static libraries. (\#16127)
+* Now supports Xcode 9. (\#15931)
 
 ### Changes:
 
