@@ -116,6 +116,8 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> *supportedArches = nil;
         [self addEntryTo:arches forArch:@"armv7" candidates:@"armv7", @"x86_64", @"i386", nil];
         [self addEntryTo:arches forArch:@"armv7s" candidates:@"armv7s", @"x86_64", @"i386", nil];
         [self addEntryTo:arches forArch:@"arm64" candidates:@"arm64", @"x86_64", @"i386", nil];
+        [self addEntryTo:arches forArch:@"i386" candidates:@"i386", @"x86_64", nil];
+        [self addEntryTo:arches forArch:@"x86_64" candidates:@"x86_64", @"i386", nil];
         supportedArches = [NSDictionary dictionaryWithDictionary:arches];
     }
 
