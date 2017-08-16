@@ -520,10 +520,10 @@ The procedure is as follows:
 
     6. Replace the analyze script (`Analyze Binary` run script phase) with the following to exclude the public types from renaming:
 
-						PATH="$PATH:$HOME/Downloads/PPiOS-Rename-v1.1.1"
-						[[ "$SDKROOT" == *iPhoneSimulator*.sdk* ]] && sdk="$SDKROOT"
-						test -z "$sdk" && sdk="$CORRESPONDING_SIMULATOR_SDK_DIR"
-						test -z "$sdk" && sdk="$CORRESPONDING_SIMULATOR_PLATFORM_DIR/Developer/SDKs/iPhoneSimulator${SDK_VERSION}.sdk"
+            PATH="$PATH:$HOME/Downloads/PPiOS-Rename-v1.1.1"
+            [[ "$SDKROOT" == *iPhoneSimulator*.sdk* ]] && sdk="$SDKROOT"
+            test -z "$sdk" && sdk="$CORRESPONDING_SIMULATOR_SDK_DIR"
+            test -z "$sdk" && sdk="$CORRESPONDING_SIMULATOR_PLATFORM_DIR/Developer/SDKs/iPhoneSimulator${SDK_VERSION}.sdk"
             ppios-rename --analyze --sdk-root "$sdk" \
                 $(for each in $(cat ../public-types.list) ; do printf -- '-F !%s ' "$each" ; done) \
                 "$BUILT_PRODUCTS_DIR/$EXECUTABLE_PATH"
