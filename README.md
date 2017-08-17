@@ -47,13 +47,13 @@ Supported Platforms
 
 *PPiOS-Rename* supports apps developed for:
 
-* iOS 9, iOS 10
+* iOS 10, iOS 11
 * iPhone, iPod touch, and iPad
 * ARM 32-bit, ARM 64-bit, and x86 Simulator
 
 Using:
 
-* Xcode 7, Xcode 8
+* Xcode 8, Xcode 9
 * OS X El Capitan, macOS Sierra
 * Objective-C
 
@@ -100,7 +100,7 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 5. <a name="configureAnalyze"></a>Select the duplicated target and rename it to `Build and Analyze <original-target-name>`.
 > Note: If applying these changes to a framework project, you may need to use *underscores* instead of *spaces* in the new target names.
 
-6. (Optional) Duplicating the target duplicates the associated `.plist` file with a default name. Rename the `.plist` file:
+6. <a name="renameInfoPlist"></a>(Optional) Duplicating the target duplicates the associated `.plist` file with a default name. Rename the `.plist` file:
 
     1. Select Build Settings, select _All_ settings, select _Combined_ view, and search for `plist`.
     2. Update the value for `Info.plist File` to be consistent with that of the original target (something like `<project-name>/Build and Analyze <original-target-name>-Info.plist`).
@@ -125,7 +125,7 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 
 12. If Autocreate Schemes is enabled, a new scheme for the duplicated target will have already been created. Rename it to `Build and Analyze <original-scheme-name>`, and close the dialog. Otherwise, create a new scheme for the Build and Analyze target.
 
-13. <a name="configureRenaming"></a>Duplicate the original target again, and rename it to `Apply Renaming to <original-target-name>`.
+13. <a name="configureRenaming"></a>Duplicate the original target again, and rename it to `Apply Renaming to <original-target-name>`. Again, optionally renaming the `Info.plist` file as described in [step 6](#renameInfoPlist).
 > Note: If applying these changes to a framework project, you may need to use *underscores* instead of *spaces* in the new target names.
 
 14. Delete all of the build phases in this target.
