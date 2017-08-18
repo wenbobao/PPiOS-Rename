@@ -187,11 +187,11 @@ Reverse engineered code with PPiOS-Rename:
 
 <img width="350" alt="renamed-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/renamed-sized.png">
 
-Reverse engineered code with both PPiOS-Rename and PPiOS-ControlFlow:
+Reverse engineered code with both *PPiOS-Rename* and *PPiOS-ControlFlow*:
 
 <img width="350" alt="controlflow-sized" src="https://raw.githubusercontent.com/preemptive/PPiOS-Rename/master/images/controlflow-sized.png">
 
-As seen, the code is relatively straightforward to understand with no obfuscation. It's not obvious after applying PPiOS-Rename obfuscation, but the logic could still be inferred by the system framework methods being used. And finally, it's extremely difficult to understand the logic in the last version with PPiOS-ControlFlow obfuscation. The decompiled code was actually significantly longer than shown here.
+As seen, the code is relatively straightforward to understand with no obfuscation. It's not obvious after applying *PPiOS-Rename* obfuscation, but the logic could still be inferred by the system framework methods being used. And finally, it's extremely difficult to understand the logic in the last version with *PPiOS-ControlFlow* obfuscation. The decompiled code was actually significantly longer than shown here.
 
 
 Sample Project
@@ -426,7 +426,7 @@ This will show the symbols from your app. If you do this with an unobfuscated bu
 
 ### Reversing obfuscation in dSYMs
 
-It is possible to reverse the process of obfuscation in the dSYMs by using a utility included with [PPiOS-ControlFlow](https://www.preemptive.com/products/ppios). The de-obfuscated dSYMs let you see the original names in automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
+It is possible to reverse the process of obfuscation in dSYMs by using a utility included with [PPiOS-ControlFlow](https://www.preemptive.com/products/ppios). The de-obfuscated dSYMs let you see the original names in automatic crash reporting tools such as HockeyApp, Crashlytics, Fabric, BugSense/Splunk Mint, or Crittercism. It does this by using the information from a map file (e.g. `symbols.map`) to generate a "reverse dSYM" file that has the non-obfuscated symbol names in it. For example:
 
     /usr/local/share/preemptive/PPiOS/bin/llvm-dsymutil -ppios-map=path/to/symbols_x.y.z.map path/to/input.dSYM -o=path/to/output.dSYM
 
@@ -434,7 +434,11 @@ It is possible to reverse the process of obfuscation in the dSYMs by using a uti
 
 The resulting dSYM file can be uploaded to e.g. HockeyApp.
 
-> DEVELOPER NOTE: The original `--translate-dsym` logic did not work properly with small symbol names nor when the obfuscated names were a different size than the originals. It has been replaced by a feature in PPiOS-ControlFlow.
+dSYMs use a binary format that must be interpreted correctly by `llvm-dsymutil`. Thus the version of `llvm-dsymutil` from *PPiOS-ControlFlow* must match the major version of Xcode used to produce the dSYMs. For example, `llvm-dsymutil` from *PPiOS-ControlFlow* version 2.5 can only be used with Xcode 8, the latest version of Xcode supported by this version of *PPiOS-ControlFlow*.
+
+Until Xcode 9 is supported by *PPiOS-ControlFlow*, dSYM translation is unavailable for apps or libraries built with Xcode 9.
+
+> DEVELOPER NOTE: The original `--translate-dsym` logic did not work properly with small symbol names nor when the obfuscated names were a different size than the originals. It has been replaced by a feature in *PPiOS-ControlFlow*.
 
 ### Analyzing Dynamic Frameworks
 
@@ -461,7 +465,7 @@ Static libraries cannot be directly processed by *PPiOS-Rename*, but it is possi
 
 1. Create a workspace to simplify interactions with the library.
 2. Create an app that uses the static library.
-3. Use the app for the analysis portion of PPiOS-Rename.
+3. Use the app for the analysis portion of *PPiOS-Rename*.
 4. Use the analysis to apply renaming to the static library's sources.
 5. Build the static library.
 
