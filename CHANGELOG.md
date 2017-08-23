@@ -6,8 +6,8 @@ Change Log
 -----------------------
 ### Enhancements:
 
-* Documented workaround for renaming static libraries.
 * Now supports Xcode 9, iOS 11, and the new Swift-based build system.
+* Documented workaround for renaming static libraries.
 
 ### Changes:
 
