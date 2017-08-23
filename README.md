@@ -96,6 +96,7 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 3. Select the icon to open the "Show project and targets list" (near the upper left corner of the main pane).
 
 4. Select the target to obfuscate, right-click, and select Duplicate (Command-D).
+> Note: Signing details for the target may need to be set in order for the build to complete successfully. These can be configured on the General tab.
 
 5. <a name="configureAnalyze"></a>Select the duplicated target and rename it to `Build and Analyze <original-target-name>`.
 > Note: If applying these changes to a framework project, you may need to use *underscores* instead of *spaces* in the new target names.
@@ -104,12 +105,12 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 
     1. Select Build Settings, select _All_ settings, select _Combined_ view, and search for `plist`.
     2. Update the value for `Info.plist File` to be consistent with that of the original target (something like `<project-name>/Build and Analyze <original-target-name>-Info.plist`).
-    3. Move/rename the duplicated `.plist` file to the new name and path.
-    4. Delete the reference to the default `.plist` file from the Project Navigator.
+    3. Move/rename the duplicated `.plist` file to the new name and path (e.g. using Finder).
+    4. Delete the now stale reference to the default `.plist` file from the Project Navigator.
 
 7. Select Build Phases.
 
-8. Add a script phase by selecting the `+` (just above Target Dependencies) and then selecting New Run Script Phase (it should run as the last phase, and will by default).
+8. Add a script phase by selecting the `+` (just above Target Dependencies), and then selecting New Run Script Phase (it should run as the last phase, and will by default).
 
 9. Rename the phase from `Run Script` to `Analyze Binary`.
 
@@ -126,7 +127,9 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 12. If Autocreate Schemes is enabled, a new scheme for the duplicated target will have already been created. Rename it to `Build and Analyze <original-scheme-name>`, and close the dialog. Otherwise, create a new scheme for the Build and Analyze target.
 
 13. <a name="configureRenaming"></a>Duplicate the original target again, and rename it to `Apply Renaming to <original-target-name>`. Again, optionally renaming the `Info.plist` file as described in [step 6](#renameInfoPlist).
-> Note: If applying these changes to a framework project, you may need to use *underscores* instead of *spaces* in the new target names.
+> Notes: Signing details for the target may need to be set in order for the build to complete successfully. These can be configured on the General tab.
+>
+> If applying these changes to a framework project, you may need to use *underscores* instead of *spaces* in the new target names.
 
 14. Delete all of the build phases in this target.
 
@@ -227,10 +230,6 @@ You have tried to run analysis on a static library or framework.
 If you are trying to analyze a static library, please follow the instructions in the [Obfuscating Static Libraries](#obfuscating-static-libraries) section below.
 
 If you are trying to analyze a framework, sometimes it will work if you `--analyze` the `AppName.framework` directory created by Xcode when archiving. Try archiving the framework from Xcode and use the `AppName.framework` folder created inside the project's derived data folder (`~Library/Developer/Xcode/DerivedData/ProjectName-.../...`).
-
-### Input file (...) is neither a Mach-O file nor a fat archive. If you are trying to obfuscate a static library, please review the 'Obfuscating Static Libraries' section of the documentation.
-
-If you are trying to analyze a static library, please follow the instructions in the [Obfuscating Static Libraries](#obfuscating-static-libraries) section below.
 
 ### Undefined symbols / exclusions
 
