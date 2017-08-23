@@ -2,7 +2,7 @@ Change Log
 ==========
 
 
-1.1.1
+1.2.0
 -----------------------
 ### Enhancements:
 
@@ -12,6 +12,7 @@ Change Log
 ### Changes:
 
 * Updated error messages when attempting to directly process static libraries.
+* Xcode 7 and iOS 9 are no longer supported.
 
 
 1.1.0

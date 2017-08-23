@@ -116,7 +116,7 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 
 10. Expand the phase, and where it says `Type a script or ...`, paste the following script, adjusting for the correct path:
 
-        PATH="$PATH:$HOME/Downloads/PPiOS-Rename-v1.1.1"
+        PATH="$PATH:$HOME/Downloads/PPiOS-Rename-v1.2.0"
         [[ "$SDKROOT" == *iPhoneSimulator*.sdk* ]] && sdk="$SDKROOT"
         test -z "$sdk" && sdk="$CORRESPONDING_SIMULATOR_SDK_DIR"
         test -z "$sdk" && sdk="$CORRESPONDING_SIMULATOR_PLATFORM_DIR/Developer/SDKs/iPhoneSimulator${SDK_VERSION}.sdk"
@@ -139,7 +139,7 @@ Once you are comfortable using *PPiOS-Rename*, it can be easier to use if you in
 
 17. Paste the following script, again adjusting for the correct path:
 
-        PATH="$PATH:$HOME/Downloads/PPiOS-Rename-v1.1.1"
+        PATH="$PATH:$HOME/Downloads/PPiOS-Rename-v1.2.0"
         ppios-rename --obfuscate-sources
 
 18. <a name="renameApplyRenamingScheme"></a>Edit the scheme (or add one) for this new target, renaming the scheme to `Apply Renaming to <original-scheme-name>`.
@@ -523,7 +523,7 @@ The procedure is as follows:
 
     6. Replace the analyze script (`Analyze Binary` run script phase) with the following to exclude the public types from renaming:
 
-            PATH="$PATH:$HOME/Downloads/PPiOS-Rename-v1.1.1"
+            PATH="$PATH:$HOME/Downloads/PPiOS-Rename-v1.2.0"
             [[ "$SDKROOT" == *iPhoneSimulator*.sdk* ]] && sdk="$SDKROOT"
             test -z "$sdk" && sdk="$CORRESPONDING_SIMULATOR_SDK_DIR"
             test -z "$sdk" && sdk="$CORRESPONDING_SIMULATOR_PLATFORM_DIR/Developer/SDKs/iPhoneSimulator${SDK_VERSION}.sdk"
@@ -540,7 +540,7 @@ The procedure is as follows:
     1. Follow instructions [13-16 in `Project Setup` above](#configureRenaming), applying them to the static library target.
     2. The call to `ppios-rename` needs to reference the `symbols.map` file from the WrappingApp project, using the `--symbols-map` option. Use this script for the new Run Script phase (adjusting the path as necessary):
 
-            PATH="$PATH:$HOME/Downloads/PPiOS-Rename-v1.1.1"
+            PATH="$PATH:$HOME/Downloads/PPiOS-Rename-v1.2.0"
             ppios-rename --obfuscate-sources --symbols-map ../WrappingApp/symbols.map
 
     3. Follow instruction [18 in `Project Setup` above](#renameApplyRenamingScheme).
