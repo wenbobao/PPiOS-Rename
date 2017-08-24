@@ -12,7 +12,7 @@ Change Log
 ### Changes:
 
 * Updated error messages when attempting to directly process static libraries.
-* Xcode 7 and iOS 9 are no longer supported.
+* Xcode 7 is no longer supported.
 
 
 1.1.0
