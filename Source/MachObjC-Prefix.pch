@@ -1,10 +1,10 @@
-/********************************************
-  Copyright 2016 PreEmptive Solutions, LLC
+/*************************************************
+  Copyright 2016-2017 PreEmptive Solutions, LLC
   See LICENSE.txt for licensing information
-********************************************/
+*************************************************/
 
 //
-// Prefix header for all source files of the 'libMachObjC' target in the 'class-dump' project.
+// Prefix header for all source files of the 'libMachObjC' target in the 'ppios-rename' project.
 //
 
 #ifdef __OBJC__

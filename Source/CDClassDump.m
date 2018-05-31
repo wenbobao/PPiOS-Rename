@@ -1,9 +1,9 @@
 // -*- mode: ObjC -*-
 
-/********************************************
-  Copyright 2016 PreEmptive Solutions, LLC
+/*************************************************
+  Copyright 2016-2017 PreEmptive Solutions, LLC
   See LICENSE.txt for licensing information
-********************************************/
+*************************************************/
   
 //  This file is part of class-dump, a utility for examining the Objective-C segment of Mach-O files.
 //  Copyright (C) 1997-1998, 2000-2001, 2004-2015 Steve Nygard.
@@ -116,6 +116,8 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> *supportedArches = nil;
         [self addEntryTo:arches forArch:@"armv7" candidates:@"armv7", @"x86_64", @"i386", nil];
         [self addEntryTo:arches forArch:@"armv7s" candidates:@"armv7s", @"x86_64", @"i386", nil];
         [self addEntryTo:arches forArch:@"arm64" candidates:@"arm64", @"x86_64", @"i386", nil];
+        [self addEntryTo:arches forArch:@"i386" candidates:@"i386", @"x86_64", nil];
+        [self addEntryTo:arches forArch:@"x86_64" candidates:@"x86_64", @"i386", nil];
         supportedArches = [NSDictionary dictionaryWithDictionary:arches];
     }
 
@@ -188,8 +190,9 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> *supportedArches = nil;
             NSString *failureReason;
             NSString *targetArchName = CDNameForCPUType(_targetArch.cputype, _targetArch.cpusubtype);
             if ([file isKindOfClass:[CDFatFile class]] && [(CDFatFile *)file containsArchitecture:_targetArch]) {
-                failureReason = [NSString stringWithFormat:@"Fat file doesn't contain a valid Mach-O file for the specified architecture (%@).  "
-                                                            "It probably means that class-dump was run on a static library, which is not supported.", targetArchName];
+                failureReason = [NSString stringWithFormat:(@"Fat file does not contain a valid Mach-O binary for the "
+                                                            @"specified architecture (%@). " @STATIC_LIBRARY_MESSAGE),
+                                          targetArchName];
             } else {
                 failureReason = [NSString stringWithFormat:@"File doesn't contain the specified architecture (%@).  Available architectures are %@.", targetArchName, file.architectureNameDescription];
             }
@@ -341,6 +344,7 @@ static NSDictionary<NSValue *, NSArray<NSValue *> *> *supportedArches = nil;
     if (self.sdkRoot != nil) {
         [resultString appendString:@"//\n"];
         [resultString appendFormat:@"// SDK Root: %@\n", self.sdkRoot];
+        [resultString appendFormat:@"// Headers Root: %@\n", self.headersRoot];
         [resultString appendString:@"//\n\n"];
     }
 }
